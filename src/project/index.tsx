@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
-import { Surface, Snackbar, Button, Title } from 'react-native-paper';
+import { Surface, Snackbar, Button, Title, Caption, Subheading } from 'react-native-paper';
 import { TitleSmall, HeaderGroup, Box, BarConnector } from '../../components/util.component'
 
 const { width, height } = Dimensions.get('window');
@@ -18,18 +18,19 @@ export const ProjectScreen = (props) => {
           number='0789'
         />
 
-        <Text>19/3/2019</Text>
+        <Caption>19/3/2019</Caption>
 
         <TitleSmall >Lokasi</TitleSmall>
         <View style={{}}>
-          <Text>Lokasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasi bold</Text>
+          <Subheading>Jl. Sudirman no.12</Subheading>
         </View>
 
 
 
         <TitleSmall>Waktu</TitleSmall>
         <View style={{}}>
-          <Text>Lokasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasi bold</Text>
+          <Subheading>Mulai: 07:08:09 </Subheading>
+          <Subheading>Selesai: 09:08:09 </Subheading>
         </View>
 
         {!confirm && <Button
@@ -41,7 +42,7 @@ export const ProjectScreen = (props) => {
 
       {confirm &&
         <Box connector>
-          <Text>Silahkan Klik menu travel ketika anda sudah mulai menuju lokasi proyek.</Text>
+          <Subheading>Silahkan Klik menu travel ketika anda sudah mulai menuju lokasi proyek.</Subheading>
         </Box>
       }
     </View>
@@ -54,7 +55,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingBottom: SPACE,
-    alignItems: 'center',
   },
   text: {
     textAlign: 'center',

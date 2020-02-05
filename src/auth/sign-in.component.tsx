@@ -3,7 +3,9 @@ import {
   ImageBackground,
   StyleSheet,
   View,
-  Text
+  Text,
+  StatusBar
+
 } from 'react-native';
 
 import { TextInput, Title, Subheading, Button, useTheme, Headline } from 'react-native-paper';
@@ -36,6 +38,7 @@ export const SignInScreen = (props: SignInScreenProps) => {
 
   return (
     <View style={{ flex: 1, padding: 20, }}>
+      <StatusBar barStyle="light-content" />
       <View style={{ paddingVertical: 40 }}>
         <Text style={{ fontWeight: 'bold', fontSize: 45, color: theme.colors.primary }}>Sulzer</Text>
         <Text style={{ fontWeight: 'bold', fontSize: 45, color: theme.colors.primary }}>Indonesia</Text>

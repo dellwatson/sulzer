@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, StatusBar } from 'react-native';
 import { Surface, Snackbar, Title, useTheme } from 'react-native-paper';
 
 const { width, height } = Dimensions.get('window');
@@ -9,6 +9,7 @@ export const HomeScreen = (props) => {
   const theme = useTheme()
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
 
       <TouchableOpacity
         onPress={() => props.navigation.navigate('Project')}
@@ -63,6 +64,7 @@ export const HomeScreen = (props) => {
 
 
       <Snackbar
+        style={{ backgroundColor: theme.colors.primary, }}
         visible={true}
         onDismiss={() => console.log('x')}
         duration={1000}
@@ -73,11 +75,8 @@ export const HomeScreen = (props) => {
           },
         }}
       >
-        Hey there! I'm a Snackbar.
-        Hey there! I'm a Snackbar.
-        Hey there! I'm a Snackbar.
-        Hey there! I'm a Snackbar.
-        </Snackbar>
+        <Text style={{ color: 'white' }}>Anda telah ke sign in di project baru, Silahkan menuju ke menu project anda</Text>
+      </Snackbar>
     </View>
   );
 }
