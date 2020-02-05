@@ -16,26 +16,26 @@ const dummy = [
 
 ]
 
-
 export const TravelScreen = (props) => (
   <View style={styles.container}>
     {dummy.map((item, index) => (
       <TouchableOpacity
         key={index}
+        style={{
+          flexDirection: 'row',
+          marginHorizontal: 40, marginVertical: 5,
+          backgroundColor: 'white',
+          elevation: 4,
+          borderRadius: 10,
+          padding: 10,
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
         onPress={() => props.navigation.push('DetailTravel')}
       >
-        <Surface style={{
-          flexDirection: 'row',
-          // backgroundColor:'white',
-          marginHorizontal: 40, marginVertical: 5,
-          padding: 10, elevation: 4, borderRadius: 10,
-          justifyContent: 'center', alignItems: 'center'
-        }}>
-          <TitleSmall>{item.title}</TitleSmall>
-        </Surface>
+        <TitleSmall>{item.title}</TitleSmall>
       </TouchableOpacity>
-    )
-    )}
+    ))}
   </View>
 );
 
@@ -51,10 +51,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: SPACE,
-    justifyContent: 'center',
-    // alignContent: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap'
   },
   text: {
     textAlign: 'center',

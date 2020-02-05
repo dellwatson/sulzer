@@ -7,15 +7,17 @@ const { width, height } = Dimensions.get('window');
 const SPACE = 20
 
 export const AvatarText = props => (
-  <View style={{}}>
+  <View style={{ paddingRight: 10 }}>
     <Avatar.Image
-      size={40}
+      size={50}
       source={{
         uri:
           'https://pbs.twimg.com/profile_images/952545910990495744/b59hSXUd_400x400.jpg',
       }}
     />
-    <TitleSmall>Robert</TitleSmall>
+    <View style={{ borderBottomWidth: 2, marginRight: 10, marginTop: 5 }}>
+      <Text style={{ fontWeight: 'bold' }}>Robert</Text>
+    </View>
     <Text>Koordinator</Text>
   </View>
 )
@@ -56,7 +58,7 @@ export const Box = props => (
 
 export const BarConnector = props => (
   <View style={{
-    position: 'absolute', backgroundColor: 'red', height: 80, width: 5, top: -30,
+    position: 'absolute', backgroundColor: 'grey', height: 80, width: 5, top: -30,
     // zIndex: 5,
     marginHorizontal: 60,
     // marginBottom:

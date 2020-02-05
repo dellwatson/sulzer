@@ -1,27 +1,27 @@
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions} from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { Surface, Snackbar, Button, Title } from 'react-native-paper';
 import { TitleSmall, HeaderGroup, Box, BarConnector } from '../../components/util.component'
 
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
 
-export const ProjectScreen = (props) => (
-  <View style={styles.container}>
+export const ProjectScreen = (props) => {
+  const [confirm, setConfirm] = useState(null)
 
-    
-    <Box>
-      {/* HeaderSurface */}
-      <HeaderGroup
-        title='New Project'
-        number='0789'
-      />
-        
+  return (
+    <View style={styles.container}>
+      <Box >
+        <HeaderGroup
+          withStatus
+          title='New Project'
+          number='0789'
+        />
+
         <Text>19/3/2019</Text>
 
-      {/* TextGroup */}
         <TitleSmall >Lokasi</TitleSmall>
-        <View style={{ }}>
+        <View style={{}}>
           <Text>Lokasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasi bold</Text>
         </View>
 
@@ -32,28 +32,28 @@ export const ProjectScreen = (props) => (
           <Text>Lokasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasi bold</Text>
         </View>
 
-      <Button
-        style={{marginTop: 20}}  
-        // style={{width: 100, borderRadius:}}
-          //ganti jadi auth true ?
-          mode="contained" onPress={() => console.log('as') }>
-          Confirm
-        </Button>
-    </Box>
+        {!confirm && <Button
+          style={{ marginTop: 20 }}
+          mode="contained" onPress={() => setConfirm(true)}>
+          <Text style={{ color: 'white' }}>Confirm</Text>
+        </Button>}
+      </Box>
 
-    <Box connector>
-      <Text>Silahkan Klik menu travel ketika anda sudah mulai menuju lokasi proyek.</Text>
-    </Box>
-
-  </View>
-);
+      {confirm &&
+        <Box connector>
+          <Text>Silahkan Klik menu travel ketika anda sudah mulai menuju lokasi proyek.</Text>
+        </Box>
+      }
+    </View>
+  );
+}
 
 
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingBottom:SPACE,
+    paddingBottom: SPACE,
     alignItems: 'center',
   },
   text: {

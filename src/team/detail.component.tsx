@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
-import { Surface, Snackbar, Button, Title, TextInput } from 'react-native-paper';
+import { Surface, Snackbar, Button, Title, TextInput, Subheading, Caption } from 'react-native-paper';
 import { TitleSmall, HeaderGroup, Box, BarConnector, AvatarText, } from '../../components/util.component'
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -8,13 +8,15 @@ const { width, height } = Dimensions.get('window');
 const SPACE = 20
 
 export const DetailComponent = (props) => (
+
     <ScrollView style={styles.container}>
+
         <Box>
-            <View style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: 'row', marginBottom: 20 }}>
                 <AvatarText />
 
                 <View>
-                    <Text>NIK : 012321312</Text>
+                    <Subheading>NIK : 012321312</Subheading>
                     <HeaderGroup
                         title='New Project'
                         number='0789'
@@ -22,26 +24,27 @@ export const DetailComponent = (props) => (
                 </View>
             </View>
 
+            {/* status approved?  */}
 
-            <TitleSmall >Departure</TitleSmall>
-            <Text>232/1232/3232/111</Text>
+            <Title >Departure</Title>
+            <Caption>232/1232/3232/111</Caption>
 
-            <TitleSmall >Lokasi Keberangkatan</TitleSmall>
-            <Text>Bandara bnadung</Text>
+            <Title >Lokasi Keberangkatan</Title>
+            <Caption>Bandara bnadung</Caption>
 
-            <TitleSmall >Arrival</TitleSmall>
-            <Text>Bandara bnadung</Text>
+            <Title >Arrival</Title>
+            <Caption>Bandara bnadung</Caption>
 
-            <TitleSmall >Lokasi Sampai</TitleSmall>
-            <Text>Bandara Jakarta</Text>
+            <Title >Lokasi Sampai</Title>
+            <Caption>Bandara Jakarta</Caption>
 
-            <TitleSmall >Catatan</TitleSmall>
-            <Text>kendaraan macet</Text>
+            <Title >Catatan</Title>
+            <Caption>kendaraan macet</Caption>
 
             <View style={{}}>
-                <TitleSmall>
+                <Title>
                     Deskripsi
-                    </TitleSmall>
+                    </Title>
                 <TextInput
                     style={{ minHeight: 40 }}
                     mode='outlined'
@@ -49,27 +52,27 @@ export const DetailComponent = (props) => (
             </View>
 
 
-            <View style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: 'row', marginTop: 30, justifyContent: 'space-evenly' }}>
                 <Button
-                    style={{ marginTop: 20 }}
+                    style={{ marginRight: 5 }}
+                    mode="text" onPress={() => console.log('as')}>
+                    <Text style={{ color: '#5FA1FC' }}>Edit</Text>
+                </Button>
+                <Button
                     // style={{width: 100, borderRadius:}}
                     //ganti jadi auth true ?
                     mode="contained" onPress={() => console.log('as')}>
-                    Edit
-            </Button>
-                <Button
-                    style={{ marginTop: 20 }}
-                    // style={{width: 100, borderRadius:}}
-                    //ganti jadi auth true ?
-                    mode="contained" onPress={() => console.log('as')}>
-                    Confirm
-            </Button>
+                    <Text style={{ color: 'white' }}>Approve</Text>
+                </Button>
             </View>
         </Box>
 
     </ScrollView>
 );
 
+// departure
+
+// attendance
 
 
 const styles = StyleSheet.create({

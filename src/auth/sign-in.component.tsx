@@ -3,9 +3,10 @@ import {
   ImageBackground,
   StyleSheet,
   View,
+  Text
 } from 'react-native';
 
-import { TextInput, Title, Subheading, Button } from 'react-native-paper';
+import { TextInput, Title, Subheading, Button, useTheme, Headline } from 'react-native-paper';
 
 import { SignInScreenProps } from '../../navigation/auth.navigator';
 import { AppRoute } from '../../navigation/app-routes';
@@ -16,6 +17,8 @@ export const SignInScreen = (props: SignInScreenProps) => {
   const [shouldRemember, setShouldRemember] = React.useState<boolean>(false);
   const [passwordVisible, setPasswordVisible] = React.useState<boolean>(false);
   const [username, setUsername] = React.useState<string>(null);
+
+  const theme = useTheme()
 
   // const onFormSubmit = (values: SignInData): void => {
   //   navigateHome();
@@ -32,30 +35,34 @@ export const SignInScreen = (props: SignInScreenProps) => {
 
 
   return (
-    <View style={{ flex: 1, padding: 20, justifyContent:'center' }}>
+    <View style={{ flex: 1, padding: 20, }}>
+      <View style={{ paddingVertical: 40 }}>
+        <Text style={{ fontWeight: 'bold', fontSize: 45, color: theme.colors.primary }}>Sulzer</Text>
+        <Text style={{ fontWeight: 'bold', fontSize: 45, color: theme.colors.primary }}>Indonesia</Text>
+        <Headline style={{ color: theme.colors.primary }}>Attendance</Headline>
+      </View>
 
-      <Title style={{fontWeight:'500', fontSize:30}}>Sulzer</Title>
-      <Title style={{fontWeight:'500', fontSize:30}}>Indonesia</Title>
-      <Subheading>Attendance</Subheading>
-
-        <TextInput
+      <TextInput
         label='NIK'
+        mode='outlined'
         value={username}
         onChangeText={text => setUsername(text)}
       />
-      
-        <TextInput
+
+      <TextInput
         label='Password'
+        mode='outlined'
         value={username}
         onChangeText={text => setUsername(text)}
+        style={{ marginVertical: 10 }}
       />
-      <Button 
+      <Button
+        style={{ marginTop: 20, padding: 5 }}
         //ganti jadi auth true ?
         mode="contained" onPress={() => navigateHome()}>
-
-        Login
+        <Text style={{ color: 'white' }}>Login</Text>
       </Button>
-  
+
     </View>
   );
 };

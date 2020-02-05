@@ -1,109 +1,106 @@
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions} from 'react-native';
-import { Surface, Snackbar, Button, Title, TextInput } from 'react-native-paper';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { Surface, Snackbar, Button, Title, TextInput, Caption, Subheading } from 'react-native-paper';
 import { TitleSmall, HeaderGroup, Box, BarConnector, } from '../../components/util.component'
 import { ScrollView } from 'react-native-gesture-handler';
 
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
 
-export const DetailComponent = (props) => (
-  <ScrollView style={styles.container}>
-    <Box>
-      {/* HeaderSurface */}
-      <HeaderGroup
-        title='New Project'
-        number='0789'
-      />
-        
-        <Text>19/3/2019</Text>
+export const DetailComponent = (props) => {
+  const [confirm, setConfirm] = useState(null)
+  return (
+    <ScrollView style={styles.container}>
+      <Box>
+        <HeaderGroup
+          withStatus
+          title='Attendance'
+          number='0789'
+        />
 
-      {/* TextGroup */}
-        <TitleSmall >Lokasi</TitleSmall>
-        <View style={{ }}>
-          <Text>Lokasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasiasi bold</Text>
+        <Caption>19/3/2019</Caption>
+
+        <TitleSmall >Hari 1</TitleSmall>
+        <Text style={{ color: 'grey' }}>Masuk</Text>
+        <TextInput
+          mode='outlined'
+          label='07:20:20'
+        />
+
+        {!confirm && <Button
+          style={{ marginTop: 20 }}
+          mode="contained" onPress={() => setConfirm(true)}>
+          <Text style={{ color: 'white' }}>Confirm</Text>
+        </Button>}
+      </Box>
+
+      {confirm && <Box connector>
+        <Caption>19/3/2019</Caption>
+
+        <View style={{ flexDirection: 'row', }}>
+          <View style={{ marginRight: 15, flex: 1 }}>
+            <TitleSmall>
+              Pulang
+            </TitleSmall>
+            <TextInput
+              mode='outlined'
+              label='07:20:20'
+            />
+          </View>
+
+          <View style={{ flex: 1 }}>
+            <TitleSmall>
+              Total Jam Kerja
+            </TitleSmall>
+            <TextInput
+              mode='outlined'
+              label='9 Jam'
+            />
+          </View>
         </View>
 
+        <View style={{}}>
+          <TitleSmall>
+            Jumlah Estimasi Waktu
+                </TitleSmall>
+          <TextInput
+            mode='outlined'
+            label='9 Jam'
+          // value={this.state.text}
+          // onChangeText={text => this.setState({ text })}
+          />
+        </View>
 
-      <Button
-        style={{marginTop: 20}}  
-        // style={{width: 100, borderRadius:}}
-          //ganti jadi auth true ?
-          mode="contained" onPress={() => console.log('as') }>
-          Confirm
+        <Subheading style={{ color: 'green' }}>Waktu Lembur 0 Jam</Subheading>
+
+        <View style={{}}>
+          <TitleSmall>
+            Deskripsi
+          </TitleSmall>
+          <TextInput
+            style={{ minHeight: 70 }}
+            mode='outlined'
+          />
+        </View>
+
+        <Button
+          style={{ marginTop: 20 }}
+          mode="contained" onPress={() => console.log('as')}>
+          <Text style={{ color: 'white' }}>
+            Submit
+          </Text>
         </Button>
-    </Box>
-
-    <Box connector>
-        <Text>19/3/2019</Text>
-            <View style={{ flexDirection: 'row', }}>
-                <View style={{}}>
-                    <TitleSmall>
-                        Pulang
-                    </TitleSmall>
-                    <TextInput
-                        mode='outlined'
-                        label='07:20:20'
-                        // value={this.state.text}
-                        // onChangeText={text => this.setState({ text })}
-                    />
-                </View>
-              
-                <View style={{}}>
-                    <TitleSmall>
-                        Total Jam Kerja
-                    </TitleSmall>
-                    <TextInput
-                        mode='outlined'
-                        label='9 Jam'
-                        // value={this.state.text}
-                        // onChangeText={text => this.setState({ text })}
-                    />
-                </View>
-            </View>
-            
-            <View style={{}}>
-                <TitleSmall>
-                    Jumlah Estimasi Waktu
-                </TitleSmall>
-                <TextInput
-                    mode='outlined'
-                    label='9 Jam'
-                    // value={this.state.text}
-                    // onChangeText={text => this.setState({ text })}
-                />
-            </View>
-
-            <Text>Waktu Lembur 0 Jam</Text>
-
-            <View style={{}}>
-                <TitleSmall>
-                    Deskripsi
-                </TitleSmall>
-                <TextInput
-                    style={{height: 60}}
-                    mode='outlined'
-                    // label='9 Jam'
-                    // value={this.state.text}
-                    // onChangeText={text => this.setState({ text })}
-                />
-            </View>
-
-            <Button
-                style={{marginTop: 20}}  
-                mode="contained" onPress={() => console.log('as') }>
-                Submit
-            </Button>
-    </Box>
-  </ScrollView>
-);
+      </Box>}
+    </ScrollView>
+  );
+}
 
 
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingBottom:SPACE,
+    paddingBottom: SPACE,
     // alignItems: 'center',
   },
   text: {
