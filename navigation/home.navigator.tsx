@@ -11,6 +11,7 @@ import { AttendNavigator } from './attend-navigator';
 import { TravelNavigator } from './travel-navigator';
 import { ProjectNavigator } from './project-navigator';
 import { TeamNavigator } from './team-navigator';
+import { TransNavigator } from './trans-navigator';
 import { connect } from 'react-redux'
 import { CustomHeader } from '../components/util.component';
 
@@ -55,7 +56,7 @@ export const HomeNavigator = () => {
 
       <Stack.Screen name={AppRoute.PROFILE} component={ProfileScreen} />
       <Stack.Screen name={AppRoute.PROJECT} component={ProjectNavigator} />
-      <Stack.Screen name={AppRoute.TRANSACTION} component={TransactionScreen} />
+      <Stack.Screen name={AppRoute.TRANSACTION} component={TransNavigator} />
       <Stack.Screen name={AppRoute.TRAVEL} component={TravelNavigator} />
       <Stack.Screen name={AppRoute.ATTENDANCE} component={AttendNavigator} />
     </ParentStack>

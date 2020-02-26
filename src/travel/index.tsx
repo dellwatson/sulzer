@@ -40,7 +40,7 @@ const Screen = (props) => {
             alignItems: 'center',
             justifyContent: 'center'
           }}
-          onPress={() => props.navigation.push('DetailTravel')}
+          onPress={() => props.navigation.push('DetailTravel', { item })}
         >
           <TitleSmall>{item.travel_type === 'leave' ? 'Departure' : 'Return'}</TitleSmall>
         </TouchableOpacity>
@@ -58,9 +58,45 @@ const Screen = (props) => {
             alignItems: 'center',
             justifyContent: 'center'
           }}
-          onPress={() => props.navigation.push('DetailTravel')}
+          onPress={() => props.navigation.push('DetailTravel', {
+            item: {
+              "attendance_type": "travel",
+              "travel_type": "leave",
+              // "checkin_time": null,
+              "checkin_latitude": null,
+              "checkin_longitude": null,
+              "checkin_location": null,
+            }
+          })}
         >
           <TitleSmall>Departure</TitleSmall>
+        </TouchableOpacity>
+      }
+
+      {props.travel.isStatus && props.travel.list.length === 1 && props.travel.list[0].checkout_time &&
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            marginHorizontal: 40, marginVertical: 5,
+            backgroundColor: 'white',
+            elevation: 4,
+            borderRadius: 10,
+            padding: 10,
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onPress={() => props.navigation.push('DetailTravel', {
+            item: {
+              "attendance_type": "travel",
+              "travel_type": "returning",
+              // "checkin_time": null,
+              "checkin_latitude": null,
+              "checkin_longitude": null,
+              "checkin_location": null,
+            }
+          })}
+        >
+          <TitleSmall>Returning</TitleSmall>
         </TouchableOpacity>
       }
 

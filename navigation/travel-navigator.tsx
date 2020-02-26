@@ -11,15 +11,15 @@ const Stack = createStackNavigator();
 export const TravelNavigator = (): React.ReactElement => (
     <ParentStack sTitle='Travel' sSub='2 Departure'>
         <Stack.Screen name={AppRoute.TRAVEL} component={TravelScreen} />
-        <Stack.Screen name={AppRoute.DETAIL_TRAVEL} component={DetailNavigator} />
-    </ParentStack>
-);
-
-export const DetailNavigator = (): React.ReactElement => (
-    <ParentStack sTitle='Travel' sSub='2 Departure'>
         <Stack.Screen name={AppRoute.DETAIL_TRAVEL} component={DetailComponent} />
     </ParentStack>
 );
+
+// export const DetailNavigator = (): React.ReactElement => (
+//     <ParentStack sTitle='Travel' sSub='2 Departure'>
+//         <Stack.Screen name={AppRoute.DETAIL_TRAVEL} component={DetailComponent} />
+//     </ParentStack>
+// );
 
 
 // const mapStateToProps = state => {
