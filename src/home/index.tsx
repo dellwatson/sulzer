@@ -1,18 +1,33 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, StatusBar } from 'react-native';
 import { Surface, Snackbar, Title, useTheme } from 'react-native-paper';
+import { connect } from 'react-redux'
+import { getSession } from './action'
+
 
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
 
-export const HomeScreen = (props) => {
+const HomeScreen = (props) => {
   const theme = useTheme()
+
+  useEffect(() => {
+    props.getSession()
+
+  }, [])
+
+  const { session } = props
+
+  /**
+   * WAIT ISSTATUS all option
+   */
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
 
       <TouchableOpacity
-        onPress={() => props.navigation.navigate('Project')}
+        onPress={() => props.navigation.navigate('Project', { 'test': 'asd' })}
         style={styles.surface}
       >
         <Image
@@ -47,17 +62,48 @@ export const HomeScreen = (props) => {
       </TouchableOpacity>
 
 
-      {/* quirky */}
-      <TouchableOpacity
-        onPress={() => props.navigation.navigate('Team')}
-        style={styles.surface}
-      >
-        <Image
-          resizeMode='contain'
-          style={{ width: WIDTH_IMAGE, height: WIDTH_IMAGE }}
-          source={require('../../assets/team_ic.png')} />
-        <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Team</Title>
-      </TouchableOpacity>
+      {!session.isStatus &&
+        <TouchableOpacity
+          // onPress={() => props.navigation.navigate('Travel')}
+          style={styles.surface}
+        >
+          <Image
+            resizeMode='contain'
+            style={{ width: WIDTH_IMAGE, height: WIDTH_IMAGE }}
+            source={require('../../assets/team_ic.png')} />
+          <Title style={{ color: 'white', marginTop: 5 }}>Loading</Title>
+        </TouchableOpacity>
+      }
+
+
+      {session.isStatus && session.role === 'coordinator' &&
+        <TouchableOpacity
+          onPress={() => props.navigation.navigate('TestTeam')}
+          style={styles.surface}
+        >
+          <Image
+            resizeMode='contain'
+            style={{ width: WIDTH_IMAGE, height: WIDTH_IMAGE }}
+            source={require('../../assets/team_ic.png')} />
+          <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Team</Title>
+        </TouchableOpacity>
+      }
+
+      {session.isStatus && session.role !== 'coordinator' &&
+
+        <TouchableOpacity
+          onPress={() => props.navigation.navigate('Transaction')}
+          style={styles.surface}
+        >
+          <Image
+            resizeMode='contain'
+            style={{ width: WIDTH_IMAGE, height: WIDTH_IMAGE }}
+            source={require('../../assets/team_ic.png')} />
+          <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Transaction</Title>
+        </TouchableOpacity>
+      }
+
+
 
 
 
@@ -80,6 +126,16 @@ export const HomeScreen = (props) => {
     </View>
   );
 }
+
+const mapStateToProps = state => {
+  return {
+    session: state.home.DATA
+  }
+}
+
+export default connect(mapStateToProps, { getSession })(HomeScreen)
+
+
 
 const WIDTH_BOX = width / 2 - (SPACE * 2);
 const WIDTH_IMAGE = WIDTH_BOX - (SPACE * 4)

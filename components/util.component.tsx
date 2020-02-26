@@ -1,24 +1,40 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
-import { Surface, Snackbar, Button, Title, Avatar } from 'react-native-paper';
-
+import { Surface, Snackbar, Button, Title, Avatar, Appbar, useTheme, Subheading } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { connect } from 'react-redux'
 
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
 
-export const AvatarText = props => (
+export const AvatarText = ({ name, job, imgSource }) => (
   <View style={{ paddingRight: 10 }}>
-    <Avatar.Image
-      size={50}
-      source={{
-        uri:
-          'https://pbs.twimg.com/profile_images/952545910990495744/b59hSXUd_400x400.jpg',
-      }}
-    />
+
+    {imgSource &&
+      <Avatar.Image
+        size={50}
+        source={{
+          uri:
+            imgSource,
+        }}
+      />
+    }
+
+    {!imgSource &&
+      <Avatar.Text
+        size={50}
+        label='XD'
+        color='white'
+        style={{
+          backgroundColor: '#5FA1FC'
+        }}
+      />
+    }
+
     <View style={{ borderBottomWidth: 2, marginRight: 10, marginTop: 5 }}>
-      <Text style={{ fontWeight: 'bold' }}>Robert</Text>
+      <Text style={{ fontWeight: 'bold' }}>{name}</Text>
     </View>
-    <Text>Koordinator</Text>
+    <Text>{job}</Text>
   </View>
 )
 
@@ -45,7 +61,7 @@ export const Box = props => (
       borderRadius: 5,
       padding: 20,
       backgroundColor: 'white',
-      // zIndex:10,
+      zIndex: 10,
       // justifyContent: 'flex-start',
       elevation: 2,
       marginHorizontal: 40,
@@ -59,8 +75,81 @@ export const Box = props => (
 export const BarConnector = props => (
   <View style={{
     position: 'absolute', backgroundColor: 'grey', height: 80, width: 5, top: -30,
-    // zIndex: 5,
+    zIndex: 5,
     marginHorizontal: 60,
     // marginBottom:
   }} />
 )
+
+
+// pake memo
+
+const HEADER = ({ backButton = true, sTitle, sSub, screenRoute, session }) => {
+  const theme = useTheme();
+  const navigation = useNavigation();
+
+  const TITLE = screenRoute === 'Home' ? (session.isStatus && session.name) : sTitle
+
+  return (
+    <Appbar.Header
+      theme={{ colors: { primary: theme.colors.surface } }}
+      style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: backButton ? 0 : 20, paddingRight: 20 }}
+    >
+      <View style={{ flexDirection: 'row', }}>
+        {backButton &&
+          <Appbar.BackAction
+            // style={{ borderWidth: 1 }}
+            onPress={() => navigation.goBack()}
+            color='white'
+          />}
+
+        <View style={{ justifyContent: 'center' }}>
+          {sSub && <Subheading style={{ color: 'white' }}>{sSub}</Subheading>}
+          <Title style={{ fontSize: 26, bottom: sSub ? 5 : 0, color: 'white' }}>{TITLE}</Title>
+        </View>
+      </View>
+
+
+
+      <TouchableOpacity onPress={() => navigation.navigate('Profile')} >
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ marginHorizontal: 5, borderBottomWidth: 1, borderColor: 'white' }}>
+            <Text style={{ color: 'white' }}>{session.isStatus && session.role}</Text>
+            {/* change */}
+          </View>
+
+
+          {session.isStatus && !session.image &&
+            <Avatar.Text
+              size={40}
+              label='CS'
+              color='white'
+              style={{
+                backgroundColor: 'grey'
+              }}
+            />
+          }
+
+          {session.isStatus && session.image &&
+            <Avatar.Image
+              size={40}
+              source={{
+                uri: session.image,
+              }}
+            />
+          }
+        </View>
+      </TouchableOpacity>
+    </Appbar.Header>
+  )
+}
+
+const mapStateToProps = state => {
+  return {
+    session: state.home.DATA
+  }
+}
+
+
+export const CustomHeader = connect(mapStateToProps)(HEADER)
+

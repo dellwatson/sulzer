@@ -2,35 +2,37 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { Surface, Snackbar, Button, Title, Caption, Subheading } from 'react-native-paper';
 import { TitleSmall, HeaderGroup, Box, BarConnector } from '../../components/util.component'
+import { connect } from 'react-redux'
 
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
 
-export const ProjectScreen = (props) => {
+const Screen = (props) => {
   const [confirm, setConfirm] = useState(null)
 
   return (
     <View style={styles.container}>
+
       <Box >
         <HeaderGroup
           withStatus
-          title='New Project'
-          number='0789'
+          title={props.session.active_project.title ? props.session.active_project.title : 'Title'}
+          number={props.session.active_project.project_code}
         />
 
-        <Caption>19/3/2019</Caption>
+        <Caption>{props.session.active_project.timescreate}</Caption>
 
-        <TitleSmall >Lokasi</TitleSmall>
+        {/* <TitleSmall >Lokasi</TitleSmall>
         <View style={{}}>
           <Subheading>Jl. Sudirman no.12</Subheading>
-        </View>
+        </View> */}
 
 
 
         <TitleSmall>Waktu</TitleSmall>
         <View style={{}}>
-          <Subheading>Mulai: 07:08:09 </Subheading>
-          <Subheading>Selesai: 09:08:09 </Subheading>
+          <Subheading>Mulai: {props.session.active_project.timescreate} </Subheading>
+          <Subheading>Selesai: {props.session.active_project.due_date ? props.session.active_project.due_date : '-'} </Subheading>
         </View>
 
         {!confirm && <Button
@@ -49,6 +51,13 @@ export const ProjectScreen = (props) => {
   );
 }
 
+const mapStateToProps = state => {
+  return {
+    session: state.home.DATA
+  }
+}
+
+export const ProjectScreen = connect(mapStateToProps)(Screen)
 
 
 const styles = StyleSheet.create({

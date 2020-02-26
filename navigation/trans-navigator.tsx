@@ -4,7 +4,7 @@ import { createStackNavigator, StackNavigationProp } from '@react-navigation/sta
 import { AppRoute } from './app-routes';
 import { DetailComponent } from '../src/travel/detail.component';
 import { TravelScreen } from '../src/travel';
-import { ParentStack } from './home.navigator';
+import ParentStack from './home.navigator';
 
 const Stack = createStackNavigator();
 
@@ -22,3 +22,12 @@ export const DetailNavigator = (): React.ReactElement => (
 );
 
 
+
+// const mapStateToProps = state => {
+//     return {
+//         session: state.home.DATA
+//     }
+// }
+
+
+// export const ProjectNavigator = connect(mapStateToProps)(Navigator)

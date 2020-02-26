@@ -14,6 +14,7 @@ export enum AppRoute {
   // MAIN_ATTEND = "MainAttendance",
   DETAIL_ATTEND = "DetailAttendance",
 
+  TEST_TEAM = "TestTeam",
   TEAM = "Team",
   STATUS_TEAM = "StatusTeam",
   DETAIL_TEAM = "DetailTeam",

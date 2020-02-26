@@ -1,16 +1,54 @@
 {
-  "extends": ["@callstack",
-    "plugin:prettier/recommended",
-    "prettier"],
-    "plugins": [
+  "env": {
+      "browser": true,
+      "es6": true
+  },
+  "extends": [
+      "airbnb",
+      "plugin:prettier/recommended",
+      "prettier"
+  ],
+  "globals": {
+      "Atomics": "readonly",
+      "SharedArrayBuffer": "readonly"
+  },
+  "parser": "babel-eslint",
+  "parserOptions": {
+      "ecmaFeatures": {
+          "jsx": true,
+          "modules": true,
+          "experimentalObjectRestSpread": true
+      },
+      "ecmaVersion": 2018,
+      "sourceType": "module"
+  },
+  "plugins": [
       "react",
       "prettier",
       "react-native", 
       "eslint-plugin-react-hooks"
   ],
   "rules": {
-    "react-native/no-color-literals": 0,
-    "react-native/no-inline-styles": 0,
-    "react-native/no-raw-text": 0
+      "prettier/prettier": "off",
+      "no-unused-vars":"off",
+      "react/jsx-curly-spacing": 0,
+      "object-curly-newline": 0,
+      "quotes": 0,
+      "no-empty-pattern":0,
+      "react/jsx-filename-extension":0,
+      "react/jsx-curly-newline":0,
+      "react/destructuring-assignment":0,
+      "global-require":0,
+      "no-use-before-define": 0,
+      "no-else-return": 0,
+      "import/no-unresolved": 0,
+      "react/prop-types":0,
+      "react/jsx-indent":0,
+      "no-undef": 0,
+      "react/jsx-props-no-spreading":0,
+      "react/jsx-wrap-multilines": 0,
+      "react/jsx-indent-props":0,
+      "no-underscore-dangle":0,
+      "react/jsx-one-expression-per-line":0
   }
 }

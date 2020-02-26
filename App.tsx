@@ -2,8 +2,12 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
 import { NavigationNativeContainer } from '@react-navigation/native';
-import { AppNavigator } from './navigation/app.navigator';
+import AppNavigator from './navigation/app.navigator';
 import { AppRoute } from './navigation/app-routes';
+import { Provider as ReduxProvider } from 'react-redux';
+import store from './store'
+import { enableScreens } from 'react-native-screens';
+enableScreens();
 
 const theme = {
   ...DefaultTheme,
@@ -21,14 +25,16 @@ const theme = {
 };
 
 export default function App() {
-  const isAuthorized: boolean = false;
+  const isAuthorized: boolean = true;
 
   return (
-    <PaperProvider {...{ theme }}>
-      <NavigationNativeContainer>
-        <AppNavigator initialRouteName={isAuthorized ? AppRoute.HOME : AppRoute.AUTH} />
-      </NavigationNativeContainer>
-    </PaperProvider>
+    <ReduxProvider store={store}>
+      <PaperProvider {...{ theme }}>
+        <NavigationNativeContainer>
+          <AppNavigator initialRouteName={isAuthorized ? AppRoute.HOME : AppRoute.AUTH} />
+        </NavigationNativeContainer>
+      </PaperProvider>
+    </ReduxProvider>
   );
 }
 

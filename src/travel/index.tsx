@@ -8,10 +8,10 @@ const SPACE = 20
 
 const dummy = [
   {
-    title: 'Keberangkatan Project',
+    title: 'Departure Project',
   },
   {
-    title: 'Kepulangan Project',
+    title: 'Return Project',
   },
 
 ]

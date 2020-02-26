@@ -22,7 +22,7 @@ export const DetailComponent = (props) => (
 
         <TravelGroup
             connector
-            lokasi='Keberangkatan'
+            lokasi='Sampai'
         />
 
     </ScrollView>
@@ -54,7 +54,7 @@ const TravelGroup = props => (
             </View>
         </View>
 
-        <TitleSmall >Waktu Keberangkatan</TitleSmall>
+        <TitleSmall >Waktu Sampai</TitleSmall>
         <TextInput
             mode='outlined'
             label='07:20:20'

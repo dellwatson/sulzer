@@ -4,12 +4,15 @@ import { Surface, Snackbar, Appbar, Avatar, Title, Caption, Button, useTheme, Su
 import { TitleSmall, HeaderGroup, Box, BarConnector, StatusBall, AvatarText } from '../../components/util.component'
 import { LinearGradient } from 'expo-linear-gradient';
 import { Header } from '@react-navigation/stack';
+import { connect } from 'react-redux'
+
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
 
-export const ProfileScreen = (props) => {
+const Screen = (props) => {
   const theme = useTheme();
 
+  const { session } = props
   return (
     <LinearGradient
       colors={['#5FA1FC', '#EDEFF1']}
@@ -44,12 +47,12 @@ export const ProfileScreen = (props) => {
         <View style={{ flex: 1, bottom: 50, alignItems: 'center' }}>
           <View style={{ alignItems: 'center' }}>
 
-            <Title> Robert </Title>
+            <Title>{session.name}</Title>
             <View style={{ borderColor: 'red', borderTopWidth: 1, padding: 2, alignItems: 'center', justifyContent: 'center' }}>
-              <Caption>Staff</Caption>
+              <Caption>{session.role}</Caption>
             </View>
 
-            <Subheading>NIK: 022132132211</Subheading>
+            <Subheading>NIK: API-REQUIRED</Subheading>
           </View>
         </View>
 
@@ -65,6 +68,17 @@ export const ProfileScreen = (props) => {
     </LinearGradient>
   );
 }
+
+
+const mapStateToProps = state => {
+  return {
+    session: state.home.DATA
+  }
+}
+
+export const ProfileScreen = connect(mapStateToProps, {
+  //logout
+})(Screen)
 
 const styles = StyleSheet.create({
   surface: {
