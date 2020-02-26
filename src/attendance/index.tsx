@@ -16,7 +16,6 @@ const Screen = (props) => {
 
     const { project_code } = props.session.active_project
 
-    console.log(props.attendance)
 
     return (
         <View style={styles.container}>

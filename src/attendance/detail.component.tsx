@@ -4,7 +4,7 @@ import { Surface, Snackbar, Button, Title, TextInput, Caption, Subheading } from
 import { TitleSmall, HeaderGroup, Box, BarConnector, CustomHeader, } from '../../components/util.component'
 import { ScrollView } from 'react-native-gesture-handler';
 import { connect } from 'react-redux'
-import { triggerAttendance } from './action'
+import { triggerAttendance, clearTrigger, getAttendance } from './action'
 // import {}
 
 const { width, height } = Dimensions.get('window');
@@ -13,7 +13,6 @@ const SPACE = 20
 const Screen = (props) => {
   const { project_code, day, date, item } = props.route.params
   const [state, setState] = useState(item)
-  console.log(state)
 
   /**
    * newest pasti belom confirmed
@@ -38,15 +37,21 @@ const Screen = (props) => {
 
 
   React.useEffect(() => {
-    console.log('render ')
+    console.log('render Effect')
 
     if (!props.trigger_status.isFetching && props.trigger_status.isStatus) {
-      setState(props.trigger_status.data)
+      setState(props.trigger_status)
 
       console.log('UPDATE BARU NI')
-      console.log(props.trigger_status.data)
+      props.getAttendance()
     }
   }, [props.trigger_status.isStatus])
+
+  React.useEffect(() => {
+    return () => {
+      props.clearTrigger()
+    }
+  }, [])
 
   const doConfirm = () => {
     let form = {
@@ -180,7 +185,7 @@ const mapStateToProps = state => {
   }
 }
 
-export const DetailComponent = connect(mapStateToProps, { triggerAttendance })(Screen)
+export const DetailComponent = connect(mapStateToProps, { triggerAttendance, clearTrigger, getAttendance })(Screen)
 
 
 const styles = StyleSheet.create({
