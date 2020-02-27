@@ -17,7 +17,7 @@ const HomeScreen = (props) => {
   }, [])
 
   const { session } = props
-
+  console.log(session)
   /**
    * WAIT ISSTATUS all option
    */

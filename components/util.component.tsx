@@ -23,7 +23,7 @@ export const AvatarText = ({ name, job, imgSource }) => (
     {!imgSource &&
       <Avatar.Text
         size={50}
-        label='XD'
+        label={name.split(" ").map((n) => n[0]).join(".")}
         color='white'
         style={{
           backgroundColor: '#5FA1FC'
@@ -122,7 +122,7 @@ const HEADER = ({ backButton = true, sTitle, sSub, screenRoute, session }) => {
           {session.isStatus && !session.image &&
             <Avatar.Text
               size={40}
-              label='CS'
+              label={session.name.split(" ").map((n) => n[0]).join(".")}
               color='white'
               style={{
                 backgroundColor: 'grey'

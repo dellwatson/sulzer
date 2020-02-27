@@ -36,13 +36,23 @@ const Screen = (props) => {
 
 
       <View style={{ backgroundColor: 'white', borderRadius: 10, height: height / 2, alignItems: 'center', zIndex: 2, elevation: 4, top: 50 }}>
-        <Avatar.Image
+        {/* <Avatar.Image
           style={{ bottom: 50, }}
           size={100}
           source={{
             uri:
               'https://pbs.twimg.com/profile_images/952545910990495744/b59hSXUd_400x400.jpg',
           }}
+        /> */}
+
+        <Avatar.Text
+          style={{
+            bottom: 50,
+            backgroundColor: 'grey'
+          }}
+          size={100}
+          color='white'
+          label={session.name.split(" ").map((n) => n[0]).join(".")}
         />
         <View style={{ flex: 1, bottom: 50, alignItems: 'center' }}>
           <View style={{ alignItems: 'center' }}>

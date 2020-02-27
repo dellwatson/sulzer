@@ -127,7 +127,7 @@ const Screen = (props) => {
             </TitleSmall>
                 <TextInput
                   mode='outlined'
-                  label='- Jam'
+                  label='Auto '
                   disabled={true}
 
                 />

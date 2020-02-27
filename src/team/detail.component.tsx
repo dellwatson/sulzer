@@ -140,6 +140,14 @@ const AttendanceText = ({ title, date }) => (
 
         <Title >{title}</Title>
 
+        <View style={{ marginRight: 15, }}>
+            <TitleSmall>Masuk</TitleSmall>
+            <TextInput
+                mode='outlined'
+                label='07:20:20'
+            />
+        </View>
+
         <View style={{ flexDirection: 'row', }}>
             <View style={{ marginRight: 15, flex: 1 }}>
                 <TitleSmall>Pulang</TitleSmall>
