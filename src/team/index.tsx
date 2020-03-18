@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
-import { Surface, Snackbar, Avatar, Caption, Subheading } from 'react-native-paper';
-import { TitleSmall, HeaderGroup, Box, BarConnector, AvatarText } from '../../components/util.component'
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { Surface, Snackbar, Avatar, Caption, Subheading, Title } from 'react-native-paper';
+import { TitleSmall, HeaderGroup, BoxNumber, AvatarTextRow } from '../../components/util.component'
 import { connect } from 'react-redux'
 import { getStaffInfo } from './action'
+import { getAttendance } from '../attendance/action'
 
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
@@ -14,54 +15,135 @@ const SPACE = 20
  */
 
 const Screen = (props) => {
+  const { project_key } = props.route.params
+  const { staff, self_attendance, session } = props
 
   React.useEffect(() => {
-    props.getStaffInfo()
+    props.getAttendance(project_key)
+    props.getStaffInfo(project_key)
+
   }, [])
 
 
   return (
-    <View style={styles.container}>
-      {props.staff.isStatus
-        && props.staff.list.map((item, index) => (
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: 60 }}
+      style={styles.container}>
+
+      {self_attendance.isStatus &&
+        <>
           <TouchableOpacity
-            key={index}
-            onPress={() => props.navigation.push('StatusTeam', { data: item.attendances, user: item.user })}
+            onPress={() => props.navigation.navigate('Attendance', { attendances_arr: self_attendance.list, koor: true, authority: false })}
             style={{
-              flexDirection: 'row',
+              marginHorizontal: SPACE,
+              marginVertical: SPACE / 3,
+              borderRadius: 5,
+              elevation: 2,
+              padding: SPACE,
+              width: width - SPACE * 2,
+              // height: 120,
               backgroundColor: 'white',
-              marginHorizontal: 40, marginVertical: 10,
-              padding: 10, elevation: 4, borderRadius: 10,
+              flexDirection: 'row',
+              justifyContent: 'space-between'
             }}>
+            <AvatarTextRow
+              name={session.name}
+              job='Koordinator'
+            />
 
-            <AvatarText imgSource={item.user.image} name={item.user.name} job={item.user.role} />
-
-            <View style={{ flex: 1, backgroundColor: 'white' }}>
-              <Subheading>NIK: -</Subheading>
-              <Subheading>Last Activity:</Subheading>
-              <Caption>19/23/2019</Caption>
-              <Caption>Masuk: 08:09:09</Caption>
-              {/* item.attendances[last array].time */}
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+              <Text style={{ fontWeight: 'bold' }}>My Attendances</Text>
+              <View style={{ flexDirection: 'row' }}>
+                <BoxNumber
+                  // color={theme.colors.primary}
+                  number={self_attendance.list.length}
+                  title='Total'
+                />
+                <BoxNumber
+                  color='seagreen'
+                  number='00'
+                  title='Approved'
+                />
+                <BoxNumber
+                  color='red'
+                  number={self_attendance.list.length}
+                  title='Pending'
+                />
+              </View>
             </View>
           </TouchableOpacity>
-        ))
+          <Title style={{ marginLeft: 20 }}>Team Project</Title>
+        </>
       }
-    </View>
+
+
+      {staff.isStatus && staff.list.map((item, i) => {
+        // console.log(item)
+        return (
+          <TouchableOpacity
+            onPress={() => props.navigation.navigate('Attendance', { attendances_arr: item.attendances, koor: false, authority: true })}
+            key={i}
+            style={{
+              marginHorizontal: SPACE,
+              marginVertical: SPACE / 3,
+              borderRadius: 5,
+              elevation: 2,
+              padding: SPACE,
+              width: width - SPACE * 2,
+              // height: 120,
+              backgroundColor: 'white',
+              flexDirection: 'row',
+              justifyContent: 'space-between'
+            }}>
+            <AvatarTextRow
+              name={item.user.name}
+              job={item.user_type}
+            />
+
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+              <Text style={{ fontWeight: 'bold' }}>My Attendances</Text>
+              <View style={{ flexDirection: 'row' }}>
+                <BoxNumber
+                  // color={theme.colors.primary}
+                  number={item.total_attendances}
+                  title='Total'
+                />
+                <BoxNumber
+                  color='seagreen'
+                  number={item.total_attendances_accepted}
+                  title='Approved'
+                />
+                <BoxNumber
+                  color='red'
+                  number={item.total_attendances_pending}
+                  title='Pending'
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
+        )
+      })}
+
+    </ScrollView>
   );
 }
 
 const mapStateToProps = state => {
   return {
-    staff: state.staff.DATA
+    staff: state.staff.DATA,
+    self_attendance: state.attendance.DATA,
+    session: state.profile.DATA
+
   }
 }
 
-export const TeamScreen = connect(mapStateToProps, { getStaffInfo })(Screen)
+export const TeamScreen = connect(mapStateToProps, { getStaffInfo, getAttendance })(Screen)
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: SPACE,
+    paddingBottom: SPACE,
   },
   text: {
     textAlign: 'center',

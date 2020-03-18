@@ -7,6 +7,8 @@ import { connect } from 'react-redux'
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
 
+const PRIMARY_COLOR = '#5FA1FC'
+
 export const AvatarText = ({ name, job, imgSource }) => (
   <View style={{ paddingRight: 10 }}>
 
@@ -35,6 +37,60 @@ export const AvatarText = ({ name, job, imgSource }) => (
       <Text style={{ fontWeight: 'bold' }}>{name}</Text>
     </View>
     <Text>{job}</Text>
+  </View>
+)
+
+export const BoxNumber = ({ color = PRIMARY_COLOR, number, title }) => (
+  <View style={{ margin: 5, alignItems: 'center' }}>
+    <View style={{ borderRadius: 5, backgroundColor: color, elevation: 3, marginBottom: 3, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 8 }}>
+      <Text style={{ color: 'white', fontWeight: 'bold', }}>{number}</Text>
+    </View>
+    <Text style={{ fontSize: 8, color: 'grey' }}>{title}</Text>
+  </View>
+)
+
+export const InvertBoxNumber = ({ color = PRIMARY_COLOR, number, title }) => (
+  <View style={{ margin: 5, alignItems: 'center' }}>
+    <View style={{
+      borderRadius: 5, backgroundColor: 'white', marginBottom: 3,
+      justifyContent: 'center', alignItems: 'center', paddingHorizontal: 8, borderWidth: 1, borderColor: color
+    }}>
+      <Text style={{ color: color, fontWeight: 'bold', }}>{number}</Text>
+    </View>
+    <Text style={{ fontSize: 8, color: 'grey' }}>{title}</Text>
+  </View>
+)
+
+export const AvatarTextRow = ({ name, job, imgSource }) => (
+  <View style={{ paddingRight: 10, flexDirection: 'row' }}>
+
+    {imgSource &&
+      <Avatar.Image
+        size={50}
+        source={{
+          uri:
+            imgSource,
+        }}
+      />
+    }
+
+    {!imgSource &&
+      <Avatar.Text
+        size={50}
+        label={name.split(" ").map((n) => n[0]).join(".")}
+        color='white'
+        style={{
+          backgroundColor: '#5FA1FC'
+        }}
+      />
+    }
+
+    <View style={{ paddingLeft: 10 }}>
+      <View style={{ borderBottomWidth: 2, marginRight: 10, marginTop: 5 }}>
+        <Text style={{ fontWeight: 'bold' }}>{name}</Text>
+      </View>
+      <Text>{job}</Text>
+    </View>
   </View>
 )
 

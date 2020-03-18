@@ -17,28 +17,8 @@ import { CustomHeader } from '../components/util.component';
 
 const Stack = createStackNavigator();
 
-/**
- * load async,
- * session
- * 
- * store in redux
- * 
- * masuk navigator
- * load redux
- */
-
-
-// const mapStateToProps = state => {
-//   return {
-//     session: state.home.DATA
-//   }
-// }
-
 
 export const HomeNavigator = () => {
-  // console.log('MAINMAINMAINMAINMAINMAINMAINMAINMAINMAINMAINMAINMAINMAIN')
-  // console.log(props.session)
-  // const { session } = props
 
 
   return (

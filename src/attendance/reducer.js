@@ -1,0 +1,63 @@
+const initState = {
+    DATA: { isFetching: null, isStatus: null, list: [] },
+
+    ABSENCE: { isFetching: null, isStatus: null, list: [] },
+    TRAVEL: { isFetching: null, isStatus: null, list: [] },
+
+    UPDATE: { isFetching: null, isStatus: null, }
+}
+
+
+
+export default (state = initState, action) => {
+    switch(action.type) {
+
+        case 'RESET_ATTENDANCE':
+            return initState
+
+        case 'CLEAR_TRIGGER_ATTENDANCE':
+            return { ...state, UPDATE: { isFetching: null, isStatus: null, } }
+
+        case 'GET_ATTENDANCE_PENDING':
+            return { ...state, DATA: { isFetching: true } }
+        case 'GET_ATTENDANCE_REJECTED':
+            return { ...state, DATA: { isFetching: false, isStatus: false, ...action.err } }
+        case 'GET_ATTENDANCE_RESOLVED':
+            return { ...state, DATA: { list: action.data, isFetching: false, isStatus: true } }
+
+        case 'GET_ATTENDANCE_ABSENCE_PENDING':
+            console.log('absence pendiing')
+
+            return { ...state, ABSENCE: { isFetching: true } }
+        case 'GET_ATTENDANCE_ABSENCE_REJECTED':
+            console.log('absence rejected')
+
+            return { ...state, ABSENCE: { isFetching: false, isStatus: false, ...action.err } }
+        case 'GET_ATTENDANCE_ABSENCE_RESOLVED':
+            console.log('absence resolved')
+
+            return { ...state, ABSENCE: { list: action.data, isFetching: false, isStatus: true } }
+
+        case 'GET_ATTENDANCE_TRAVEL_PENDING':
+            return { ...state, TRAVEL: { isFetching: true } }
+        case 'GET_ATTENDANCE_TRAVEL_REJECTED':
+            return { ...state, TRAVEL: { isFetching: false, isStatus: false, ...action.err } }
+        case 'GET_ATTENDANCE_TRAVEL_RESOLVED':
+            return { ...state, TRAVEL: { list: action.data, isFetching: false, isStatus: true } }
+
+        case 'TRIGGER_ATTENDANCE_PENDING':
+            return { ...state, UPDATE: { isFetching: true } }
+        case 'TRIGGER_ATTENDANCE_REJECTED':
+            console.log('REJECTED')
+
+            return { ...state, UPDATE: { isFetching: false, isStatus: false, ...action.err } }
+        case 'TRIGGER_ATTENDANCE_RESOLVED':
+            console.log('RESOLVED')
+            return { ...state, UPDATE: { ...action.data, isFetching: false, isStatus: true } }
+
+
+        default:
+            return state;
+    }
+}
+
