@@ -31,15 +31,49 @@ const default_absence = {
     "timescreate": 1584425302,
     "timesupdate": 1584425302
 }
+const default_travel = {
+    "attendance_type": "travel",
+    "travel_type": "depart",
+    "checkin_time": null,
+    "checkout_time": null,
+    "estimation_time": null,
+    "checkin_latitude": null,
+    "checkout_latitude": null,
+    "checkin_longitude": null,
+    "checkout_longitude": null,
+    "checkin_location": null,
+    "checkout_location": null,
+    "description": null,
+    "status": "new",
+    "revision_version": null,
+    "revision_time": null,
+    "accepted": false,
+    "accepted_time": null,
+    "timescreate": 1584425302,
+    "timesupdate": 1584425302
+}
 
 const Screen = (props) => {
     const { attendances_arr, koor, authority } = props.route.params
+
+    const [attendance_list, setAttendance_list] = React.useState(koor ? attendances_arr : [])
 
     const [modal, showModal] = React.useState(false)
     const [modalApproval, showModalApproval] = React.useState(false)
 
     const [dataModal, setDatamodal] = React.useState(null)
 
+    React.useEffect(() => {
+        if (!koor) {
+            props.getAttendance(props.route.params.project_key)
+        }
+    }, [])
+
+    React.useEffect(() => {
+        if (!props.self_attendance.isFetching && props.self_attendance.isStatus) {
+            setAttendance_list(props.self_attendance.list)
+        }
+    }, [props.self_attendance.isStatus])
 
     return (
         <>
@@ -47,7 +81,7 @@ const Screen = (props) => {
                 contentContainerStyle={{ paddingBottom: 60 }}
                 style={styles.container}>
 
-                {attendances_arr.map((item, i) => {
+                {attendance_list.map((item, i) => {
                     return (
                         <TouchableOpacity
                             onPress={() => {
@@ -73,7 +107,7 @@ const Screen = (props) => {
                                 <View style={{ flexDirection: 'row', marginTop: 10 }}>
                                     <Image
                                         style={{ height: 20, width: 20, marginRight: 10 }}
-                                        source={require('../../assets/a_in.png')}
+                                        source={item.attendance_type === 'travel' ? require('../../assets/depart.png') : require('../../assets/a_in.png')}
                                         resizeMode='contain'
                                     />
                                     <Text>Waktu</Text>
@@ -81,7 +115,7 @@ const Screen = (props) => {
                                 <View style={{ flexDirection: 'row', marginTop: 10 }}>
                                     <Image
                                         style={{ height: 20, width: 20, marginRight: 10 }}
-                                        source={require('../../assets/a_out.png')}
+                                        source={item.attendance_type === 'travel' ? require('../../assets/arrival.png') : require('../../assets/a_out.png')}
                                         resizeMode='contain'
                                     />
                                     <Text>Waktu</Text>
@@ -369,6 +403,16 @@ const ModalAttendance = props => {
         }
         props.triggerAttendance(form, project.list[stateIndex].key)
     }
+    const doSubmitTravel = () => {
+        // form ny nnti dari attendanceData
+        let form = {
+            attendance_type: 'travel',
+            "travel_type": "return",
+            attendance_time: '2020-10-10 15:00:00', //gnti
+            // description: ''
+        }
+        props.triggerAttendance(form, project.list[stateIndex].key)
+    }
 
 
     const resetModal = () => {
@@ -418,6 +462,16 @@ const ModalAttendance = props => {
         //         setAttendaceData(travel.list[travel.list.length - 1])
         //     }
         // }
+
+        if (attendance === 'travel' && travel.isStatus && travel.list.length !== 0) {
+            console.log('CHECK travelll DATA')
+            if (!travel.list[travel.list.length - 1].checkout_time) { //last array belom complete checkout
+                console.log('TARO travelll  DATA')
+                setAttendaceData(travel.list[travel.list.length - 1]) //taro data yg last array tadi
+            } else {
+                setAttendaceData(default_travel)
+            }
+        }
 
         if (attendance === 'attendance' && absence.isStatus && absence.list.length !== 0) {
             console.log('CHECK DATA')
@@ -576,10 +630,10 @@ const ModalAttendance = props => {
                 }
 
 
-                {state && attendance === 'travel' &&
+                {state && attendance === 'travel' && attendanceData &&
                     <>
                         <View style={{ marginTop: 20 }}>
-                            <Text><Text style={{ fontWeight: 'bold' }}>Attendance - </Text>Project C</Text>
+                            <Text><Text style={{ fontWeight: 'bold' }}>Attendance - </Text>{project.list[stateIndex].project_code}</Text>
                             <Text style={{ color: 'grey', fontSize: 11 }}>Hari, tanggal</Text>
 
                             {/* FIRST */}
@@ -619,62 +673,67 @@ const ModalAttendance = props => {
                             />
                             {/* </TouchableOpacity> */}
 
-                            <Button style={{ marginTop: 20 }} labelStyle={{ color: 'white' }} mode="contained" onPress={() => console.log('Pressed')}>
-                                Confirm
-                             </Button>
 
+                            {attendanceData.checkin_time &&
+                                <>
+                                    <Divider style={{ marginVertical: 20 }} />
 
-                            <Divider style={{ marginVertical: 20 }} />
+                                    {/* SECOND */}
+                                    <Text style={{ fontWeight: 'bold' }}>Location Arrival</Text>
+                                    <TextInput
+                                        placeholder='location'
+                                        value={description}
+                                        mode='outlined'
+                                    />
 
-                            {/* SECOND */}
-                            <Text style={{ fontWeight: 'bold' }}>Location Arrival</Text>
-                            <TextInput
-                                placeholder='location'
-                                value={description}
-                                mode='outlined'
-                            />
+                                    <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
+                                        <TouchableOpacity>
+                                            <Image
+                                                style={{ height: 30, width: 30, marginRight: 5 }}
+                                                source={require('../../assets/location.png')}
+                                                resizeMode='contain'
+                                            />
+                                        </TouchableOpacity>
+                                        <View style={{ flex: 1 }}>
+                                            <Caption>Jalan Keveer</Caption>
+                                        </View>
+                                    </View>
 
-                            <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
-                                <TouchableOpacity>
+                                    <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Arrival</Text>
+                                    <TextInput
+                                        value='07:20:20'
+                                        disabled
+                                        mode='outlined'
+                                    />
+
+                                    <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Photo</Text>
+                                    {/* <TouchableOpacity> */}
                                     <Image
-                                        style={{ height: 30, width: 30, marginRight: 5 }}
-                                        source={require('../../assets/location.png')}
+                                        style={{ height: 100, width: 100, marginRight: 5 }}
+                                        source={require('../../assets/upload.png')}
                                         resizeMode='contain'
                                     />
-                                </TouchableOpacity>
-                                <View style={{ flex: 1 }}>
-                                    <Caption>Jalan Keveer</Caption>
-                                </View>
-                            </View>
+                                    {/* </TouchableOpacity> */}
 
-                            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Arrival</Text>
-                            <TextInput
-                                value='07:20:20'
-                                disabled
-                                mode='outlined'
-                            />
+                                    <Text style={{ fontWeight: 'bold' }}>Description</Text>
+                                    <TextInput
+                                        placeholder='location'
+                                        value={description}
+                                        mode='outlined'
+                                    />
+                                </>
+                            }
 
-                            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Photo</Text>
-                            {/* <TouchableOpacity> */}
-                            <Image
-                                style={{ height: 100, width: 100, marginRight: 5 }}
-                                source={require('../../assets/upload.png')}
-                                resizeMode='contain'
-                            />
-                            {/* </TouchableOpacity> */}
-
-                            <Text style={{ fontWeight: 'bold' }}>Description</Text>
-                            <TextInput
-                                placeholder='location'
-                                value={description}
-                                mode='outlined'
-                            />
-
-                            <Button style={{ marginTop: 20 }} labelStyle={{ color: 'white' }} mode="contained" onPress={() => console.log('Pressed')}>
-                                Submit
-                             </Button>
-
-
+                            {attendanceData && !attendance.checkout_time &&
+                                <Button
+                                    style={{ marginTop: 20 }}
+                                    labelStyle={{ color: 'white' }}
+                                    mode="contained"
+                                    onPress={() => doSubmitTravel()}
+                                    disabled={update.isFetching}>
+                                    {attendanceData.checkin_time ? 'Confirm' : 'Confirm'}
+                                </Button>
+                            }
                         </View>
                     </>
                 }
@@ -690,6 +749,7 @@ const mapStateToProps = state => {
         travel: state.attendance.TRAVEL,
         absence: state.attendance.ABSENCE,
         update: state.attendance.UPDATE,
+        self_attendance: state.attendance.DATA
     }
 }
 

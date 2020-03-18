@@ -61,6 +61,8 @@ const Screen = (props) => {
     // }
   ]
 
+
+
   return (
     <ScrollView style={styles.container}>
       {project.list.map((item, i) => {
