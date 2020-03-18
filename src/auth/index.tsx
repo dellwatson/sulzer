@@ -49,7 +49,7 @@ const SignInScreen = (props) => {
 
 
     // props.loginAction(body)
-    props.setAccessToken(`Bearer eyJpdiI6IlFVTkIzcEVqOXJLYUVRb0RlQW1tbVE9PSIsInZhbHVlIjoiN055b0RDQVRwUGRUclMrXC9QRmIxN1E9PSIsIm1hYyI6ImJhZWMwMDY1MzBkNzk3OGZjNzliM2FmZmVhNTJkZTkyMzI0YzExYmFlOTFlOGUwMmU0NjY2NjU5ZmM5ZTExMzEifQ==`)
+    props.setAccessToken(`Bearer eyJpdiI6ImVaVlN4QWFVTHNlMTVHMllDSVwvd1NnPT0iLCJ2YWx1ZSI6IkZ1KzNpd1dBT2QrU1BMd090YXdubUE9PSIsIm1hYyI6IjI5ZDljMGMwZjliOWRjOWJmMjcyNjM1MzQ2ZDAxNzgyOWFlMGNhYTRhNWRlMDg1ZjRlNGU3ZDYxNTc3MTk1Y2QifQ==`)
 
   }
 
@@ -118,7 +118,7 @@ const SignInScreen = (props) => {
         style={{ marginTop: 20, padding: 5 }}
         //ganti jadi auth true ?
         mode="contained" onPress={() => doLogin()}>
-        <Text style={{ color: 'white' }}>Login as Staff - Suharja </Text>
+        <Text style={{ color: 'white' }}>Login as Staff - Subrata </Text>
       </Button>
       <Button
         style={{ marginTop: 20, padding: 5 }}

@@ -10,6 +10,8 @@ import Modal from "react-native-modal";
 import { ScrollView } from 'react-native-gesture-handler';
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
+import moment from 'moment'
+
 
 const default_absence = {
     "attendance_type": "attendance",
@@ -103,14 +105,14 @@ const Screen = (props) => {
                         >
                             <View style={{ flex: 1, borderWidth: 0 }}>
                                 <Text style={{ fontWeight: 'bold', fontSize: 22 }}>{item.attendance_type === 'travel' ? 'Travel' : 'Absence'}</Text>
-                                <Text>hari, Tanggal</Text>
+                                <Text>{moment(item.checkin_time).format('dddd, MMMM Do YYYY')}</Text>
                                 <View style={{ flexDirection: 'row', marginTop: 10 }}>
                                     <Image
                                         style={{ height: 20, width: 20, marginRight: 10 }}
                                         source={item.attendance_type === 'travel' ? require('../../assets/depart.png') : require('../../assets/a_in.png')}
                                         resizeMode='contain'
                                     />
-                                    <Text>Waktu</Text>
+                                    <Text>{moment(item.checkin_time).format('HH:mm:ss')}</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row', marginTop: 10 }}>
                                     <Image
@@ -118,7 +120,7 @@ const Screen = (props) => {
                                         source={item.attendance_type === 'travel' ? require('../../assets/arrival.png') : require('../../assets/a_out.png')}
                                         resizeMode='contain'
                                     />
-                                    <Text>Waktu</Text>
+                                    <Text>{item.checkout_time ? moment(item.checkout_time).format('HH:mm:ss') : '-'}</Text>
                                 </View>
                             </View>
 
@@ -192,7 +194,7 @@ const ModalApproval = props => {
 
                 <Text><Text style={{ fontWeight: 'bold', marginTop: 20 }}>Type</Text> : {TRAVEL ? 'Travel' : 'Absence'}</Text>
                 <Text><Text style={{ fontWeight: 'bold', marginTop: 20 }}>Attendance - </Text>{}</Text>
-                <Text style={{ color: 'grey', fontSize: 11, }}>Hari, tanggal</Text>
+                <Text style={{ color: 'grey', fontSize: 11, }}>{moment(dataModal.timescreate).format('dddd, MMMM Do YYYY')}</Text>
 
                 {attendance === 'attendance' &&
                     <>
@@ -200,7 +202,7 @@ const ModalApproval = props => {
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
                                 <TextInput
-                                    value='07:20:20'
+                                    value={moment(dataModal.checkin_time).format('HH:mm:ss')}
                                     disabled
                                     mode='outlined'
                                 />
@@ -219,7 +221,7 @@ const ModalApproval = props => {
                                     <View style={{ flex: 1 }}>
                                         <Text style={{ fontWeight: 'bold' }}>Clock Out</Text>
                                         <TextInput
-                                            value='07:20:20'
+                                            value={moment(dataModal.checkout_time).format('HH:mm:ss')}
                                             disabled
                                             mode='outlined'
                                         />
@@ -300,7 +302,7 @@ const ModalApproval = props => {
 
                         <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Departure</Text>
                         <TextInput
-                            value='07:20:20'
+                            value={moment(dataModal.checkin_time).format('HH:mm:ss')}
                             disabled
                             mode='outlined'
                         />
@@ -342,7 +344,7 @@ const ModalApproval = props => {
 
                                 <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Arrival</Text>
                                 <TextInput
-                                    value='07:20:20'
+                                    value={moment(dataModal.checkout_time).format('HH:mm:ss')}
                                     disabled
                                     mode='outlined'
                                 />
@@ -386,11 +388,14 @@ const ModalApproval = props => {
 const ModalAttendance = props => {
     const { open, onClose, project, absence, travel, update } = props
 
+    // console.log(moment().format('YYYY-MM-D HH:mm:ss'))
     const [state, setState] = React.useState(null)
     const [stateIndex, setStateIndex] = React.useState(0)
 
     const [attendance, setAttendace] = React.useState(null)
     const [attendanceData, setAttendaceData] = React.useState(null)
+
+    // const [travelType, setTravelType] = React.useState('depart')
 
     const [description, setDescription] = React.useState(null)
 
@@ -407,7 +412,7 @@ const ModalAttendance = props => {
         // form ny nnti dari attendanceData
         let form = {
             attendance_type: 'travel',
-            "travel_type": "return",
+            "travel_type": travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart',
             attendance_time: '2020-10-10 15:00:00', //gnti
             // description: ''
         }
@@ -456,22 +461,6 @@ const ModalAttendance = props => {
 
 
     React.useEffect(() => {
-        //rework travel
-        // if (attendance === 'travel' && travel.list.length !== 0) {
-        //     if (!travel.list[travel.list.length - 1].checkout_time) {
-        //         setAttendaceData(travel.list[travel.list.length - 1])
-        //     }
-        // }
-
-        if (attendance === 'travel' && travel.isStatus && travel.list.length !== 0) {
-            console.log('CHECK travelll DATA')
-            if (!travel.list[travel.list.length - 1].checkout_time) { //last array belom complete checkout
-                console.log('TARO travelll  DATA')
-                setAttendaceData(travel.list[travel.list.length - 1]) //taro data yg last array tadi
-            } else {
-                setAttendaceData(default_travel)
-            }
-        }
 
         if (attendance === 'attendance' && absence.isStatus && absence.list.length !== 0) {
             console.log('CHECK DATA')
@@ -482,6 +471,20 @@ const ModalAttendance = props => {
             } else {
                 setAttendaceData(default_absence)
             }
+        }
+
+        if (attendance === 'travel' && travel.isStatus && travel.list.length !== 0) {
+            console.log('CHECK travelll DATA')
+            if (!travel.list[travel.list.length - 1].checkout_time) { //last array belom complete checkout
+                console.log('TARO travelll  DATA')
+                setAttendaceData(travel.list[travel.list.length - 1]) //taro data yg last array tadi
+            } else {
+                setAttendaceData(default_travel)
+            }
+
+            // if (travel.list[0].checkout_time) {
+            //     setTravelType('return')
+            // }
         }
     }, [attendance])
 
@@ -533,14 +536,14 @@ const ModalAttendance = props => {
                     <>
                         <View style={{ marginTop: 20 }}>
                             <Text><Text style={{ fontWeight: 'bold' }}>Attendance - </Text>{project.list[stateIndex].project_code}</Text>
-                            <Text style={{ color: 'grey', fontSize: 11 }}>{attendanceData.checkin_time}</Text>
+                            <Text style={{ color: 'grey', fontSize: 11 }}>{moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY')}</Text>
                             {/* kasih today */}
 
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Clock In</Text>
                             <View style={{ flexDirection: 'row' }}>
                                 <View style={{ flex: 1 }}>
                                     <TextInput
-                                        value={attendance.checkin_time}
+                                        value={attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm:ss') : moment().format('YYYY-MM-D HH:mm:ss')}
                                         disabled
                                         mode='outlined'
                                     />
@@ -557,7 +560,7 @@ const ModalAttendance = props => {
                                         <View style={{ flex: 1 }}>
                                             <Text style={{ fontWeight: 'bold' }}>Clock Out</Text>
                                             <TextInput
-                                                value='07:20:20'
+                                                value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm:ss') : moment().format('YYYY-MM-D HH:mm:ss')}
                                                 disabled
                                                 mode='outlined'
                                             />
@@ -634,7 +637,7 @@ const ModalAttendance = props => {
                     <>
                         <View style={{ marginTop: 20 }}>
                             <Text><Text style={{ fontWeight: 'bold' }}>Attendance - </Text>{project.list[stateIndex].project_code}</Text>
-                            <Text style={{ color: 'grey', fontSize: 11 }}>Hari, tanggal</Text>
+                            <Text style={{ color: 'grey', fontSize: 11 }}>{moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY')}</Text>
 
                             {/* FIRST */}
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Location Departure</Text>
@@ -659,7 +662,7 @@ const ModalAttendance = props => {
 
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Departure</Text>
                             <TextInput
-                                value='07:20:20'
+                                value={attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm:ss') : moment().format('YYYY-MM-D HH:mm:ss')}
                                 disabled
                                 mode='outlined'
                             />
@@ -701,7 +704,7 @@ const ModalAttendance = props => {
 
                                     <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Arrival</Text>
                                     <TextInput
-                                        value='07:20:20'
+                                        value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm:ss') : moment().format('YYYY-MM-D HH:mm:ss')}
                                         disabled
                                         mode='outlined'
                                     />

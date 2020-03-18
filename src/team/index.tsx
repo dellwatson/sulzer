@@ -18,6 +18,8 @@ const Screen = (props) => {
   const { project_key } = props.route.params
   const { staff, self_attendance, session } = props
 
+  // console.log(self_attendance)
+
   React.useEffect(() => {
     props.getAttendance(project_key)
     props.getStaffInfo(project_key)

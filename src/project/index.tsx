@@ -5,6 +5,7 @@ import { TitleSmall, HeaderGroup, Box, BoxNumber, InvertBoxNumber } from '../../
 import { connect } from 'react-redux'
 import { refresh } from '../team/action'
 import { ScrollView } from 'react-native-gesture-handler';
+import moment from 'moment'
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
 
@@ -94,7 +95,7 @@ const Screen = (props) => {
                 <Image source={require('../../assets/project_ic.png')} />
                 <View style={{ borderWidth: 0, paddingLeft: 10 }}>
                   <Text style={{ fontWeight: 'bold' }}>{item.project_code}</Text>
-                  <Text style={{ fontSize: 11 }}>Started October 2019</Text>
+                  <Text style={{ fontSize: 11 }}>{moment(item.timescreate).format('dddd, D-MM-YYYY')}</Text>
                   <View />
                 </View>
               </View>
