@@ -171,6 +171,18 @@ const Screen = (props) => {
     );
 }
 
+const toCalc = (curr, before, overtime = false) => {
+    console.log('CALC')
+    console.log(curr - before)
+    if (overtime) {
+        const z = (curr - before) - 9
+        console.log(z)
+        return z < 0 ? '0' : z.toString()
+    }
+
+    const result = curr - before
+    return result.toString()
+}
 
 const ModalApproval = props => {
 
@@ -278,6 +290,7 @@ const ModalApproval = props => {
                                     // placeholder='description'
                                     value={dataModal.description ? dataModal.description : ''}
                                     mode='outlined'
+                                    disabled
                                 />
                             </>}
                     </>}
@@ -289,7 +302,8 @@ const ModalApproval = props => {
                     <>
                         <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Location Departure</Text>
                         <TextInput
-                            placeholder='location'
+                            value={dataModal.checkin_location}
+                            // placeholder='location ...'
                             // value={description}
                             mode='outlined'
                         />
@@ -331,9 +345,12 @@ const ModalApproval = props => {
                             <>
                                 <Text style={{ fontWeight: 'bold' }}>Location Arrival</Text>
                                 <TextInput
-                                    placeholder='location'
+                                    // placeholder='location ...'
                                     // value={description}
                                     mode='outlined'
+                                    value={dataModal.checkout_location}
+                                    disabled
+
                                 />
 
                                 <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
@@ -367,7 +384,9 @@ const ModalApproval = props => {
 
                                 <Text style={{ fontWeight: 'bold' }}>Description</Text>
                                 <TextInput
-                                    placeholder='location'
+                                    disabled
+                                    value={dataModal.description}
+                                    // placeholder='descr'
                                     // value={description}
                                     mode='outlined'
                                 />
@@ -392,18 +411,7 @@ const ModalApproval = props => {
 }
 
 
-const toCalc = (curr, before, overtime = false) => {
-    console.log('CALC')
-    console.log(curr - before)
-    if (overtime) {
-        const z = (curr - before) - 9
-        console.log(z)
-        return z < 0 ? '0' : z.toString()
-    }
 
-    const result = curr - before
-    return result.toString()
-}
 
 
 
@@ -421,27 +429,8 @@ const ModalAttendance = props => {
 
     // const [travelType, setTravelType] = React.useState('depart')
 
-    const [description, setDescription] = React.useState(null)
 
-    const doSubmit = () => {
-        // form ny nnti dari attendanceData
-        let form = {
-            attendance_type: 'attendance',
-            attendance_time: '2020-10-10 15:00:00', //gnti
-            // description: ''
-        }
-        props.triggerAttendance(form, project.list[stateIndex].key)
-    }
-    const doSubmitTravel = () => {
-        // form ny nnti dari attendanceData
-        let form = {
-            attendance_type: 'travel',
-            "travel_type": travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart',
-            attendance_time: '2020-10-10 15:00:00', //gnti
-            // description: ''
-        }
-        props.triggerAttendance(form, project.list[stateIndex].key)
-    }
+
 
 
     const resetModal = () => {
@@ -532,36 +521,12 @@ const ModalAttendance = props => {
         location: null,
         image: null,
     })
+    console.log(formAttendance)
 
-    // { console.log(moment().format('HH:mm:ss') - moment(attendanceData.checkin_time).format('HH:mm:ss')) }
+    const doSubmit = () => {
+        props.triggerAttendance(formAttendance, project.list[stateIndex].key)
+    }
 
-    const TIME = moment().format()
-    const xxx = 17250857
-
-    const SK2 = '2020-10-10T05:00:00.000000Z' //SEBELUMNY
-    const SK = '2020-10-10T08:00:00.000000Z'
-    // console.log(moment(SK).format('HH:mm:ss'))
-    console.log('-----------------------')
-    // console.log(moment(SK2).format('HH:mm:ss'))
-
-    // const TOZZ = moment(SK).format('X') - moment(SK2).format('X')
-    // const wre = moment(-TOZZ).format('H')
-    // console.log(wre)
-
-    var now = moment('2020-10-10T08:00:00.000000Z'); //todays date
-    var end = moment('2020-10-10T05:00:00.000000Z'); // another date //SK
-
-    const currentTIME = moment().format()
-    // console.log(currentX)
-    const duration = moment.duration(moment(currentTIME).diff(moment('2020-03-24T20:00:38+07:00'))).hours();
-    // const duration = moment.duration(moment().diff(moment(attendanceData.checkin_time))).hours();
-    // console.log(duration.toString())
-    // var days = duration.asDays();
-
-
-    // console.log('date')
-    // console.log(TIME)
-    // console.log(moment(xxx).format('H'))
 
 
     return (
@@ -599,6 +564,17 @@ const ModalAttendance = props => {
                             style={{ height: 50, width: '100%' }}
                             onValueChange={(itemValue, itemIndex) => {
                                 setAttendace(itemValue)
+                                setFormAttendance({
+                                    ...formAttendance,
+                                    "attendance_type": itemValue,
+                                    "travel_type": itemValue === 'travel' ? travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart' : null,
+                                    attendance_time: moment().format('YYYY-MM-D HH:mm:ss'),
+                                    "description": null,
+                                    longitude: null,
+                                    latitude: null,
+                                    location: null,
+                                    image: null,
+                                })
                             }}>
                             <Picker.Item label='Select Type' value={null} />
                             <Picker.Item label='Travel' value='travel' />
@@ -687,9 +663,11 @@ const ModalAttendance = props => {
                                     <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Description</Text>
                                     <TextInput
                                         placeholder='description'
-                                        value={description}
+                                        value={formAttendance.description}
+                                        onChangeText={text => setFormAttendance({ ...formAttendance, description: text })}
                                         mode='outlined'
                                     />
+                                    {/* {console.log(formAttendance)} */}
                                 </>
                             }
                         </View>
@@ -719,9 +697,11 @@ const ModalAttendance = props => {
                             {/* FIRST */}
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Location Departure</Text>
                             <TextInput
-                                placeholder='location'
-                                value={description}
+                                placeholder='location...'
+                                value={attendanceData.checkin_time ? attendanceData.location : formAttendance.location}
+                                onChangeText={text => setFormAttendance({ ...formAttendance, location: text })}
                                 mode='outlined'
+                                disabled={!!attendanceData.checkin_time}
                             />
 
                             <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
@@ -761,8 +741,9 @@ const ModalAttendance = props => {
                                     {/* SECOND */}
                                     <Text style={{ fontWeight: 'bold' }}>Location Arrival</Text>
                                     <TextInput
-                                        placeholder='location'
-                                        value={description}
+                                        placeholder='location...'
+                                        value={formAttendance.location}
+                                        onChangeText={text => setFormAttendance({ ...formAttendance, location: text })}
                                         mode='outlined'
                                     />
 
@@ -797,10 +778,12 @@ const ModalAttendance = props => {
 
                                     <Text style={{ fontWeight: 'bold' }}>Description</Text>
                                     <TextInput
-                                        placeholder='location'
-                                        value={description}
+                                        placeholder='description ...'
+                                        value={formAttendance.description}
+                                        onChangeText={text => setFormAttendance({ ...formAttendance, description: text })}
                                         mode='outlined'
                                     />
+
                                 </>
                             }
 
@@ -809,7 +792,8 @@ const ModalAttendance = props => {
                                     style={{ marginTop: 20 }}
                                     labelStyle={{ color: 'white' }}
                                     mode="contained"
-                                    onPress={() => doSubmitTravel()}
+                                    onPress={() => doSubmit()}
+                                    // onPress={() => console.log(formAttendance)}
                                     disabled={update.isFetching}>
                                     {attendanceData.checkin_time ? 'Confirm' : 'Confirm'}
                                 </Button>
