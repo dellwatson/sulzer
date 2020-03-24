@@ -49,12 +49,14 @@ const SignInScreen = (props) => {
 
 
     // props.loginAction(body)
+    props.setKoor(false)
+
     props.setAccessToken(`Bearer eyJpdiI6ImVaVlN4QWFVTHNlMTVHMllDSVwvd1NnPT0iLCJ2YWx1ZSI6IkZ1KzNpd1dBT2QrU1BMd090YXdubUE9PSIsIm1hYyI6IjI5ZDljMGMwZjliOWRjOWJmMjcyNjM1MzQ2ZDAxNzgyOWFlMGNhYTRhNWRlMDg1ZjRlNGU3ZDYxNTc3MTk1Y2QifQ==`)
 
   }
 
   const doLogin2 = () => {
-    props.setKoor()
+    props.setKoor(true)
     props.setAccessToken(`Bearer eyJpdiI6IkJjOUlBNVdaSWY0ZHlUMkJJeGR5WFE9PSIsInZhbHVlIjoiRFBwWDRhK3l6bzJ1Y2lyeUt3bWNhdz09IiwibWFjIjoiOGM5YmE0ZjQ2YWEyMDQyZGY4NGJkYmU3Yzg4MDZkYmEzOGQ4ZjQzNWZiNTMyMDRmY2JlZTkxZWQwMDNmYmQ3ZSJ9`)
   }
 

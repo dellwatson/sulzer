@@ -15,10 +15,14 @@ const SPACE = 20
  */
 
 const Screen = (props) => {
-  const { project_key } = props.route.params
+  const { project_key, koor } = props.route.params
   const { staff, self_attendance, session } = props
 
   // console.log(self_attendance)
+  /**
+   * bug attendance/team back
+   * anti koor -> new attendance create
+   */
 
   React.useEffect(() => {
     props.getAttendance(project_key)
@@ -26,6 +30,7 @@ const Screen = (props) => {
 
   }, [])
 
+  // console.log(self_attendance)
 
   return (
     <ScrollView
@@ -35,7 +40,7 @@ const Screen = (props) => {
       {self_attendance.isStatus &&
         <>
           <TouchableOpacity
-            onPress={() => props.navigation.navigate('Attendance', { attendances_arr: self_attendance.list, koor: true, authority: false })}
+            onPress={() => props.navigation.navigate('Attendance', { attendances_arr: self_attendance.list, koor, authority: false, self_item: true })}
             style={{
               marginHorizontal: SPACE,
               marginVertical: SPACE / 3,
@@ -74,7 +79,13 @@ const Screen = (props) => {
               </View>
             </View>
           </TouchableOpacity>
-          <Title style={{ marginLeft: 20 }}>Team Project</Title>
+          <View style={{ flexDirection: 'row' }}>
+            <Title style={{ marginLeft: 20, fontWeight: 'bold' }}>Team Project</Title>
+            <View style={{ justifyContent: 'center', padding: 20, flex: 1 }}>
+              <View style={{ borderWidth: 1, borderColor: '#5FA1FC' }} />
+            </View>
+          </View>
+
         </>
       }
 
@@ -83,7 +94,7 @@ const Screen = (props) => {
         // console.log(item)
         return (
           <TouchableOpacity
-            onPress={() => props.navigation.navigate('Attendance', { attendances_arr: item.attendances, koor: false, authority: true })}
+            onPress={() => props.navigation.navigate('Attendance', { attendances_arr: item.attendances, koor, authority: true, self_item: false })}
             key={i}
             style={{
               marginHorizontal: SPACE,

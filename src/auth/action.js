@@ -3,7 +3,7 @@ export const baseURL = "http://api-sulzerabsensi.sobatteknologi.com/api";
 
 
 export const setAccessToken = (token) => dispatch => dispatch({ 'type': 'SAVE_ACCESS_TOKEN', token })
-export const setKoor = () => dispatch => dispatch({ 'type': 'SET_KOOR_AUTH' })
+export const setKoor = (bool) => dispatch => dispatch({ 'type': 'SET_KOOR_AUTH', bool })
 
 export const resetAuth = () => dispatch => dispatch({ type: 'RESET_AUTH' })
 

@@ -71,9 +71,9 @@ const Screen = (props) => {
           <TouchableOpacity
             onPress={() => {
               if (koor) {
-                props.navigation.navigate('Team', { project_key: item.key })
+                props.navigation.navigate('Team', { project_key: item.key, koor })
               } else {
-                props.navigation.navigate('Attendance', { project_key: item.key, koor, authority: false, attendances_arr })
+                props.navigation.navigate('Attendance', { project_key: item.key, koor, authority: false, attendances_arr, self_item: true })
               }
             }}
             key={i}
@@ -134,22 +134,22 @@ const Screen = (props) => {
                 <View style={{ flexDirection: 'row' }}>
                   <InvertBoxNumber
                     color='grey'
-                    number={99}
+                    number={item.total_participants}
                     title='Peoples'
                   />
                   <InvertBoxNumber
                     color={theme.colors.primary}
-                    number={99}
+                    number={item.total_attendances}
                     title='Total'
                   />
                   <InvertBoxNumber
                     color='seagreen'
-                    number={99}
+                    number={item.total_attendances_accepted}
                     title='Approved'
                   />
                   <InvertBoxNumber
                     color='red'
-                    number={99}
+                    number={item.total_attendances_pending}
                     title='Pending'
                   />
                 </View>

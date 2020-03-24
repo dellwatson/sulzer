@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image } from 'rea
 import { Surface, Snackbar, Caption, TextInput, Divider, Button, Title } from 'react-native-paper';
 import { TitleSmall, HeaderGroup, Box, BarConnector } from '../../components/util.component'
 import { connect } from 'react-redux'
-import { getAttendance, getAttendanceAbsence, getAttendanceTravel, triggerAttendance, clearTrigger, resetAttendance } from './action'
+import { getPersonAttendance, clearPersonAttendance, getAttendanceAbsence, getAttendanceTravel, triggerAttendance, clearTrigger, resetAttendance } from './action'
 import { getStaffInfo } from '../team/action'
 import { Picker } from '@react-native-community/picker';
 import Modal from "react-native-modal";
@@ -56,9 +56,9 @@ const default_travel = {
 }
 
 const Screen = (props) => {
-    const { attendances_arr, koor, authority } = props.route.params
+    const { attendances_arr, koor, authority, self_item } = props.route.params
 
-    const [attendance_list, setAttendance_list] = React.useState(koor ? attendances_arr : [])
+    const [attendance_list, setAttendance_list] = React.useState(koor ? attendances_arr : []) //
 
     const [modal, showModal] = React.useState(false)
     const [modalApproval, showModalApproval] = React.useState(false)
@@ -67,15 +67,22 @@ const Screen = (props) => {
 
     React.useEffect(() => {
         if (!koor) {
-            props.getAttendance(props.route.params.project_key)
+            console.log('KOOR GET ATTENDANCE')
+            props.getPersonAttendance(props.route.params.project_key) //klo dari project dpet key ? dari team ?
         }
+        return () => props.clearPersonAttendance()
     }, [])
 
+
     React.useEffect(() => {
-        if (!props.self_attendance.isFetching && props.self_attendance.isStatus) {
-            setAttendance_list(props.self_attendance.list)
+
+        if (!props.person.isFetching && props.person.isStatus) {
+            console.log('SELF ATTENDANCE IN ATTENDANCE, SET NEW ATTENDANCE LIST')
+            setAttendance_list(props.person.list)
         }
-    }, [props.self_attendance.isStatus])
+    }, [props.person.isStatus])
+
+    // return CLEAR 
 
     return (
         <>
@@ -139,7 +146,7 @@ const Screen = (props) => {
             </ScrollView>
 
 
-            {koor &&
+            {self_item &&
                 <TouchableOpacity
                     onPress={() => showModal(true)}
                     style={{ width: '80%', alignSelf: 'center', borderRadius: 20, backgroundColor: '#5FA1FC', marginVertical: 20, padding: 10, alignItems: 'center' }}>
@@ -231,7 +238,7 @@ const ModalApproval = props => {
                                         <Text style={{ fontWeight: 'bold' }}>Total</Text>
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <TextInput
-                                                value='9'
+                                                value={toCalc(Number(moment(dataModal.checkout_time).format('HH')), Number(moment(dataModal.checkin_time).format('HH')))}
                                                 disabled
                                                 mode='outlined'
                                             />
@@ -245,7 +252,7 @@ const ModalApproval = props => {
                                         <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Estimate Working</Text>
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <TextInput
-                                                value='9'
+                                                // value='9'
                                                 disabled
                                                 mode='outlined'
                                             />
@@ -257,7 +264,7 @@ const ModalApproval = props => {
                                         <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Overtime</Text>
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <TextInput
-                                                value='9'
+                                                value={toCalc(Number(moment(dataModal.checkout_time).format('HH')), Number(moment(dataModal.checkin_time).format('HH')), true)}
                                                 disabled
                                                 mode='outlined'
                                             />
@@ -268,8 +275,8 @@ const ModalApproval = props => {
 
                                 <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Description</Text>
                                 <TextInput
-                                    placeholder='description'
-                                    // value={description}
+                                    // placeholder='description'
+                                    value={dataModal.description ? dataModal.description : ''}
                                     mode='outlined'
                                 />
                             </>}
@@ -385,6 +392,21 @@ const ModalApproval = props => {
 }
 
 
+const toCalc = (curr, before, overtime = false) => {
+    console.log('CALC')
+    console.log(curr - before)
+    if (overtime) {
+        const z = (curr - before) - 9
+        console.log(z)
+        return z < 0 ? '0' : z.toString()
+    }
+
+    const result = curr - before
+    return result.toString()
+}
+
+
+
 const ModalAttendance = props => {
     const { open, onClose, project, absence, travel, update } = props
 
@@ -394,6 +416,8 @@ const ModalAttendance = props => {
 
     const [attendance, setAttendace] = React.useState(null)
     const [attendanceData, setAttendaceData] = React.useState(null)
+    // console.log(attendance)
+    // console.log(attendanceData)
 
     // const [travelType, setTravelType] = React.useState('depart')
 
@@ -439,6 +463,7 @@ const ModalAttendance = props => {
 
 
     React.useEffect(() => {
+        console.log('RESET')
         return () => resetModal()
     }, [])
 
@@ -461,7 +486,7 @@ const ModalAttendance = props => {
 
 
     React.useEffect(() => {
-
+        console.log('EFFECT ATTENDANCE')
         if (attendance === 'attendance' && absence.isStatus && absence.list.length !== 0) {
             console.log('CHECK DATA')
 
@@ -471,6 +496,8 @@ const ModalAttendance = props => {
             } else {
                 setAttendaceData(default_absence)
             }
+        } else if (attendance === 'attendance' && absence.isStatus) {
+            setAttendaceData(default_absence)
         }
 
         if (attendance === 'travel' && travel.isStatus && travel.list.length !== 0) {
@@ -481,12 +508,60 @@ const ModalAttendance = props => {
             } else {
                 setAttendaceData(default_travel)
             }
-
             // if (travel.list[0].checkout_time) {
             //     setTravelType('return')
             // }
+        } else if (attendance === 'travel' && travel.isStatus) {
+            setAttendaceData(default_travel)
         }
+
     }, [attendance])
+
+
+
+    /**
+     * data for state for input
+     */
+    const [formAttendance, setFormAttendance] = React.useState({
+        "attendance_type": attendance,
+        "travel_type": attendance === 'travel' ? travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart' : null,
+        attendance_time: moment().format('YYYY-MM-D HH:mm:ss'),
+        "description": null,
+        longitude: null,
+        latitude: null,
+        location: null,
+        image: null,
+    })
+
+    // { console.log(moment().format('HH:mm:ss') - moment(attendanceData.checkin_time).format('HH:mm:ss')) }
+
+    const TIME = moment().format()
+    const xxx = 17250857
+
+    const SK2 = '2020-10-10T05:00:00.000000Z' //SEBELUMNY
+    const SK = '2020-10-10T08:00:00.000000Z'
+    // console.log(moment(SK).format('HH:mm:ss'))
+    console.log('-----------------------')
+    // console.log(moment(SK2).format('HH:mm:ss'))
+
+    // const TOZZ = moment(SK).format('X') - moment(SK2).format('X')
+    // const wre = moment(-TOZZ).format('H')
+    // console.log(wre)
+
+    var now = moment('2020-10-10T08:00:00.000000Z'); //todays date
+    var end = moment('2020-10-10T05:00:00.000000Z'); // another date //SK
+
+    const currentTIME = moment().format()
+    // console.log(currentX)
+    const duration = moment.duration(moment(currentTIME).diff(moment('2020-03-24T20:00:38+07:00'))).hours();
+    // const duration = moment.duration(moment().diff(moment(attendanceData.checkin_time))).hours();
+    // console.log(duration.toString())
+    // var days = duration.asDays();
+
+
+    // console.log('date')
+    // console.log(TIME)
+    // console.log(moment(xxx).format('H'))
 
 
     return (
@@ -510,6 +585,7 @@ const ModalAttendance = props => {
                     onValueChange={(itemValue, itemIndex) => {
                         setState(itemValue)
                         setStateIndex(itemIndex - 1)
+                        setAttendace(null)
                     }}>
                     <Picker.Item label='Select Project' value={null} />
                     {project.list.map((item, i) => <Picker.Item key={i} label={item.project_code} value={item.key} />)}
@@ -536,19 +612,19 @@ const ModalAttendance = props => {
                     <>
                         <View style={{ marginTop: 20 }}>
                             <Text><Text style={{ fontWeight: 'bold' }}>Attendance - </Text>{project.list[stateIndex].project_code}</Text>
-                            <Text style={{ color: 'grey', fontSize: 11 }}>{moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY')}</Text>
+                            <Text style={{ color: 'grey', fontSize: 11 }}>{attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
                             {/* kasih today */}
 
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Clock In</Text>
                             <View style={{ flexDirection: 'row' }}>
                                 <View style={{ flex: 1 }}>
                                     <TextInput
-                                        value={attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm:ss') : moment().format('YYYY-MM-D HH:mm:ss')}
+                                        value={attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm:ss') : moment().format('HH:mm:ss')}
                                         disabled
                                         mode='outlined'
                                     />
                                 </View>
-
+                                {/* {console.log(moment(attendanceData.checkin_time).format('X') - moment().format('X'))} */}
                                 <View style={{ flex: 1, paddingLeft: 20 }} />
                             </View>
 
@@ -560,17 +636,17 @@ const ModalAttendance = props => {
                                         <View style={{ flex: 1 }}>
                                             <Text style={{ fontWeight: 'bold' }}>Clock Out</Text>
                                             <TextInput
-                                                value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm:ss') : moment().format('YYYY-MM-D HH:mm:ss')}
+                                                value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm:ss') : moment().format('HH:mm:ss')}
                                                 disabled
                                                 mode='outlined'
                                             />
                                         </View>
-
                                         <View style={{ flex: 1, paddingLeft: 20 }}>
                                             <Text style={{ fontWeight: 'bold' }}>Total</Text>
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <TextInput
-                                                    value='9'
+                                                    value={toCalc(Number(moment().format('HH')), Number(moment(attendanceData.checkin_time).format('HH')))}
+                                                    // value={moment.duration(moment(currentTIME).diff(moment(attendanceData.checkin_time))).hours().toString()}
                                                     disabled
                                                     mode='outlined'
                                                 />
@@ -580,14 +656,15 @@ const ModalAttendance = props => {
                                         </View>
                                     </View>
 
+                                    {/* {console.log(moment().format('HH') - moment(attendanceData.checkin_time).format('HH'))} */}
 
                                     <View style={{ flexDirection: 'row' }}>
                                         <View style={{ flex: 1 }}>
                                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Estimate Working</Text>
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <TextInput
-                                                    value='9'
-                                                    disabled
+                                                    // value='9'
+                                                    // disabled
                                                     mode='outlined'
                                                 />
                                                 <Text style={{ paddingLeft: 10 }}>Hours</Text>
@@ -598,7 +675,7 @@ const ModalAttendance = props => {
                                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Overtime</Text>
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <TextInput
-                                                    value='9'
+                                                    value={toCalc(Number(moment().format('HH')), Number(moment(attendanceData.checkin_time).format('HH')), true)}
                                                     disabled
                                                     mode='outlined'
                                                 />
@@ -637,7 +714,7 @@ const ModalAttendance = props => {
                     <>
                         <View style={{ marginTop: 20 }}>
                             <Text><Text style={{ fontWeight: 'bold' }}>Attendance - </Text>{project.list[stateIndex].project_code}</Text>
-                            <Text style={{ color: 'grey', fontSize: 11 }}>{moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY')}</Text>
+                            <Text style={{ color: 'grey', fontSize: 11 }}>{attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
 
                             {/* FIRST */}
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Location Departure</Text>
@@ -662,7 +739,7 @@ const ModalAttendance = props => {
 
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Departure</Text>
                             <TextInput
-                                value={attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm:ss') : moment().format('YYYY-MM-D HH:mm:ss')}
+                                value={attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm:ss') : moment().format('HH:mm:ss')}
                                 disabled
                                 mode='outlined'
                             />
@@ -704,7 +781,7 @@ const ModalAttendance = props => {
 
                                     <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Arrival</Text>
                                     <TextInput
-                                        value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm:ss') : moment().format('YYYY-MM-D HH:mm:ss')}
+                                        value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm:ss') : moment().format('HH:mm:ss')}
                                         disabled
                                         mode='outlined'
                                     />
@@ -752,7 +829,8 @@ const mapStateToProps = state => {
         travel: state.attendance.TRAVEL,
         absence: state.attendance.ABSENCE,
         update: state.attendance.UPDATE,
-        self_attendance: state.attendance.DATA
+        self_attendance: state.attendance.DATA,
+        person: state.attendance.PERSON
     }
 }
 
@@ -760,7 +838,7 @@ export const ModalAttendanceRedux = connect(mapStateToProps, { getAttendanceAbse
 export const ModalApprovalRedux = connect(mapStateToProps, { getStaffInfo })(ModalApproval)
 
 
-export const AttendanceScreen = connect(mapStateToProps, { getAttendance })(Screen)
+export const AttendanceScreen = connect(mapStateToProps, { getPersonAttendance, clearPersonAttendance })(Screen)
 
 
 

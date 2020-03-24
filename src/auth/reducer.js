@@ -36,7 +36,7 @@ export default (state = initState, action) => {
             return { ...state, token: action.token }
 
         case 'SET_KOOR_AUTH':
-            return { ...state, koor: true }
+            return { ...state, koor: action.bool }
 
 
         case 'SIGN_IN_PENDING':

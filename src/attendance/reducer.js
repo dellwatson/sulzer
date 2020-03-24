@@ -4,6 +4,8 @@ const initState = {
     ABSENCE: { isFetching: null, isStatus: null, list: [] },
     TRAVEL: { isFetching: null, isStatus: null, list: [] },
 
+    PERSON: { isFetching: null, isStatus: null, list: [] },
+
     UPDATE: { isFetching: null, isStatus: null, }
 }
 
@@ -25,16 +27,23 @@ export default (state = initState, action) => {
         case 'GET_ATTENDANCE_RESOLVED':
             return { ...state, DATA: { list: action.data, isFetching: false, isStatus: true } }
 
+        case 'GET_PERSON_ATTENDANCE_PENDING':
+            return { ...state, PERSON: { isFetching: true } }
+        case 'GET_PERSON_ATTENDANCE_REJECTED':
+            return { ...state, PERSON: { isFetching: false, isStatus: false, ...action.err } }
+        case 'GET_PERSON_ATTENDANCE_RESOLVED':
+            return { ...state, PERSON: { list: action.data, isFetching: false, isStatus: true } }
+
+        case 'CLEAR_PERSON_ATTENDANCE':
+            return { ...state, PERSON: { isFetching: null, isStatus: null, list: [] } }
+
         case 'GET_ATTENDANCE_ABSENCE_PENDING':
-            console.log('absence pendiing')
 
             return { ...state, ABSENCE: { isFetching: true } }
         case 'GET_ATTENDANCE_ABSENCE_REJECTED':
-            console.log('absence rejected')
 
             return { ...state, ABSENCE: { isFetching: false, isStatus: false, ...action.err } }
         case 'GET_ATTENDANCE_ABSENCE_RESOLVED':
-            console.log('absence resolved')
 
             return { ...state, ABSENCE: { list: action.data, isFetching: false, isStatus: true } }
 
@@ -48,11 +57,9 @@ export default (state = initState, action) => {
         case 'TRIGGER_ATTENDANCE_PENDING':
             return { ...state, UPDATE: { isFetching: true } }
         case 'TRIGGER_ATTENDANCE_REJECTED':
-            console.log('REJECTED')
 
             return { ...state, UPDATE: { isFetching: false, isStatus: false, ...action.err } }
         case 'TRIGGER_ATTENDANCE_RESOLVED':
-            console.log('RESOLVED')
             return { ...state, UPDATE: { ...action.data, isFetching: false, isStatus: true } }
 
 

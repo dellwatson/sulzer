@@ -35,6 +35,42 @@ export const getAttendance = (project_key) => (dispatch, getState) => {
         })
 }
 
+
+export const clearPersonAttendance = () => dispatch => dispatch({ type: 'CLEAR_PERSON_ATTENDANCE' })
+export const getPersonAttendance = (project_key) => (dispatch, getState) => {
+    const { token } = getState().auth
+
+    let config = {
+        headers: { "Authorization": token }
+    }
+
+
+    dispatch({ type: `GET_PRESON_ATTENDANCE_PENDING` })
+
+    return axios.get(baseURL + '/my-attendances-project/' + project_key, config)
+
+        .then(response => {
+            dispatch({
+                type: `GET_PERSON_ATTENDANCE_RESOLVED`,
+                data: response.data,
+                code: response.status
+            });
+            return response
+        })
+        .catch(error => {
+            dispatch({
+                type: `GET_PERSON_ATTENDANCE_REJECTED`,
+                error
+            });
+
+            return { error }
+        })
+}
+
+
+
+
+
 export const getAttendanceAbsence = (project_key) => (dispatch, getState) => {
     const { token } = getState().auth
 
