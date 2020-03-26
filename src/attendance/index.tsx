@@ -1,9 +1,9 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, RefreshControl } from 'react-native';
 import { Surface, Snackbar, Caption, TextInput, Divider, Button, Title } from 'react-native-paper';
 import { TitleSmall, HeaderGroup, Box, BarConnector } from '../../components/util.component'
 import { connect } from 'react-redux'
-import { getPersonAttendance, clearPersonAttendance, getAttendanceAbsence, getAttendanceTravel, triggerAttendance, clearTrigger, resetAttendance } from './action'
+import { getPersonAttendance, clearPersonAttendance, getAttendance, getAttendanceStaff, clearAttendanceStaff, getAttendanceAbsence, getAttendanceTravel, triggerAttendance, clearTrigger, resetAttendance } from './action'
 import { getStaffInfo } from '../team/action'
 import { Picker } from '@react-native-community/picker';
 import Modal from "react-native-modal";
@@ -56,41 +56,69 @@ const default_travel = {
 }
 
 const Screen = (props) => {
-    const { attendances_arr, koor, authority, self_item } = props.route.params
+    const { koor, authority, self_item, staff_key, project_key } = props.route.params
 
-    const [attendance_list, setAttendance_list] = React.useState(koor ? attendances_arr : []) //
+    const { staff_attendance, self_attendance } = props
+
+    const STATUS = self_item ? self_attendance.isStatus : staff_attendance.isStatus
+    const LIST = self_item ? self_attendance.list : staff_attendance.list
+    const FETCHING = self_item ? self_attendance.isFetching : staff_attendance.isFetching
 
     const [modal, showModal] = React.useState(false)
     const [modalApproval, showModalApproval] = React.useState(false)
 
     const [dataModal, setDatamodal] = React.useState(null)
 
+    const [selfLoaded, setSelfLoad] = React.useState(false)
+
+    /**
+  
+     * login staff:
+     * auth false
+     * koor false
+     * self true
+     * 
+     * 
+     * login koor, check koor
+     * auth false
+     * koor true
+     * self true
+     * 
+     * login koor, check staff
+     * auth true
+     * koor true
+     * self false
+     * 
+     * 
+     */
     React.useEffect(() => {
-        if (!koor) {
-            console.log('KOOR GET ATTENDANCE')
-            props.getPersonAttendance(props.route.params.project_key) //klo dari project dpet key ? dari team ?
+        if (self_item) {
+            if (!selfLoaded) return
+
+            props.getAttendance(project_key)
+            setSelfLoad(true)
+        } else {
+            props.getAttendanceStaff(staff_key)
         }
-        return () => props.clearPersonAttendance()
+
+        return () => doClear()
     }, [])
 
+    const doRefresh = () => self_item ? props.getAttendance(project_key) : props.getAttendanceStaff(staff_key)
 
-    React.useEffect(() => {
-
-        if (!props.person.isFetching && props.person.isStatus) {
-            console.log('SELF ATTENDANCE IN ATTENDANCE, SET NEW ATTENDANCE LIST')
-            setAttendance_list(props.person.list)
-        }
-    }, [props.person.isStatus])
-
-    // return CLEAR 
+    const doClear = () => {
+        props.clearAttendanceStaff()
+        // props.clearPersonAttendance() //TODO
+    }
 
     return (
         <>
             <ScrollView
                 contentContainerStyle={{ paddingBottom: 60 }}
+                refreshControl={<RefreshControl refreshing={FETCHING} onRefresh={doRefresh} />}
                 style={styles.container}>
+                {STATUS && LIST.map((item, i) => {
 
-                {attendance_list.map((item, i) => {
                     return (
                         <TouchableOpacity
                             onPress={() => {
@@ -824,6 +852,8 @@ const mapStateToProps = state => {
         absence: state.attendance.ABSENCE,
         update: state.attendance.UPDATE,
         self_attendance: state.attendance.DATA,
+        staff_attendance: state.attendance.STAFF,
+
         person: state.attendance.PERSON
     }
 }
@@ -832,7 +862,7 @@ export const ModalAttendanceRedux = connect(mapStateToProps, { getAttendanceAbse
 export const ModalApprovalRedux = connect(mapStateToProps, { getStaffInfo })(ModalApproval)
 
 
-export const AttendanceScreen = connect(mapStateToProps, { getPersonAttendance, clearPersonAttendance })(Screen)
+export const AttendanceScreen = connect(mapStateToProps, { getAttendance, clearPersonAttendance, getAttendanceStaff, clearAttendanceStaff })(Screen)
 
 
 

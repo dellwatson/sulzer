@@ -36,6 +36,39 @@ export const getAttendance = (project_key) => (dispatch, getState) => {
 }
 
 
+export const clearAttendanceStaff = () => dispatch => dispatch({ type: 'CLEAR_ATTENDANCE_STAFF' })
+
+export const getAttendanceStaff = (staff_project_key) => (dispatch, getState) => {
+    const { token } = getState().auth
+
+    let config = {
+        headers: { "Authorization": token }
+    }
+
+
+    dispatch({ type: `GET_ATTENDANCE_STAFF_PENDING` })
+
+    return axios.get(baseURL + '/attendance-staff/' + staff_project_key, config)
+
+        .then(response => {
+            dispatch({
+                type: `GET_ATTENDANCE_STAFF_RESOLVED`,
+                data: response.data,
+                code: response.status
+            });
+            return response
+        })
+        .catch(error => {
+            dispatch({
+                type: `GET_ATTENDANCE_STAFF_REJECTED`,
+                error
+            });
+
+            return { error }
+        })
+}
+
+
 export const clearPersonAttendance = () => dispatch => dispatch({ type: 'CLEAR_PERSON_ATTENDANCE' })
 export const getPersonAttendance = (project_key) => (dispatch, getState) => {
     const { token } = getState().auth

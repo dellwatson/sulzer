@@ -40,7 +40,8 @@ const Screen = (props) => {
       {self_attendance.isStatus &&
         <>
           <TouchableOpacity
-            onPress={() => props.navigation.navigate('Attendance', { attendances_arr: self_attendance.list, koor, authority: false, self_item: true })}
+            //delete attendances arr
+            onPress={() => props.navigation.navigate('Attendance', { project_key, koor, authority: false, self_item: true })}
             style={{
               marginHorizontal: SPACE,
               marginVertical: SPACE / 3,
@@ -94,7 +95,8 @@ const Screen = (props) => {
         // console.log(item)
         return (
           <TouchableOpacity
-            onPress={() => props.navigation.navigate('Attendance', { attendances_arr: item.attendances, koor, authority: true, self_item: false })}
+            //delete attendances arr
+            onPress={() => props.navigation.navigate('Attendance', { staff_key: item.key, koor, authority: true, self_item: false })}
             key={i}
             style={{
               marginHorizontal: SPACE,
@@ -144,7 +146,7 @@ const Screen = (props) => {
 const mapStateToProps = state => {
   return {
     staff: state.staff.DATA,
-    self_attendance: state.attendance.DATA,
+    self_attendance: state.attendance.DATA, //masih diperlukan di page ini
     session: state.profile.DATA
 
   }

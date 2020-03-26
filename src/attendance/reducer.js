@@ -1,6 +1,7 @@
 const initState = {
-    DATA: { isFetching: null, isStatus: null, list: [] },
 
+    DATA: { isFetching: null, isStatus: null, list: [] },
+    STAFF: { isFetching: null, isStatus: null, list: [] },
     ABSENCE: { isFetching: null, isStatus: null, list: [] },
     TRAVEL: { isFetching: null, isStatus: null, list: [] },
 
@@ -26,6 +27,17 @@ export default (state = initState, action) => {
             return { ...state, DATA: { isFetching: false, isStatus: false, ...action.err } }
         case 'GET_ATTENDANCE_RESOLVED':
             return { ...state, DATA: { list: action.data, isFetching: false, isStatus: true } }
+
+
+        case 'CLEAR_ATTENDANCE_STAFF':
+            return { ...state, STAFF: { isFetching: null, isStatus: null, list: [] }, }
+
+        case 'GET_ATTENDANCE_STAFF_PENDING':
+            return { ...state, STAFF: { isFetching: true } }
+        case 'GET_ATTENDANCE_STAFF_REJECTED':
+            return { ...state, STAFF: { isFetching: false, isStatus: false, ...action.err } }
+        case 'GET_ATTENDANCE_STAFF_RESOLVED':
+            return { ...state, STAFF: { list: action.data, isFetching: false, isStatus: true } }
 
         case 'GET_PERSON_ATTENDANCE_PENDING':
             return { ...state, PERSON: { isFetching: true } }

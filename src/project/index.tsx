@@ -16,50 +16,7 @@ const Screen = (props) => {
   const { project } = props
 
   const attendances_arr = [
-    // {
-    //   "key": 11,
-    //   "attendance_type": "attendance",
-    //   "attendance_sequence": 2,
-    //   "checkin_time": 1602399600,
-    //   "checkout_time": 1602403200,
-    //   "estimation_time": null,
-    //   "checkin_latitude": null,
-    //   "checkout_latitude": null,
-    //   "checkin_longitude": null,
-    //   "checkout_longitude": null,
-    //   "checkin_location": null,
-    //   "checkout_location": null,
-    //   "description": null,
-    //   "status": "new",
-    //   "revision_version": null,
-    //   "revision_time": null,
-    //   "accepted": false,
-    //   "accepted_time": null,
-    //   "timescreate": 1584425402,
-    //   "timesupdate": 1584425407
-    // },
-    // {
-    //   "key": 10,
-    //   "attendance_type": "attendance",
-    //   "attendance_sequence": 1,
-    //   "checkin_time": 1602313200,
-    //   "checkout_time": 1602313200,
-    //   "estimation_time": null,
-    //   "checkin_latitude": null,
-    //   "checkout_latitude": null,
-    //   "checkin_longitude": null,
-    //   "checkout_longitude": null,
-    //   "checkin_location": null,
-    //   "checkout_location": null,
-    //   "description": "a3",
-    //   "status": "new",
-    //   "revision_version": null,
-    //   "revision_time": null,
-    //   "accepted": false,
-    //   "accepted_time": null,
-    //   "timescreate": 1584425384,
-    //   "timesupdate": 1584425388
-    // }
+
   ]
 
 
@@ -73,6 +30,7 @@ const Screen = (props) => {
               if (koor) {
                 props.navigation.navigate('Team', { project_key: item.key, koor })
               } else {
+                //delete attendances arr
                 props.navigation.navigate('Attendance', { project_key: item.key, koor, authority: false, attendances_arr, self_item: true })
               }
             }}
