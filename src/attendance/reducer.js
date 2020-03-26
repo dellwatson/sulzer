@@ -57,6 +57,7 @@ export default (state = initState, action) => {
         case 'TRIGGER_ATTENDANCE_PENDING':
             return { ...state, UPDATE: { isFetching: true } }
         case 'TRIGGER_ATTENDANCE_REJECTED':
+            console.log(action.err)
 
             return { ...state, UPDATE: { isFetching: false, isStatus: false, ...action.err } }
         case 'TRIGGER_ATTENDANCE_RESOLVED':

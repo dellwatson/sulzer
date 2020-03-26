@@ -135,8 +135,10 @@ const Screen = (props) => {
                                 <Text style={{ fontWeight: 'bold', fontSize: 22 }}>{item.checkout_time ? item.accepted ? 'Approved' : 'Pending' : 'Ongoing'}</Text>
 
                                 {!item.accepted && item.attendance_type !== 'travel' && <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 40, marginRight: 10 }}>8</Text>
-                                    <Text>hours</Text>
+                                    <Text style={{ fontWeight: 'bold', fontSize: 40, marginRight: 10 }}>
+                                        {item.checkout_time && toCalc(Number(moment(item.checkout_time).format('HH')), Number(moment(item.checkin_time).format('HH')))}
+                                    </Text>
+                                    <Text>{item.checkout_time && 'hours'}</Text>
                                 </View>}
                             </View>
 
@@ -172,11 +174,12 @@ const Screen = (props) => {
 }
 
 const toCalc = (curr, before, overtime = false) => {
-    console.log('CALC')
-    console.log(curr - before)
+    //kalo malem diganti
+
+    // console.log(curr - before)
     if (overtime) {
         const z = (curr - before) - 9
-        console.log(z)
+        // console.log(z)
         return z < 0 ? '0' : z.toString()
     }
 
@@ -427,11 +430,6 @@ const ModalAttendance = props => {
     // console.log(attendance)
     // console.log(attendanceData)
 
-    // const [travelType, setTravelType] = React.useState('depart')
-
-
-
-
 
     const resetModal = () => {
         setState(null)
@@ -458,12 +456,13 @@ const ModalAttendance = props => {
 
 
     React.useEffect(() => {
+        console.log('UPDAATEEE')
         if (!update.isFetching && update.isStatus) {
             console.log('UPDATE BARU NI')
             // refreshAttendance()
             closeModal()
         }
-    }, [update.isStatus])
+    }, [update])
 
 
     React.useEffect(() => {
@@ -513,7 +512,7 @@ const ModalAttendance = props => {
      */
     const [formAttendance, setFormAttendance] = React.useState({
         "attendance_type": attendance,
-        "travel_type": attendance === 'travel' ? travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart' : null,
+        "travel_type": attendance === 'travel' ? travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart' : '',
         attendance_time: moment().format('YYYY-MM-D HH:mm:ss'),
         "description": null,
         longitude: null,
@@ -521,7 +520,18 @@ const ModalAttendance = props => {
         location: null,
         image: null,
     })
-    console.log(formAttendance)
+    // console.log(formAttendance)
+
+    // const defaultX = {
+    //     "attendance_type": 'attendance',
+    //     "travel_type": '',
+    //     attendance_time: moment().format('YYYY-MM-D HH:mm:ss'),
+    //     "description": null,
+    //     longitude: null,
+    //     latitude: null,
+    //     location: null,
+    //     image: null,
+    // }
 
     const doSubmit = () => {
         props.triggerAttendance(formAttendance, project.list[stateIndex].key)
@@ -567,7 +577,7 @@ const ModalAttendance = props => {
                                 setFormAttendance({
                                     ...formAttendance,
                                     "attendance_type": itemValue,
-                                    "travel_type": itemValue === 'travel' ? travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart' : null,
+                                    "travel_type": itemValue === 'travel' ? travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart' : '',
                                     attendance_time: moment().format('YYYY-MM-D HH:mm:ss'),
                                     "description": null,
                                     longitude: null,
