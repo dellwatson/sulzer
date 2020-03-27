@@ -7,7 +7,11 @@ const initState = {
 
     PERSON: { isFetching: null, isStatus: null, list: [] },
 
-    UPDATE: { isFetching: null, isStatus: null, }
+
+
+    UPDATE: { isFetching: null, isStatus: null, },
+    ACCEPT: { isFetching: null, isStatus: null, },
+    EDIT: { isFetching: null, isStatus: null, },
 }
 
 
@@ -69,11 +73,29 @@ export default (state = initState, action) => {
         case 'TRIGGER_ATTENDANCE_PENDING':
             return { ...state, UPDATE: { isFetching: true } }
         case 'TRIGGER_ATTENDANCE_REJECTED':
-            console.log(action.err)
-
             return { ...state, UPDATE: { isFetching: false, isStatus: false, ...action.err } }
         case 'TRIGGER_ATTENDANCE_RESOLVED':
             return { ...state, UPDATE: { ...action.data, isFetching: false, isStatus: true } }
+
+        case 'ACCEPT_ATTENDANCE_PENDING':
+            console.log('ACCEPEEETTT PENDING')
+            return { ...state, ACCEPT: { isFetching: true } }
+        case 'ACCEPT_ATTENDANCE_REJECTED':
+            console.log('ACCEPEEETTT REJECTEED')
+
+            return { ...state, ACCEPT: { isFetching: false, isStatus: false, ...action.err } }
+        case 'ACCEPT_ATTENDANCE_RESOLVED':
+            console.log('ACCEPEEETTT RESOLLVEED')
+
+            return { ...state, ACCEPT: { ...action.data, isFetching: false, isStatus: true } }
+
+
+        case 'EDIT_ATTENDANCE_PENDING':
+            return { ...state, EDIT: { isFetching: true } }
+        case 'EDIT_ATTENDANCE_REJECTED':
+            return { ...state, EDIT: { isFetching: false, isStatus: false, ...action.err } }
+        case 'EDIT_ATTENDANCE_RESOLVED':
+            return { ...state, EDIT: { ...action.data, isFetching: false, isStatus: true } }
 
 
         default:

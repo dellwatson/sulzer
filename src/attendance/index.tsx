@@ -1,9 +1,14 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, RefreshControl } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, RefreshControl, Alert, ActivityIndicator } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Surface, Snackbar, Caption, TextInput, Divider, Button, Title } from 'react-native-paper';
 import { TitleSmall, HeaderGroup, Box, BarConnector } from '../../components/util.component'
 import { connect } from 'react-redux'
-import { getPersonAttendance, clearPersonAttendance, getAttendance, getAttendanceStaff, clearAttendanceStaff, getAttendanceAbsence, getAttendanceTravel, triggerAttendance, clearTrigger, resetAttendance } from './action'
+import {
+    getPersonAttendance, clearPersonAttendance, getAttendance, editAttendance,
+    acceptAttendance, getAttendanceStaff, clearAttendanceStaff, getAttendanceAbsence, getAttendanceTravel,
+    triggerAttendance, clearTrigger, resetAttendance
+} from './action'
 import { getStaffInfo } from '../team/action'
 import { Picker } from '@react-native-community/picker';
 import Modal from "react-native-modal";
@@ -70,7 +75,6 @@ const Screen = (props) => {
     const [dataModal, setDatamodal] = React.useState(null)
 
     const [selfLoaded, setSelfLoad] = React.useState(false)
-
     /**
   
      * login staff:
@@ -191,6 +195,9 @@ const Screen = (props) => {
 
             {dataModal &&
                 <ModalApprovalRedux
+
+                    onRefresh={doRefresh}
+                    projectId={project_key}
                     dataModal={dataModal}
                     authority={authority}
                     open={modalApproval}
@@ -217,19 +224,93 @@ const toCalc = (curr, before, overtime = false) => {
 
 const ModalApproval = props => {
 
-    const { open, onClose, authority, dataModal } = props
+    const { open, onClose, authority, dataModal, projectId, accept_status, onRefresh, edit_status } = props
+    const [newForm, setNewForm] = React.useState(dataModal)
+
     const TRAVEL = dataModal.attendance_type === 'travel'
     const attendance = TRAVEL ? 'travel' : 'attendance'
 
     const getStatus = () => {
-        return dataModal.checkout_time ? dataModal.accepted ? 'Approved' : 'Pending' : 'Ongoing'
+        return dataModal.checkout_time ? newForm.accepted ? 'Approved' : 'Pending' : 'Ongoing' //ganti dataModal to newForm karena saat update bakal setNewForm baru
     }
+    const getColorStatus = () => {
+        return dataModal.checkout_time ? newForm.accepted ? 'green' : 'red' : 'orange' //ganti dataModal to newForm karena saat update bakal setNewForm baru
+    }
+
+    React.useEffect(() => {
+        if (!accept_status.isFetching && accept_status.isStatus) {
+            console.log('MASUK USEFFECCT ACCEPT')
+            /**
+             * antara gw close, kasih --> notif
+             * 
+             * atau di update bahan nya
+             * 
+             */
+
+            onRefresh()
+        }
+    }, [accept_status])
+
+    /**
+     * OPEN ALERT, KALO CANCEL, SET DATAMODAL LAGI
+     */
+
+
+
+    const [edit, setEdit] = React.useState(false) // kasih alert
+    /**
+     * after approve, cannot edit again annymooree
+     */
+    const [showTimePicker, setShowTimePicker] = React.useState(false)
+    const [isCheckinTimePicker, setIsCheckinTimePicker] = React.useState(true) // 'out
+
+    const [placeholderTime, setPlaceholderTime] = React.useState(moment(dataModal.checkin_time))
+
+
+    React.useEffect(() => {
+        setNewForm(dataModal)
+    }, [open])
+
+    const closeModal = () => {
+        // after edit // approve -> refresh, 
+        setEdit(false)
+        onClose()
+    }
+
+    const finishEdit = () => {
+        props.editAttendance(dataModal.key)
+        setEdit(false)
+    }
+    // // edit false in useEffect
+
+
+    const showAlertEdit = () => {
+        Alert.alert(
+            'Confirmation',
+            'Are you sure you want to change this information?',
+            [
+                { text: 'Continue to Edit', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                { text: 'OK', onPress: () => finishEdit() },
+                // { text: 'Continue to edit', onPress: () => console.log('Ask me later pressed') },
+            ],
+            { cancelable: false }
+        )
+    }
+
+    React.useEffect(() => {
+        if (!accept_status.isFetching && accept_status.isStatus) {
+            setNewForm({
+                ...dataModal,
+                ...accept_status
+            })
+        }
+    }, [accept_status])
 
     return (
         <Modal
             useNativeDriver
-            onBackdropPress={onClose}
-            onBackButtonPress={onClose}
+            onBackdropPress={closeModal}
+            onBackButtonPress={closeModal}
             isVisible={open}
             style={{ width: '100%', margin: 0, marginTop: 60, }}
         >
@@ -238,24 +319,62 @@ const ModalApproval = props => {
                 style={{ flex: 1, backgroundColor: 'white', width: '100%', margin: 0, padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20 }}
             >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ fontWeight: 'bold' }}>Status : {getStatus()}</Text>
-                    <Text style={{ fontWeight: 'bold' }} onPress={onClose}>X</Text>
+                    <Text style={{
+                        fontWeight: 'bold',
+                    }}>Status : <Text style={{ fontSize: 22, color: getColorStatus() }}>{getStatus()}</Text></Text>
+                    <Text style={{ fontWeight: 'bold' }} onPress={closeModal}>X</Text>
                 </View>
 
                 <Text><Text style={{ fontWeight: 'bold', marginTop: 20 }}>Type</Text> : {TRAVEL ? 'Travel' : 'Absence'}</Text>
-                <Text><Text style={{ fontWeight: 'bold', marginTop: 20 }}>Attendance - </Text>{}</Text>
+                <Text><Text style={{ fontWeight: 'bold', marginTop: 20 }}>Attendance - </Text>{projectId}</Text>
                 <Text style={{ color: 'grey', fontSize: 11, }}>{moment(dataModal.timescreate).format('dddd, MMMM Do YYYY')}</Text>
+
+                {showTimePicker &&
+                    <DateTimePicker
+                        testID="dateTimePicker"
+                        timeZoneOffsetInMinutes={0}
+                        value={new Date(Number(placeholderTime))} //jaddiin function 
+                        mode='time'
+                        display="clock"
+                        is24Hour={true}
+                        onChange={(event, date) => {
+                            if (event.type === 'dismissed') {
+                                setShowTimePicker(false)
+                            }
+                            if (event.type === 'set') {
+                                const formattedDate = moment(date).format('YYYY-MM-D HH:mm:ss')
+                                const formDate = isCheckinTimePicker ? { checkin_time: formattedDate } : { checkout_time: formattedDate }
+                                setShowTimePicker(false)
+                                setNewForm({
+                                    ...newForm,
+                                    ...formDate
+                                })
+                            }
+                        }}
+                    />
+                }
 
                 {attendance === 'attendance' &&
                     <>
                         <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Clock In</Text>
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
-                                <TextInput
-                                    value={moment(dataModal.checkin_time).format('HH:mm:ss')}
-                                    disabled
-                                    mode='outlined'
-                                />
+                                <TouchableOpacity onPress={() => {
+                                    if (!edit) return
+                                    if (!isCheckinTimePicker) setIsCheckinTimePicker(true)
+                                    setPlaceholderTime(moment(newForm.checkin_time))
+                                    setShowTimePicker(true)
+                                }}>
+                                    <TextInput
+                                        value={moment(newForm.checkin_time).format('HH:mm')}
+                                        disabled
+                                        mode='outlined'
+                                        style={{ backgroundColor: edit ? 'white' : '#eee' }}
+                                    // awal formny di set dari dataModal
+                                    // dari form ?
+                                    />
+                                </TouchableOpacity>
+
                             </View>
 
                             <View style={{ flex: 1, paddingLeft: 20 }} />
@@ -270,18 +389,28 @@ const ModalApproval = props => {
                                 <View style={{ flexDirection: 'row' }}>
                                     <View style={{ flex: 1 }}>
                                         <Text style={{ fontWeight: 'bold' }}>Clock Out</Text>
-                                        <TextInput
-                                            value={moment(dataModal.checkout_time).format('HH:mm:ss')}
-                                            disabled
-                                            mode='outlined'
-                                        />
+                                        <TouchableOpacity onPress={() => {
+                                            if (!edit) return
+                                            if (isCheckinTimePicker) setIsCheckinTimePicker(false)
+                                            setPlaceholderTime(moment(newForm.checkout_time))
+                                            setShowTimePicker(true)
+                                        }}>
+                                            <TextInput
+                                                value={moment(newForm.checkout_time).format('HH:mm')}
+                                                disabled
+                                                mode='outlined'
+                                                style={{ backgroundColor: edit ? 'white' : '#eee' }}
+
+                                            />
+                                        </TouchableOpacity>
                                     </View>
 
                                     <View style={{ flex: 1, paddingLeft: 20 }}>
                                         <Text style={{ fontWeight: 'bold' }}>Total</Text>
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <TextInput
-                                                value={toCalc(Number(moment(dataModal.checkout_time).format('HH')), Number(moment(dataModal.checkin_time).format('HH')))}
+                                                style={{ backgroundColor: '#eee' }}
+                                                value={toCalc(Number(moment(newForm.checkout_time).format('HH')), Number(moment(newForm.checkin_time).format('HH')))}
                                                 disabled
                                                 mode='outlined'
                                             />
@@ -295,9 +424,12 @@ const ModalApproval = props => {
                                         <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Estimate Working</Text>
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <TextInput
-                                                // value='9'
-                                                disabled
+                                                value={newForm.estimation_time}
+                                                disabled={!edit}
                                                 mode='outlined'
+                                                onChangeText={text => setNewForm({ ...newForm, estimation_time: text })}
+                                                keyboardType='numeric'
+                                                style={{ backgroundColor: edit ? 'white' : '#eee' }}
                                             />
                                             <Text style={{ paddingLeft: 10 }}>Hours</Text>
                                         </View>
@@ -307,7 +439,8 @@ const ModalApproval = props => {
                                         <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Overtime</Text>
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <TextInput
-                                                value={toCalc(Number(moment(dataModal.checkout_time).format('HH')), Number(moment(dataModal.checkin_time).format('HH')), true)}
+                                                style={{ backgroundColor: '#eee' }}
+                                                value={toCalc(Number(moment(newForm.checkout_time).format('HH')), Number(moment(newForm.checkin_time).format('HH')), true)}
                                                 disabled
                                                 mode='outlined'
                                             />
@@ -319,9 +452,11 @@ const ModalApproval = props => {
                                 <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Description</Text>
                                 <TextInput
                                     // placeholder='description'
-                                    value={dataModal.description ? dataModal.description : ''}
+                                    style={{ backgroundColor: edit ? 'white' : '#eee' }}
+                                    value={newForm.description ? newForm.description : ''}
                                     mode='outlined'
-                                    disabled
+                                    disabled={!edit}
+                                    onChangeText={text => setNewForm({ ...newForm, description: text })}
                                 />
                             </>}
                     </>}
@@ -332,11 +467,14 @@ const ModalApproval = props => {
                 {attendance === 'travel' &&
                     <>
                         <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Location Departure</Text>
+
                         <TextInput
-                            value={dataModal.checkin_location}
-                            // placeholder='location ...'
-                            // value={description}
+                            style={{ backgroundColor: edit ? 'white' : '#eee' }}
+                            value={newForm.checkin_location ? newForm.checkin_location : ''}
                             mode='outlined'
+                            disabled={!edit}
+                            onChangeText={text => setNewForm({ ...newForm, checkin_location: text })}
+
                         />
 
                         <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
@@ -348,16 +486,24 @@ const ModalApproval = props => {
                                 />
                             </TouchableOpacity>
                             <View style={{ flex: 1 }}>
-                                <Caption>Jalan Keveer</Caption>
+                                <Caption>Gps Location - coming soon</Caption>
                             </View>
                         </View>
 
                         <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Departure</Text>
-                        <TextInput
-                            value={moment(dataModal.checkin_time).format('HH:mm:ss')}
-                            disabled
-                            mode='outlined'
-                        />
+                        <TouchableOpacity onPress={() => {
+                            if (!edit) return
+                            if (!isCheckinTimePicker) setIsCheckinTimePicker(true)
+                            setPlaceholderTime(moment(newForm.checkin_time))
+                            setShowTimePicker(true)
+                        }}>
+                            <TextInput
+                                style={{ backgroundColor: edit ? 'white' : '#eee' }}
+                                value={moment(newForm.checkin_time).format('HH:mm')}
+                                disabled
+                                mode='outlined'
+                            />
+                        </TouchableOpacity>
 
                         <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Photo</Text>
                         {/* <TouchableOpacity> */}
@@ -376,11 +522,14 @@ const ModalApproval = props => {
                             <>
                                 <Text style={{ fontWeight: 'bold' }}>Location Arrival</Text>
                                 <TextInput
+                                    style={{ backgroundColor: edit ? 'white' : '#eee' }}
                                     // placeholder='location ...'
                                     // value={description}
                                     mode='outlined'
-                                    value={dataModal.checkout_location}
-                                    disabled
+                                    value={newForm.checkout_location ? newForm.checkout_location : ''}
+                                    disabled={!edit}
+                                    onChangeText={text => setNewForm({ ...newForm, checkout_location: text })}
+
 
                                 />
 
@@ -393,16 +542,25 @@ const ModalApproval = props => {
                                         />
                                     </TouchableOpacity>
                                     <View style={{ flex: 1 }}>
-                                        <Caption>Jalan Keveer</Caption>
+                                        <Caption>Gps location - coming soon</Caption>
                                     </View>
                                 </View>
 
                                 <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Arrival</Text>
-                                <TextInput
-                                    value={moment(dataModal.checkout_time).format('HH:mm:ss')}
-                                    disabled
-                                    mode='outlined'
-                                />
+                                <TouchableOpacity onPress={() => {
+                                    if (!edit) return
+                                    if (isCheckinTimePicker) setIsCheckinTimePicker(false)
+                                    setPlaceholderTime(moment(newForm.checkout_time))
+                                    setShowTimePicker(true)
+                                }}>
+                                    <TextInput
+                                        style={{ backgroundColor: edit ? 'white' : '#eee' }}
+
+                                        value={moment(newForm.checkout_time).format('HH:mm')}
+                                        disabled
+                                        mode='outlined'
+                                    />
+                                </TouchableOpacity>
 
                                 <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Photo</Text>
                                 {/* <TouchableOpacity> */}
@@ -415,27 +573,48 @@ const ModalApproval = props => {
 
                                 <Text style={{ fontWeight: 'bold' }}>Description</Text>
                                 <TextInput
-                                    disabled
-                                    value={dataModal.description}
-                                    // placeholder='descr'
-                                    // value={description}
+                                    style={{ backgroundColor: edit ? 'white' : '#eee' }}
+                                    disabled={!edit}
+                                    value={newForm.description ? newForm.description : ''}
                                     mode='outlined'
+                                    onChangeText={text => setNewForm({ ...newForm, description: text })}
+
                                 />
                             </>}
                     </>}
 
 
-                {authority && dataModal.checkout_time && !dataModal.accepted &&
+
+                {authority && dataModal.checkout_time && !newForm.accepted &&
                     <View style={{ flexDirection: 'row', marginTop: 40, width: '100%', justifyContent: 'space-around' }}>
-                        <Button style={{ flex: 1, marginRight: 20 }} labelStyle={{ color: 'white' }} mode="contained" onPress={() => props.getStaffInfo()}>
-                            Approve
+                        <Button
+                            disabled={edit_status.isFetching || accept_status.isFetching}
+                            loading={accept_status.isFetching}
+
+                            style={{ flex: 1, marginRight: 10 }} labelStyle={{ color: 'white' }} mode="contained" onPress={() => props.acceptAttendance(dataModal.key)}>
+                            {!accept_status.isFetching && 'Approve'}
                         </Button>
 
-                        <Button style={{ flex: 1 }} mode="outlined" onPress={() => console.log('Pressed')}>
-                            Edit
-                        </Button>
+                        {!edit &&
+                            <Button
+                                disabled={edit_status.isFetching || accept_status.isFetching}
+                                loading={edit_status.isFetching}
+                                style={{ flex: 1, marginRight: 1 }} mode="outlined" onPress={() => setEdit(true)}>
+                                {!edit_status.isFetching && 'Edit'}
+                            </Button>}
+
+                        {edit && //TAMBAHAN DI FUNCTION KIRIM PROPS
+                            <Button
+                                labelStyle={{ color: 'white' }}
+                                style={{ flex: 1, backgroundColor: 'orange', marginRight: 1 }} mode="outlined" onPress={showAlertEdit}>
+                                Save Edit
+                            </Button>
+                        }
                     </View>
                 }
+                {edit_status.isStatus === false && accept_status.isStatus === false &&
+                    <Text style={{ fontWeight: 'bold', color: 'red', alignSelf: 'center', margin: 10 }}>Something Error</Text>}
+
             </ScrollView>
         </Modal>
     )
@@ -502,7 +681,6 @@ const ModalAttendance = props => {
 
 
     React.useEffect(() => {
-        console.log('EFFECT ATTENDANCE')
         if (attendance === 'attendance' && absence.isStatus && absence.list.length !== 0) {
             console.log('CHECK DATA')
 
@@ -853,13 +1031,15 @@ const mapStateToProps = state => {
         update: state.attendance.UPDATE,
         self_attendance: state.attendance.DATA,
         staff_attendance: state.attendance.STAFF,
+        accept_status: state.attendance.ACCEPT,
+        edit_status: state.attendance.EDIT,
 
         person: state.attendance.PERSON
     }
 }
 
 export const ModalAttendanceRedux = connect(mapStateToProps, { getAttendanceAbsence, getAttendanceTravel, triggerAttendance, clearTrigger, resetAttendance })(ModalAttendance)
-export const ModalApprovalRedux = connect(mapStateToProps, { getStaffInfo })(ModalApproval)
+export const ModalApprovalRedux = connect(mapStateToProps, { getStaffInfo, acceptAttendance, editAttendance })(ModalApproval)
 
 
 export const AttendanceScreen = connect(mapStateToProps, { getAttendance, clearPersonAttendance, getAttendanceStaff, clearAttendanceStaff })(Screen)

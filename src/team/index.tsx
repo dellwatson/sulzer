@@ -96,7 +96,7 @@ const Screen = (props) => {
         return (
           <TouchableOpacity
             //delete attendances arr
-            onPress={() => props.navigation.navigate('Attendance', { staff_key: item.key, koor, authority: true, self_item: false })}
+            onPress={() => props.navigation.navigate('Attendance', { staff_key: item.key, project_key, koor, authority: true, self_item: false })}
             key={i}
             style={{
               marginHorizontal: SPACE,

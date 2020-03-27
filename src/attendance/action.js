@@ -159,9 +159,7 @@ export const getAttendanceTravel = (project_key) => (dispatch, getState) => {
 
 
 export const triggerAttendance = (form, project_key) => (dispatch, getState) => {
-    // console.log(form)
     const body = new FormData();
-
     for(const key of Object.keys(form)) {
         body.append(key, form[key]);
     }
@@ -193,6 +191,75 @@ export const triggerAttendance = (form, project_key) => (dispatch, getState) => 
         .catch(err => {
             dispatch({
                 type: `TRIGGER_ATTENDANCE_REJECTED`,
+                err
+            })
+        })
+}
+
+export const acceptAttendance = (staff_key) => (dispatch, getState) => { //STAFF KEY ?
+    dispatch({ type: `ACCEPT_ATTENDANCE_PENDING` })
+
+    return fetch(baseURL + '/staff-accept-attendances/' + staff_key, {
+        method: 'PUT',
+        headers: {
+            "Accept": "application/json",
+            "Authorization": getState().auth.token,
+            // 'Content-Type': 'multipart/form-data'
+        },
+    })
+        .then(res => {
+            if(!res.ok) { throw new Error('Error ') }
+            if(res.status >= 400) { throw Error('Error') }
+            return res.json()
+        })
+        .then(response => {
+            dispatch({
+                type: `ACCEPT_ATTENDANCE_RESOLVED`,
+                data: response.data,
+                // code: response.status
+            })
+            return response
+        })
+        .catch(err => {
+            dispatch({
+                type: `ACCEPT_ATTENDANCE_REJECTED`,
+                err
+            })
+        })
+}
+
+export const editAttendance = (form, attendance_key) => (dispatch, getState) => {
+    const body = new FormData();
+    for(const key of Object.keys(form)) {
+        body.append(key, form[key]);
+    }
+
+    dispatch({ type: `EDIT_ATTENDANCE_PENDING` })
+
+    return fetch(baseURL + '/edit-attendance-participant/' + attendance_key, {
+        method: 'POST',
+        headers: {
+            "Accept": "application/json",
+            "Authorization": getState().auth.token,
+            'Content-Type': 'multipart/form-data'
+        },
+        body
+    })
+        .then(res => {
+            if(!res.ok) { throw new Error('Error ') }
+            if(res.status >= 400) { throw Error('Error') }
+            return res.json()
+        })
+        .then(response => {
+            dispatch({
+                type: `EDIT_ATTENDANCE_RESOLVED`,
+                data: response.data,
+            })
+            return response
+        })
+        .catch(err => {
+            dispatch({
+                type: `EDIT_ATTENDANCE_REJECTED`,
                 err
             })
         })
