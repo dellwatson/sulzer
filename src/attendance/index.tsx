@@ -99,10 +99,8 @@ const Screen = (props) => {
      */
     React.useEffect(() => {
         if (self_item) {
-            console.log('SELF ITEM NY TRUE MASUK SINI')
             if (!selfLoaded) return
 
-            console.log('SELF LOADED TRUE MASUK SINI')
             props.getAttendance(project_key)
             setSelfLoad(true)
         } else {
@@ -116,10 +114,10 @@ const Screen = (props) => {
 
     const doClear = () => {
         props.clearAttendanceStaff()
-        // props.clearPersonAttendance() //TODO
+        if (koor) return
+        props.resetAttendance()
     }
 
-    // SELF ATTENDANCES CLEAR ? IN PROJECT ?
 
     return (
         <>
@@ -1029,7 +1027,7 @@ export const ModalAttendanceRedux = connect(mapStateToProps, { getAttendanceAbse
 export const ModalApprovalRedux = connect(mapStateToProps, { getStaffInfo, acceptAttendance, editAttendance })(ModalApproval)
 
 
-export const AttendanceScreen = connect(mapStateToProps, { getAttendance, clearPersonAttendance, getAttendanceStaff, clearAttendanceStaff })(Screen)
+export const AttendanceScreen = connect(mapStateToProps, { getAttendance, clearPersonAttendance, getAttendanceStaff, clearAttendanceStaff, resetAttendance })(Screen)
 
 
 

@@ -26,7 +26,7 @@ export default (state = initState, action) => {
             return { ...state, UPDATE: { isFetching: null, isStatus: null, } }
 
         case 'GET_ATTENDANCE_PENDING':
-            return { ...state, DATA: { isFetching: true } }
+            return { ...state, DATA: { ...state.DATA, isFetching: true } }
         case 'GET_ATTENDANCE_REJECTED':
             return { ...state, DATA: { isFetching: false, isStatus: false, ...action.err } }
         case 'GET_ATTENDANCE_RESOLVED':
@@ -37,14 +37,15 @@ export default (state = initState, action) => {
             return { ...state, STAFF: { isFetching: null, isStatus: null, list: [] }, }
 
         case 'GET_ATTENDANCE_STAFF_PENDING':
-            return { ...state, STAFF: { isFetching: true } }
+            return { ...state, STAFF: { ...state.STAFF, isFetching: true } }
         case 'GET_ATTENDANCE_STAFF_REJECTED':
             return { ...state, STAFF: { isFetching: false, isStatus: false, ...action.err } }
         case 'GET_ATTENDANCE_STAFF_RESOLVED':
             return { ...state, STAFF: { list: action.data, isFetching: false, isStatus: true } }
 
+        //REMOVE THIS
         case 'GET_PERSON_ATTENDANCE_PENDING':
-            return { ...state, PERSON: { isFetching: true } }
+            return { ...state, PERSON: { ...state.PERSON, isFetching: true } }
         case 'GET_PERSON_ATTENDANCE_REJECTED':
             return { ...state, PERSON: { isFetching: false, isStatus: false, ...action.err } }
         case 'GET_PERSON_ATTENDANCE_RESOLVED':
@@ -53,9 +54,10 @@ export default (state = initState, action) => {
         case 'CLEAR_PERSON_ATTENDANCE':
             return { ...state, PERSON: { isFetching: null, isStatus: null, list: [] } }
 
-        case 'GET_ATTENDANCE_ABSENCE_PENDING':
 
-            return { ...state, ABSENCE: { isFetching: true } }
+        //////////////////////////
+        case 'GET_ATTENDANCE_ABSENCE_PENDING':
+            return { ...state, ABSENCE: { ...state.ABSENCE, isFetching: true } }
         case 'GET_ATTENDANCE_ABSENCE_REJECTED':
 
             return { ...state, ABSENCE: { isFetching: false, isStatus: false, ...action.err } }
@@ -64,7 +66,7 @@ export default (state = initState, action) => {
             return { ...state, ABSENCE: { list: action.data, isFetching: false, isStatus: true } }
 
         case 'GET_ATTENDANCE_TRAVEL_PENDING':
-            return { ...state, TRAVEL: { isFetching: true } }
+            return { ...state, TRAVEL: { ...state.TRAVEL, isFetching: true } }
         case 'GET_ATTENDANCE_TRAVEL_REJECTED':
             return { ...state, TRAVEL: { isFetching: false, isStatus: false, ...action.err } }
         case 'GET_ATTENDANCE_TRAVEL_RESOLVED':
@@ -78,15 +80,10 @@ export default (state = initState, action) => {
             return { ...state, UPDATE: { ...action.data, isFetching: false, isStatus: true } }
 
         case 'ACCEPT_ATTENDANCE_PENDING':
-            console.log('ACCEPEEETTT PENDING')
             return { ...state, ACCEPT: { isFetching: true } }
         case 'ACCEPT_ATTENDANCE_REJECTED':
-            console.log('ACCEPEEETTT REJECTEED')
-
             return { ...state, ACCEPT: { isFetching: false, isStatus: false, ...action.err } }
         case 'ACCEPT_ATTENDANCE_RESOLVED':
-            console.log('ACCEPEEETTT RESOLLVEED')
-
             return { ...state, ACCEPT: { ...action.data, isFetching: false, isStatus: true } }
 
 

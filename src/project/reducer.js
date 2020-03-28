@@ -15,7 +15,7 @@ export default (state = initState, action) => {
             return initState
 
         case 'GET_PROJECTS_PENDING':
-            return { ...state, DATA: { isFetching: true } }
+            return { ...state, DATA: { ...state.DATA, isFetching: true } }
         case 'GET_PROJECTS_REJECTED':
             return { ...state, DATA: { isFetching: false, isStatus: false, ...action.err } }
         case 'GET_PROJECTS_RESOLVED':

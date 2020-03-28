@@ -16,7 +16,7 @@ const SPACE = 20
 
 const Screen = (props) => {
   const { project_key, koor, project_code } = props.route.params
-  const { staff, self_attendance, session } = props
+  const { staff, self_attendance, session, navigation } = props
 
   // console.log(self_attendance)
   /**
@@ -35,6 +35,15 @@ const Screen = (props) => {
     props.getStaffInfo(project_key)
   }
 
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      doRefresh()
+
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   //listen to refresh ?
 
   return (
@@ -47,7 +56,7 @@ const Screen = (props) => {
         <>
           <TouchableOpacity
             //delete attendances arr
-            onPress={() => props.navigation.navigate('Attendance', { project_key, koor, authority: false, self_item: true, project_code })}
+            onPress={() => navigation.navigate('Attendance', { project_key, koor, authority: false, self_item: true, project_code })}
             style={{
               marginHorizontal: SPACE,
               marginVertical: SPACE / 3,
@@ -102,7 +111,7 @@ const Screen = (props) => {
         return (
           <TouchableOpacity
             //delete attendances arr
-            onPress={() => props.navigation.navigate('Attendance', { staff_key: item.key, project_key, koor, authority: true, self_item: false, project_code })}
+            onPress={() => navigation.navigate('Attendance', { staff_key: item.key, project_key, koor, authority: true, self_item: false, project_code })}
             key={i}
             style={{
               marginHorizontal: SPACE,
