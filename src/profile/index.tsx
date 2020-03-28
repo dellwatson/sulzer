@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, StatusBar, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, StatusBar, Image, ScrollView } from 'react-native';
 import { Surface, Snackbar, Appbar, Avatar, Title, Caption, Button, useTheme, Subheading } from 'react-native-paper';
 import { TitleSmall, HeaderGroup, Box, BarConnector, StatusBall, AvatarText } from '../../components/util.component'
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,7 +17,11 @@ const Screen = (props) => {
 
   const theme = useTheme();
 
-  const { project, session, koor } = props;
+  const {
+    project,
+    session,
+    // koor,
+    navigation } = props;
   const EMPTY = project.length === 0
 
   const [modal, showModal] = React.useState(false)
@@ -28,6 +32,14 @@ const Screen = (props) => {
     props.getProjects()
     props.getSession()
   }, [])
+
+  // React.useEffect(() => {
+  //   const unsubscribe = navigation.addListener('focus', () => {
+  //     props.getProjects()
+
+  //   });
+  //   return unsubscribe;
+  // }, [navigation]);
 
   return (
     <LinearGradient
@@ -41,40 +53,59 @@ const Screen = (props) => {
         <Appbar style={{ elevation: 0, justifyContent: 'space-between', width: '100%', borderWidth: 0 }}>
 
           {/* TODO: change */}
-          <Appbar.Content
-            title='Profile'
-            titleStyle={{ color: 'white' }}
+          <View
           />
 
           <TouchableOpacity
-            onPress={() => props.resetAuth()}
+            onPress={() => props.resetAuth()} // 
+            style={{ flexDirection: 'row', alignItems: 'center' }}
           >
-            <Text style={{ color: 'white' }}>Logout</Text>
+            <Text style={{ color: 'white', marginRight: 10, fontWeight: 'bold' }}>Logout</Text>
+            <Image
+              style={{ height: 24, width: 24, marginRight: 10 }}
+              source={require('../../assets/logout.png')}
+              resizeMode='contain'
+            />
           </TouchableOpacity>
         </Appbar>
       </View>
 
 
-      <View style={{ backgroundColor: 'white', borderRadius: 10, height: height / 2, alignItems: 'center', zIndex: 2, elevation: 4, top: 50, flex: 1 }}>
-        {/* <Avatar.Image
-          style={{ bottom: 50, }}
-          size={100}
-          source={{
-            uri:
-              'https://pbs.twimg.com/profile_images/952545910990495744/b59hSXUd_400x400.jpg',
-          }}
-        /> */}
+      <View style={{ backgroundColor: 'white', borderRadius: 30, height: height / 2, alignItems: 'center', zIndex: 2, elevation: 4, top: 50, flex: 1 }}>
 
-        <Avatar.Text
-          style={{
-            bottom: 50,
-            backgroundColor: 'grey'
-          }}
-          size={100}
-          color='white'
-          // label={session.name.split(" ").map((n) => n[0]).join(".")}
-          label='K.A'
-        />
+        {session.isStatus &&
+          session.image &&
+          <Avatar.Image
+            style={{ bottom: 50, }}
+            size={100}
+            source={{
+              uri: session.image
+            }}
+          />}
+
+        {session.isStatus &&
+          !session.image &&
+          <Avatar.Text
+            style={{
+              bottom: 50,
+              backgroundColor: 'grey'
+            }}
+            size={100}
+            color='white'
+            label={session.name.split(" ").map((n) => n[0]).join(".")}
+          />}
+
+        {!session.isStatus &&
+          <Avatar.Text
+            style={{
+              bottom: 50,
+              backgroundColor: 'grey'
+            }}
+            size={100}
+            color='white'
+          />}
+
+
         <View style={{
           bottom: 50, alignItems: 'center',
           // backgroundColor: 'red',
@@ -93,23 +124,28 @@ const Screen = (props) => {
               {/* <Caption>Koor</Caption> */}
             </View>
 
-            <Subheading>NIK: API-REQUIRED</Subheading>
+            <Subheading style={{ color: 'grey' }}>NIK: API-REQUIRED</Subheading>
           </View>
         </View>
 
 
         {/* status */}
         {project.isStatus &&
-          <View style={{
-            flexDirection: 'row', justifyContent: 'space-between',
-            // backgroundColor: 'grey',
-            width: '100%',
-            // padding: '5%',
-            paddingHorizontal: '5%'
-          }}>
+          <ScrollView
+            contentContainerStyle={{
+              flexDirection: 'row', justifyContent: 'space-between',
+              paddingTop: 10,
+              paddingBottom: 60,
+
+            }}
+            style={{
+              width: '100%',
+              // padding: '5%',
+              paddingHorizontal: '5%'
+            }}>
 
             <TouchableOpacity
-              onPress={() => props.navigation.navigate('Project', { koor })}
+              onPress={() => props.navigation.navigate('Project')}
               style={{
                 elevation: 2,
                 borderRadius: 10,
@@ -143,7 +179,7 @@ const Screen = (props) => {
                 source={require('../../assets/attendance_ic.png')} />
               <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Attendance</Title>
             </TouchableOpacity>
-          </View>
+          </ScrollView>
         }
 
       </View>
@@ -160,7 +196,7 @@ const Screen = (props) => {
 
 const mapStateToProps = state => {
   return {
-    koor: state.auth.koor,
+    // koor: state.auth.koor,
     session: state.profile.DATA,
     project: state.project.DATA //arr,
 

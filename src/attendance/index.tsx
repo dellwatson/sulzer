@@ -61,7 +61,7 @@ const default_travel = {
 }
 
 const Screen = (props) => {
-    const { koor, authority, self_item, staff_key, project_key } = props.route.params
+    const { koor, authority, self_item, staff_key, project_key, project_code } = props.route.params
 
     const { staff_attendance, self_attendance } = props
 
@@ -74,7 +74,9 @@ const Screen = (props) => {
 
     const [dataModal, setDatamodal] = React.useState(null)
 
-    const [selfLoaded, setSelfLoad] = React.useState(false)
+    const [selfLoaded, setSelfLoad] = React.useState(koor ? false : true)
+
+
     /**
   
      * login staff:
@@ -97,8 +99,10 @@ const Screen = (props) => {
      */
     React.useEffect(() => {
         if (self_item) {
+            console.log('SELF ITEM NY TRUE MASUK SINI')
             if (!selfLoaded) return
 
+            console.log('SELF LOADED TRUE MASUK SINI')
             props.getAttendance(project_key)
             setSelfLoad(true)
         } else {
@@ -114,6 +118,8 @@ const Screen = (props) => {
         props.clearAttendanceStaff()
         // props.clearPersonAttendance() //TODO
     }
+
+    // SELF ATTENDANCES CLEAR ? IN PROJECT ?
 
     return (
         <>
@@ -143,34 +149,39 @@ const Screen = (props) => {
                             }}
                         >
                             <View style={{ flex: 1, borderWidth: 0 }}>
-                                <Text style={{ fontWeight: 'bold', fontSize: 22 }}>{item.attendance_type === 'travel' ? 'Travel' : 'Absence'}</Text>
-                                <Text>{moment(item.checkin_time).format('dddd, MMMM Do YYYY')}</Text>
-                                <View style={{ flexDirection: 'row', marginTop: 10 }}>
+                                <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 5 }}>{item.attendance_type === 'travel' ? 'Travel' : 'Absence'}</Text>
+                                <Text style={{ color: 'grey' }}>{moment(item.checkin_time).format('dddd, MMMM Do YYYY')}</Text>
+                                <View style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>
                                     <Image
-                                        style={{ height: 20, width: 20, marginRight: 10 }}
+                                        style={{ height: 24, width: 24, marginRight: 10 }}
                                         source={item.attendance_type === 'travel' ? require('../../assets/depart.png') : require('../../assets/a_in.png')}
                                         resizeMode='contain'
                                     />
-                                    <Text>{moment(item.checkin_time).format('HH:mm:ss')}</Text>
+                                    <Text style={{ color: 'grey' }}>{moment(item.checkin_time).format('HH:mm')}</Text>
                                 </View>
-                                <View style={{ flexDirection: 'row', marginTop: 10 }}>
+                                <View style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>
                                     <Image
-                                        style={{ height: 20, width: 20, marginRight: 10 }}
+                                        style={{ height: 24, width: 24, marginRight: 10 }}
                                         source={item.attendance_type === 'travel' ? require('../../assets/arrival.png') : require('../../assets/a_out.png')}
                                         resizeMode='contain'
                                     />
-                                    <Text>{item.checkout_time ? moment(item.checkout_time).format('HH:mm:ss') : '-'}</Text>
+                                    <Text style={{ color: 'grey' }}>{item.checkout_time ? moment(item.checkout_time).format('HH:mm') : '-'}</Text>
                                 </View>
                             </View>
 
                             <View style={{ borderWidth: 0, justifyContent: 'space-between' }}>
-                                <Text style={{ fontWeight: 'bold', fontSize: 22 }}>{item.checkout_time ? item.accepted ? 'Approved' : 'Pending' : 'Ongoing'}</Text>
+                                <Text style={{
+                                    fontWeight: 'bold', fontSize: 16,
+                                    color: item.checkout_time ? item.accepted ? 'green' : 'red' : 'orange'
+                                }}>
+                                    {item.checkout_time ? item.accepted ? 'Approved' : 'Pending' : 'Ongoing'}
+                                </Text>
 
-                                {!item.accepted && item.attendance_type !== 'travel' && <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 40, marginRight: 10 }}>
+                                {item.attendance_type !== 'travel' && <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Text style={{ fontWeight: 'bold', fontSize: 46, marginRight: 10, color: '#5FA1FC' }}>
                                         {item.checkout_time && toCalc(Number(moment(item.checkout_time).format('HH')), Number(moment(item.checkin_time).format('HH')))}
                                     </Text>
-                                    <Text>{item.checkout_time && 'hours'}</Text>
+                                    <Text style={{ fontWeight: 'bold' }}>{item.checkout_time && 'hours'}</Text>
                                 </View>}
                             </View>
 
@@ -195,7 +206,7 @@ const Screen = (props) => {
 
             {dataModal &&
                 <ModalApprovalRedux
-
+                    projectTitle={project_code}
                     onRefresh={doRefresh}
                     projectId={project_key}
                     dataModal={dataModal}
@@ -224,7 +235,7 @@ const toCalc = (curr, before, overtime = false) => {
 
 const ModalApproval = props => {
 
-    const { open, onClose, authority, dataModal, projectId, accept_status, onRefresh, edit_status } = props
+    const { open, onClose, authority, dataModal, projectId, accept_status, onRefresh, edit_status, projectTitle } = props
     const [newForm, setNewForm] = React.useState(dataModal)
 
     const TRAVEL = dataModal.attendance_type === 'travel'
@@ -239,14 +250,6 @@ const ModalApproval = props => {
 
     React.useEffect(() => {
         if (!accept_status.isFetching && accept_status.isStatus) {
-            console.log('MASUK USEFFECCT ACCEPT')
-            /**
-             * antara gw close, kasih --> notif
-             * 
-             * atau di update bahan nya
-             * 
-             */
-
             onRefresh()
         }
     }, [accept_status])
@@ -256,11 +259,7 @@ const ModalApproval = props => {
      */
 
 
-
     const [edit, setEdit] = React.useState(false) // kasih alert
-    /**
-     * after approve, cannot edit again annymooree
-     */
     const [showTimePicker, setShowTimePicker] = React.useState(false)
     const [isCheckinTimePicker, setIsCheckinTimePicker] = React.useState(true) // 'out
 
@@ -281,7 +280,6 @@ const ModalApproval = props => {
         props.editAttendance(dataModal.key)
         setEdit(false)
     }
-    // // edit false in useEffect
 
 
     const showAlertEdit = () => {
@@ -326,7 +324,7 @@ const ModalApproval = props => {
                 </View>
 
                 <Text><Text style={{ fontWeight: 'bold', marginTop: 20 }}>Type</Text> : {TRAVEL ? 'Travel' : 'Absence'}</Text>
-                <Text><Text style={{ fontWeight: 'bold', marginTop: 20 }}>Attendance - </Text>{projectId}</Text>
+                <Text><Text style={{ fontWeight: 'bold', marginTop: 20 }}>Attendance - </Text>{projectTitle}</Text>
                 <Text style={{ color: 'grey', fontSize: 11, }}>{moment(dataModal.timescreate).format('dddd, MMMM Do YYYY')}</Text>
 
                 {showTimePicker &&
@@ -726,18 +724,7 @@ const ModalAttendance = props => {
         location: null,
         image: null,
     })
-    // console.log(formAttendance)
 
-    // const defaultX = {
-    //     "attendance_type": 'attendance',
-    //     "travel_type": '',
-    //     attendance_time: moment().format('YYYY-MM-D HH:mm:ss'),
-    //     "description": null,
-    //     longitude: null,
-    //     latitude: null,
-    //     location: null,
-    //     image: null,
-    // }
 
     const doSubmit = () => {
         props.triggerAttendance(formAttendance, project.list[stateIndex].key)
@@ -769,7 +756,7 @@ const ModalAttendance = props => {
                         setAttendace(null)
                     }}>
                     <Picker.Item label='Select Project' value={null} />
-                    {project.list.map((item, i) => <Picker.Item key={i} label={item.project_code} value={item.key} />)}
+                    {project.isStatus && project.list.map((item, i) => <Picker.Item key={i} label={item.project_code} value={item.key} />)}
                 </Picker>
 
                 {state && absence.isStatus && travel.isStatus &&
@@ -811,7 +798,7 @@ const ModalAttendance = props => {
                             <View style={{ flexDirection: 'row' }}>
                                 <View style={{ flex: 1 }}>
                                     <TextInput
-                                        value={attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm:ss') : moment().format('HH:mm:ss')}
+                                        value={attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm') : moment().format('HH:mm')}
                                         disabled
                                         mode='outlined'
                                     />
@@ -828,7 +815,7 @@ const ModalAttendance = props => {
                                         <View style={{ flex: 1 }}>
                                             <Text style={{ fontWeight: 'bold' }}>Clock Out</Text>
                                             <TextInput
-                                                value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm:ss') : moment().format('HH:mm:ss')}
+                                                value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm') : moment().format('HH:mm')}
                                                 disabled
                                                 mode='outlined'
                                             />
@@ -929,13 +916,13 @@ const ModalAttendance = props => {
                                     />
                                 </TouchableOpacity>
                                 <View style={{ flex: 1 }}>
-                                    <Caption>Jalan Keveer</Caption>
+                                    <Caption>gps location - coming soon</Caption>
                                 </View>
                             </View>
 
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Departure</Text>
                             <TextInput
-                                value={attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm:ss') : moment().format('HH:mm:ss')}
+                                value={attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm') : moment().format('HH:mm')}
                                 disabled
                                 mode='outlined'
                             />
@@ -972,13 +959,13 @@ const ModalAttendance = props => {
                                             />
                                         </TouchableOpacity>
                                         <View style={{ flex: 1 }}>
-                                            <Caption>Jalan Keveer</Caption>
+                                            <Caption>gps location - coming soon</Caption>
                                         </View>
                                     </View>
 
                                     <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Arrival</Text>
                                     <TextInput
-                                        value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm:ss') : moment().format('HH:mm:ss')}
+                                        value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm') : moment().format('HH:mm')}
                                         disabled
                                         mode='outlined'
                                     />

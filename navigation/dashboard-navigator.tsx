@@ -23,70 +23,41 @@ const Stack = createStackNavigator();
 
 export const DashboardNavigator = () => {
 
-
+    const theme = useTheme()
     return (
         <Stack.Navigator
-        //   backButton={false}
-        //   // session={session}
-        //   // sTitle={session.isStatus && session.name}
-        //   // sRole={session.isStatus && session.roles[0].name}
-        //   sSub='Welcome back'
-        //   screenRoute='Home'
+            screenOptions={{
+                headerStyle: {
+                    backgroundColor: theme.colors.primary,
+                },
+                headerTintColor: '#fff',
+                headerTitleStyle: {
+                    color: 'white',
+                    fontWeight: 'bold',
+                },
+            }}
 
         >
             <Stack.Screen
                 options={{
                     headerShown: false
                 }}
-                name={AppRoute.PROFILE} component={ProfileScreen} />
-            <Stack.Screen name={AppRoute.PROJECT} component={ProjectScreen} />
-            <Stack.Screen name={AppRoute.TEAM} component={TeamScreen} />
-            <Stack.Screen name={AppRoute.ATTENDANCE} component={AttendanceScreen} />
+                name={AppRoute.PROFILE}
+                component={ProfileScreen} />
+            <Stack.Screen
 
+                name={AppRoute.PROJECT}
+                component={ProjectScreen} />
+            <Stack.Screen
+                name={AppRoute.TEAM}
+                component={TeamScreen} />
+            <Stack.Screen
+                name={AppRoute.ATTENDANCE}
+                component={AttendanceScreen} />
 
-
-            {/* <Stack.Screen name={AppRoute.DASHBOARD} component={HomeScreen} />
-            <Stack.Screen name={AppRoute.TEST_TEAM} component={TeamNavigator} />
-
-            <Stack.Screen name={AppRoute.PROJECT} component={ProjectNavigator} />
-            <Stack.Screen name={AppRoute.TRANSACTION} component={TransNavigator} />
-            <Stack.Screen name={AppRoute.TRAVEL} component={TravelNavigator} />
-            <Stack.Screen name={AppRoute.ATTENDANCE} component={AttendNavigator} /> */}
         </Stack.Navigator>
     );
 }
-
-// export const HomeNavigator = connect(mapStateToProps)(MainNavigator)
-
-
-const ParentStack = (props) => {
-    const { backButton = true, children, sTitle, sSub, screenRoute, } = props
-
-    return (
-        <Stack.Navigator
-            headerMode="screen"
-            screenOptions={{
-                header: ({ previous, navigation }) => {
-                    return (
-                        !previous && <CustomHeader
-                            backButton={backButton}
-                            sTitle={sTitle}
-                            // session={session}
-                            sSub={sSub}
-                            screenRoute={screenRoute}
-
-                        />
-                    );
-                }
-            }} >
-            {children}
-        </Stack.Navigator>
-    )
-}
-
-// export const Header
-
-export default ParentStack
 
 
 

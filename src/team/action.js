@@ -1,13 +1,17 @@
 import axios from 'axios'
 export const baseURL = "http://api-sulzerabsensi.sobatteknologi.com/api";
 
+export const cleanStaffInfo = () => dispatch => dispatch({ type: `CLEAR_STAFF_INFO` })
+
 export const refresh = () => (dispatch, getState) => {
+    /**
+     * refresh data attendance
+     */
+    // let config = {
+    //     headers: { "Authorization": getState().auth.token }
+    // }
 
-    let config = {
-        headers: { "Authorization": getState().auth.token }
-    }
-
-    axios.get('http://api-sulzerabsensi.sobatteknologi.com/api/truncate-attendances', config)
+    // axios.get('http://api-sulzerabsensi.sobatteknologi.com/api/truncate-attendances', config)
 }
 
 

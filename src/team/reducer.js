@@ -15,6 +15,8 @@ export default (state = initState, action) => {
         case 'RESET_STAFF':
             return initState
 
+        case 'CLEAR_STAFF_INFO':
+            return { ...state, DATA: { isFetching: null, isStatus: null, } }
 
         case 'GET_STAFF_PENDING':
             return { ...state, DATA: { isFetching: true } }

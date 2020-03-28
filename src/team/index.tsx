@@ -1,9 +1,9 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, ScrollView, RefreshControl } from 'react-native';
 import { Surface, Snackbar, Avatar, Caption, Subheading, Title } from 'react-native-paper';
 import { TitleSmall, HeaderGroup, BoxNumber, AvatarTextRow } from '../../components/util.component'
 import { connect } from 'react-redux'
-import { getStaffInfo } from './action'
+import { getStaffInfo, cleanStaffInfo } from './action'
 import { getAttendance } from '../attendance/action'
 
 const { width, height } = Dimensions.get('window');
@@ -15,7 +15,7 @@ const SPACE = 20
  */
 
 const Screen = (props) => {
-  const { project_key, koor } = props.route.params
+  const { project_key, koor, project_code } = props.route.params
   const { staff, self_attendance, session } = props
 
   // console.log(self_attendance)
@@ -25,15 +25,21 @@ const Screen = (props) => {
    */
 
   React.useEffect(() => {
-    props.getAttendance(project_key)
-    props.getStaffInfo(project_key)
+    doRefresh()
 
+    return () => props.cleanStaffInfo()
   }, [])
 
-  // console.log(self_attendance)
+  const doRefresh = () => {
+    props.getAttendance(project_key)
+    props.getStaffInfo(project_key)
+  }
+
+  //listen to refresh ?
 
   return (
     <ScrollView
+      refreshControl={<RefreshControl refreshing={self_attendance.isFetching || staff.isFetching} onRefresh={doRefresh} />}
       contentContainerStyle={{ paddingBottom: 60 }}
       style={styles.container}>
 
@@ -41,7 +47,7 @@ const Screen = (props) => {
         <>
           <TouchableOpacity
             //delete attendances arr
-            onPress={() => props.navigation.navigate('Attendance', { project_key, koor, authority: false, self_item: true })}
+            onPress={() => props.navigation.navigate('Attendance', { project_key, koor, authority: false, self_item: true, project_code })}
             style={{
               marginHorizontal: SPACE,
               marginVertical: SPACE / 3,
@@ -96,7 +102,7 @@ const Screen = (props) => {
         return (
           <TouchableOpacity
             //delete attendances arr
-            onPress={() => props.navigation.navigate('Attendance', { staff_key: item.key, project_key, koor, authority: true, self_item: false })}
+            onPress={() => props.navigation.navigate('Attendance', { staff_key: item.key, project_key, koor, authority: true, self_item: false, project_code })}
             key={i}
             style={{
               marginHorizontal: SPACE,
@@ -152,7 +158,7 @@ const mapStateToProps = state => {
   }
 }
 
-export const TeamScreen = connect(mapStateToProps, { getStaffInfo, getAttendance })(Screen)
+export const TeamScreen = connect(mapStateToProps, { getStaffInfo, getAttendance, cleanStaffInfo })(Screen)
 
 const styles = StyleSheet.create({
   container: {
