@@ -1,29 +1,12 @@
-// import { AsyncStorage } from 'react-native'
-// import base64 from 'react-native-base64'
 
 const initState = {
     token: null,
-    // token: "Bearer eyJpdiI6IkZaNjdXTkFEa0hiMDdNNXN0Skx5WlE9PSIsInZhbHVlIjoiV3RwMnVUNTA4UFd2MHpoWm84U01TQT09IiwibWFjIjoiNjg5YTNmMTU4MDhhNmRkMzc1YzRkYmFmMWU0ZDFkNDkyMjEyZGU3MDkyMzdlNWFmMmJiYzM1NDY3OWRmZWI0YyJ9",
-    // token: 'Bearer eyJpdiI6IkJjOUlBNVdaSWY0ZHlUMkJJeGR5WFE9PSIsInZhbHVlIjoiRFBwWDRhK3l6bzJ1Y2lyeUt3bWNhdz09IiwibWFjIjoiOGM5YmE0ZjQ2YWEyMDQyZGY4NGJkYmU3Yzg4MDZkYmEzOGQ4ZjQzNWZiNTMyMDRmY2JlZTkxZWQwMDNmYmQ3ZSJ9',
-
     signin: { isFetching: null, isStatus: null },
     change_password: { isFetching: null, isStatus: null },
     koor: false,
 
-
-    user: null,
-    data_dashboard: { isFetching: null, isStatus: null },
-    notifikasi_list: { isFetching: null, isStatus: null, data: [] },
-    read_notifikasi: { isFetching: null, isStatus: null },
 }
 
-// _storeData = async (title, value) => {
-//     try {
-//         await AsyncStorage.setItem(title, value);
-//     } catch(error) {
-//         // Error saving data
-//     }
-// };
 
 
 export default (state = initState, action) => {
@@ -40,11 +23,16 @@ export default (state = initState, action) => {
 
 
         case 'SIGN_IN_PENDING':
+            console.log('signin penddiing')
             return { ...state, signin: { isFetching: true } }
         case 'SIGN_IN_REJECTED':
+            console.log('signin rejected')
+            console.log(action.err)
+
             return { ...state, signin: { isFetching: false, isStatus: false, ...action.err } }
         case 'SIGN_IN_RESOLVED':
-            return { ...state, signin: { ...action.data, isFetching: false, isStatus: true }, token, user }
+            console.log('signin resolved')
+            return { ...state, signin: { isFetching: false, isStatus: true, ...action.data, } }
 
 
         case 'CHANGE_PASSWORD_PENDING':
@@ -58,10 +46,3 @@ export default (state = initState, action) => {
             return state;
     }
 }
-
-
-/**
- * checkToken
- *
- * Sign in
- */

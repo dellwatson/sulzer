@@ -17,7 +17,6 @@ export const getSession = () => (dispatch, getState) => {
     }
 
     dispatch({ type: `GET_SESSION_PENDING` })
-    console.log('FETCH GET SESSION')
     return axios.get(baseURL + '/session', config)
 
         .then(response => {

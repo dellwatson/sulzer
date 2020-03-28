@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, StatusBar, Image, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, StatusBar, Image, ScrollView, Alert, AsyncStorage } from 'react-native';
 import { Surface, Snackbar, Appbar, Avatar, Title, Caption, Button, useTheme, Subheading } from 'react-native-paper';
 import { TitleSmall, HeaderGroup, Box, BarConnector, StatusBall, AvatarText } from '../../components/util.component'
 import { LinearGradient } from 'expo-linear-gradient';
@@ -41,6 +41,30 @@ const Screen = (props) => {
   //   return unsubscribe;
   // }, [navigation]);
 
+  // useEffect(())
+
+  const doLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('@login');
+      await props.resetAuth()
+    } catch (error) {
+      // Error retrieving data
+    }
+  }
+
+  const showAlertLogout = () => {
+    Alert.alert(
+      'Alert',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+        { text: 'OK', onPress: () => doLogout() },
+        // { text: 'Continue to edit', onPress: () => console.log('Ask me later pressed') },
+      ],
+      { cancelable: false }
+    )
+  }
+
   return (
     <LinearGradient
       colors={['#5FA1FC', '#EDEFF1']}
@@ -57,7 +81,7 @@ const Screen = (props) => {
           />
 
           <TouchableOpacity
-            onPress={() => props.resetAuth()} // 
+            onPress={() => showAlertLogout()} // and clear AsyncStorage, CALL ALERT FIRST
             style={{ flexDirection: 'row', alignItems: 'center' }}
           >
             <Text style={{ color: 'white', marginRight: 10, fontWeight: 'bold' }}>Logout</Text>

@@ -4,8 +4,8 @@ import {
   StyleSheet,
   View,
   Text,
-  StatusBar
-
+  StatusBar,
+  AsyncStorage
 } from 'react-native';
 
 import { TextInput, Title, Subheading, Button, useTheme, Headline } from 'react-native-paper';
@@ -16,7 +16,6 @@ import { FormInput } from '../../components/form-input.component';
 import { loginAction, setAccessToken, setKoor } from './action'
 import { connect } from 'react-redux'
 
-// const SignInScreen = (props: SignInScreenProps) => {
 const SignInScreen = (props) => {
 
   const [shouldRemember, setShouldRemember] = React.useState<boolean>(false);
@@ -26,70 +25,34 @@ const SignInScreen = (props) => {
 
   const theme = useTheme()
 
-  // const onFormSubmit = (values: SignInData): void => {
-  //   navigateHome();
-  // };
-
-  const navigateHome = (): void => {
-    props.navigation.navigate(AppRoute.HOME);
-    //  create global context for AUTH to true
-  };
 
   const doLogin = () => {
-    // let form = {
-    //   email: username,
-    //   password
-    // }
+    let form = {
+      number: username,
+      password
+    }
 
-    // const body = new FormData();
-
-    // for (const key of Object.keys(form)) {
-    //   body.append(key, form[key]);
-    // }
-
-
-    // props.loginAction(body)
-    props.setKoor(false)
-
-    props.setAccessToken(`Bearer eyJpdiI6ImVaVlN4QWFVTHNlMTVHMllDSVwvd1NnPT0iLCJ2YWx1ZSI6IkZ1KzNpd1dBT2QrU1BMd090YXdubUE9PSIsIm1hYyI6IjI5ZDljMGMwZjliOWRjOWJmMjcyNjM1MzQ2ZDAxNzgyOWFlMGNhYTRhNWRlMDg1ZjRlNGU3ZDYxNTc3MTk1Y2QifQ==`)
-
-  }
-
-  const doLogin2 = () => {
-    props.setKoor(true)
-    props.setAccessToken(`Bearer eyJpdiI6IkJjOUlBNVdaSWY0ZHlUMkJJeGR5WFE9PSIsInZhbHVlIjoiRFBwWDRhK3l6bzJ1Y2lyeUt3bWNhdz09IiwibWFjIjoiOGM5YmE0ZjQ2YWEyMDQyZGY4NGJkYmU3Yzg4MDZkYmEzOGQ4ZjQzNWZiNTMyMDRmY2JlZTkxZWQwMDNmYmQ3ZSJ9`)
+    props.loginAction(form)
   }
 
 
 
+  React.useEffect(() => {
+    if (!props.signin_status.isFetching && props.signin_status.isStatus) {
+      const TOKEN = `Bearer ${props.signin_status.token}`
 
-  // React.useEffect(() => {
-  //   console.log('useffect')
-  //   if (!props.signin_status.isFetching && props.signin_status.isStatus) {
-  //     console.log('useffect scope2')
+      const storeData = async () => {
+        try {
+          await AsyncStorage.setItem('@login', TOKEN)
+          await props.setAccessToken(TOKEN)
+        } catch (e) {
+          // saving error
+        }
+      }
 
-  //     props.setAccessToken(`Bearer ${props.signin_status.token}`)
-
-  //     props.navigation.navigate('Home')
-  //     console.log(props.signin_status)
-  //     //saveToken
-  //     //navigate
-  //   }
-  // }, [])
-
-
-  /**
-   * login -> succes 
-   * saveAccess --> Async
-   * 
-   * 
-   */
-
-  // const onPasswordIconPress = (): void => {
-  //   setPasswordVisible(!passwordVisible);
-  // };
-
-
+      storeData()
+    }
+  }, [props.signin_status])
 
 
   return (
@@ -117,17 +80,15 @@ const SignInScreen = (props) => {
         style={{ marginVertical: 10 }}
       />
       <Button
+        disabled={props.signin_status.isFetching}
         style={{ marginTop: 20, padding: 5 }}
+        loading={props.signin_status.isFetching}
         //ganti jadi auth true ?
         mode="contained" onPress={() => doLogin()}>
-        <Text style={{ color: 'white' }}>Login as Staff - Subrata </Text>
+        <Text style={{ color: 'white' }}>Login </Text>
       </Button>
-      <Button
-        style={{ marginTop: 20, padding: 5 }}
-        //ganti jadi auth true ?
-        mode="contained" onPress={() => doLogin2()}>
-        <Text style={{ color: 'white' }}>Login as Koor - Kadek</Text>
-      </Button>
+
+      {props.signin_status.isStatus === false && <Text style={{ fontWeight: 'bold', alignSelf: 'center', color: 'red', margin: 10 }}>Login Error</Text>}
 
     </View>
   );
