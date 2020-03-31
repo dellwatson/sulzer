@@ -71,7 +71,6 @@ const Screen = (props) => {
       colors={['#5FA1FC', '#EDEFF1']}
       locations={[0.5, 0.5]}
       style={{ flex: 1 }}>
-      <OfflineBanner />
       <StatusBar barStyle="light-content" />
 
       <View style={{ height: 80, justifyContent: 'flex-end', zIndex: 1, }}>
