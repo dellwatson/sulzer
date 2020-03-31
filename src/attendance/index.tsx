@@ -134,67 +134,25 @@ const Screen = (props) => {
                 contentContainerStyle={{ paddingBottom: 60 }}
                 refreshControl={<RefreshControl refreshing={FETCHING} onRefresh={doRefresh} />}
                 style={styles.container}>
-                {STATUS && LIST.map((item, i) => {
+                {STATUS && LIST.filter(item => item.checkout_time && !item.accepted).map((item, i) => (
+                    <ListCard
+                        item={item}
+                        key={i}
+                        onPress={() => {
+                            setDatamodal(item)
+                            showModalApproval(true)
+                        }} />
+                ))}
 
-                    return (
-                        <TouchableOpacity
-                            onPress={() => {
-                                setDatamodal(item)
-                                showModalApproval(true)
-                            }}
-                            key={i}
-                            style={{
-                                marginHorizontal: SPACE,
-                                marginVertical: SPACE / 2,
-                                borderRadius: 5,
-                                elevation: 2,
-                                padding: SPACE,
-                                width: width - SPACE * 2,
-                                // height: 120,
-                                backgroundColor: 'white',
-                                flexDirection: 'row'
-                            }}
-                        >
-                            <View style={{ flex: 1, borderWidth: 0 }}>
-                                <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 5 }}>{item.attendance_type === 'travel' ? 'Travel' : 'Absence'}</Text>
-                                <Text style={{ color: 'grey' }}>{moment(item.checkin_time).format('dddd, MMMM Do YYYY')}</Text>
-                                <View style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>
-                                    <Image
-                                        style={{ height: 24, width: 24, marginRight: 10 }}
-                                        source={item.attendance_type === 'travel' ? require('../../assets/depart.png') : require('../../assets/a_in.png')}
-                                        resizeMode='contain'
-                                    />
-                                    <Text style={{ color: 'grey' }}>{moment(item.checkin_time).format('HH:mm')}</Text>
-                                </View>
-                                <View style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>
-                                    <Image
-                                        style={{ height: 24, width: 24, marginRight: 10 }}
-                                        source={item.attendance_type === 'travel' ? require('../../assets/arrival.png') : require('../../assets/a_out.png')}
-                                        resizeMode='contain'
-                                    />
-                                    <Text style={{ color: 'grey' }}>{item.checkout_time ? moment(item.checkout_time).format('HH:mm') : '-'}</Text>
-                                </View>
-                            </View>
-
-                            <View style={{ borderWidth: 0, justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                                <Text style={{
-                                    fontWeight: 'bold', fontSize: 16,
-                                    color: item.checkout_time ? item.accepted ? 'green' : 'red' : 'orange'
-                                }}>
-                                    {item.checkout_time ? item.accepted ? 'Approved' : 'Pending' : 'Ongoing'}
-                                </Text>
-
-                                {item.attendance_type !== 'travel' && <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 46, marginRight: 10, color: '#5FA1FC' }}>
-                                        {item.checkout_time && toCalc(Number(moment(item.checkout_time).format('HH')), Number(moment(item.checkin_time).format('HH')))}
-                                    </Text>
-                                    <Text style={{ fontWeight: 'bold' }}>{item.checkout_time && 'hours'}</Text>
-                                </View>}
-                            </View>
-
-                        </TouchableOpacity>
-                    )
-                })}
+                {STATUS && LIST.filter(item => !item.checkout_time || item.accepted).map((item, i) => (
+                    <ListCard
+                        item={item}
+                        key={i}
+                        onPress={() => {
+                            setDatamodal(item)
+                            showModalApproval(true)
+                        }} />
+                ))}
             </ScrollView>
 
 
@@ -225,6 +183,63 @@ const Screen = (props) => {
         </>
     );
 }
+
+const ListCard = ({ onPress, item }) => {
+    return (
+        <TouchableOpacity
+            onPress={onPress}
+            style={{
+                marginHorizontal: SPACE,
+                marginVertical: SPACE / 2,
+                borderRadius: 5,
+                elevation: 2,
+                padding: SPACE,
+                width: width - SPACE * 2,
+                // height: 120,
+                backgroundColor: 'white',
+                flexDirection: 'row'
+            }}
+        >
+            <View style={{ flex: 1, borderWidth: 0 }}>
+                <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 5 }}>{item.attendance_type === 'travel' ? 'Travel' : 'Absence'}</Text>
+                <Text style={{ color: 'grey' }}>{moment(item.checkin_time).format('dddd, MMMM Do YYYY')}</Text>
+                <View style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>
+                    <Image
+                        style={{ height: 24, width: 24, marginRight: 10 }}
+                        source={item.attendance_type === 'travel' ? require('../../assets/depart.png') : require('../../assets/a_in.png')}
+                        resizeMode='contain'
+                    />
+                    <Text style={{ color: 'grey' }}>{moment(item.checkin_time).format('HH:mm')}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>
+                    <Image
+                        style={{ height: 24, width: 24, marginRight: 10 }}
+                        source={item.attendance_type === 'travel' ? require('../../assets/arrival.png') : require('../../assets/a_out.png')}
+                        resizeMode='contain'
+                    />
+                    <Text style={{ color: 'grey' }}>{item.checkout_time ? moment(item.checkout_time).format('HH:mm') : '-'}</Text>
+                </View>
+            </View>
+
+            <View style={{ borderWidth: 0, justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                <Text style={{
+                    fontWeight: 'bold', fontSize: 16,
+                    color: item.checkout_time ? item.accepted ? 'green' : 'red' : 'orange'
+                }}>
+                    {item.checkout_time ? item.accepted ? 'Approved' : 'Pending' : 'Ongoing'}
+                </Text>
+
+                {item.attendance_type !== 'travel' && <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={{ fontWeight: 'bold', fontSize: 46, marginRight: 10, color: '#5FA1FC' }}>
+                        {item.checkout_time && toCalc(Number(moment(item.checkout_time).format('HH')), Number(moment(item.checkin_time).format('HH')))}
+                    </Text>
+                    <Text style={{ fontWeight: 'bold' }}>{item.checkout_time && 'hours'}</Text>
+                </View>}
+            </View>
+        </TouchableOpacity>
+    )
+}
+
 
 const toCalc = (curr, before, overtime = false) => {
     //kalo malem diganti
