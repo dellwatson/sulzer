@@ -32,6 +32,7 @@ const Screen = (props) => {
       refreshControl={<RefreshControl refreshing={project.isFetching} onRefresh={doRefresh} />}
       style={styles.container}>
 
+
       {project.isStatus && project.list.find(item => item.project_status === 'ongoing') &&
         <View style={{ flexDirection: 'row' }}>
           <Title style={{ marginLeft: 20, fontWeight: 'bold' }}>Ongoing Project</Title>

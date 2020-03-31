@@ -5,7 +5,7 @@ import {
   View,
   Text,
   StatusBar,
-  AsyncStorage
+  AsyncStorage, Dimensions
 } from 'react-native';
 
 import { TextInput, Title, Subheading, Button, useTheme, Headline } from 'react-native-paper';
@@ -15,16 +15,17 @@ import { AppRoute } from '../../navigation/app-routes';
 import { FormInput } from '../../components/form-input.component';
 import { loginAction, setAccessToken, setKoor } from './action'
 import { connect } from 'react-redux'
+import OfflineBanner from '../../components/OfflineBanner';
+
+
 
 const SignInScreen = (props) => {
-
   const [shouldRemember, setShouldRemember] = React.useState<boolean>(false);
   const [passwordVisible, setPasswordVisible] = React.useState<boolean>(false);
   const [username, setUsername] = React.useState<string>(null);
   const [password, setPassword] = React.useState<string>(null);
 
   const theme = useTheme()
-
 
   const doLogin = () => {
     let form = {
@@ -57,6 +58,7 @@ const SignInScreen = (props) => {
 
   return (
     <View style={{ flex: 1, padding: 20, }}>
+      <OfflineBanner />
       <StatusBar barStyle="light-content" />
       <View style={{ paddingVertical: 40 }}>
         <Text style={{ fontWeight: 'bold', fontSize: 45, color: theme.colors.primary }}>Sulzer</Text>

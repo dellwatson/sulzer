@@ -4,6 +4,7 @@ export const baseURL = "http://api-sulzerabsensi.sobatteknologi.com/api";
 
 export const clearTrigger = () => dispatch => dispatch({ type: 'CLEAR_TRIGGER_ATTENDANCE' })
 export const resetAttendance = () => dispatch => dispatch({ type: 'RESET_ATTENDANCE' })
+export const acceptEditReset = () => dispatch => dispatch({ type: 'CLEAN_ACCEPT_EDIT_ATTENDANCE' })
 
 export const getAttendance = (project_key) => (dispatch, getState) => {
     const { token } = getState().auth
@@ -229,12 +230,15 @@ export const acceptAttendance = (staff_key) => (dispatch, getState) => { //STAFF
 }
 
 export const editAttendance = (form, attendance_key) => (dispatch, getState) => {
+
     const body = new FormData();
+
     for(const key of Object.keys(form)) {
         body.append(key, form[key]);
     }
 
     dispatch({ type: `EDIT_ATTENDANCE_PENDING` })
+
 
     return fetch(baseURL + '/edit-attendance-participant/' + attendance_key, {
         method: 'POST',
@@ -253,7 +257,7 @@ export const editAttendance = (form, attendance_key) => (dispatch, getState) => 
         .then(response => {
             dispatch({
                 type: `EDIT_ATTENDANCE_RESOLVED`,
-                data: response.data,
+                data: response,
             })
             return response
         })

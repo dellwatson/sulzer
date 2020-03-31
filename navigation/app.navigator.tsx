@@ -19,23 +19,23 @@ const Stack = createStackNavigator();
 const AppNavigator = (props): React.ReactElement => {
 
 
-  React.useEffect(() => {
-    const _retrieveData = async () => {
-      try {
-        const value = await AsyncStorage.getItem('@login');
-        if (value !== null) {
-          props.setAccessToken(value)
-        }
-      } catch (error) {
-        // Error retrieving data
-      }
-    };
+  // React.useEffect(() => {
+  //   const _retrieveData = async () => {
+  //     try {
+  //       const value = await AsyncStorage.getItem('@login');
+  //       if (value !== null) {
+  //         props.setAccessToken(value)
+  //       }
+  //     } catch (error) {
+  //       // Error retrieving data
+  //     }
+  //   };
 
-    _retrieveData()
-  }, [])
+  //   _retrieveData()
+  // }, [])
+
   return (
     <Stack.Navigator {...props} headerMode='none'>
-      {/* <Stack.Screen name={AppRoute.PROFILE} component={DashboardNavigator} /> */}
 
       {
         props.auth ?

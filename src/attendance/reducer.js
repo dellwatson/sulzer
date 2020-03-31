@@ -25,12 +25,16 @@ export default (state = initState, action) => {
         case 'CLEAR_TRIGGER_ATTENDANCE':
             return { ...state, UPDATE: { isFetching: null, isStatus: null, } }
 
+        case 'CLEAN_ACCEPT_EDIT_ATTENDANCE':
+            return { ...state, ACCEPT: { isFetching: null, isStatus: null, }, EDIT: { isFetching: null, isStatus: null, }, }
+
         case 'GET_ATTENDANCE_PENDING':
             return { ...state, DATA: { ...state.DATA, isFetching: true } }
         case 'GET_ATTENDANCE_REJECTED':
             return { ...state, DATA: { isFetching: false, isStatus: false, ...action.err } }
         case 'GET_ATTENDANCE_RESOLVED':
             return { ...state, DATA: { list: action.data, isFetching: false, isStatus: true } }
+
 
 
         case 'CLEAR_ATTENDANCE_STAFF':
@@ -88,10 +92,17 @@ export default (state = initState, action) => {
 
 
         case 'EDIT_ATTENDANCE_PENDING':
+            console.log('EDDIIIT PENDING')
             return { ...state, EDIT: { isFetching: true } }
         case 'EDIT_ATTENDANCE_REJECTED':
+            console.log('EDDIIIT REJECTED')
+            console.log(action.err)
+
+
             return { ...state, EDIT: { isFetching: false, isStatus: false, ...action.err } }
         case 'EDIT_ATTENDANCE_RESOLVED':
+            console.log('EDDIIITresolved')
+
             return { ...state, EDIT: { ...action.data, isFetching: false, isStatus: true } }
 
 
