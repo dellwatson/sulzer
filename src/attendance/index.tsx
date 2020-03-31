@@ -231,7 +231,7 @@ const ListCard = ({ onPress, item }) => {
 
                 {item.attendance_type !== 'travel' && <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Text style={{ fontWeight: 'bold', fontSize: 46, marginRight: 10, color: '#5FA1FC' }}>
-                        {item.checkout_time && toCalc(Number(moment(item.checkout_time).format('HH')), Number(moment(item.checkin_time).format('HH')))}
+                        {item.checkout_time && calcDuration(item.checkout_time, item.checkin_time)}
                     </Text>
                     <Text style={{ fontWeight: 'bold' }}>{item.checkout_time && 'hours'}</Text>
                 </View>}
@@ -254,6 +254,24 @@ const toCalc = (curr, before, overtime = false) => {
     const result = curr - before
     return result.toString()
 }
+
+const calcDuration = (curr, before, overtime = false) => {
+
+    const DURATIONX = moment.duration(moment(curr).diff(moment(before))).asHours();
+    const DURATION = Math.floor(DURATIONX)
+
+    if (overtime) {
+
+        const z = DURATION - 9
+        // console.log(z)
+        return z < 0 ? '0' : z.toString()
+    }
+
+    return DURATION.toString()
+}
+
+
+
 
 const ModalApproval = props => {
 
@@ -351,6 +369,7 @@ const ModalApproval = props => {
         }
     }, [accept_status])
 
+
     return (
         <Modal
             useNativeDriver
@@ -387,7 +406,7 @@ const ModalApproval = props => {
                                 setShowTimePicker(false)
                             }
                             if (event.type === 'set') {
-                                const formattedDate = moment(date).format('YYYY-MM-D HH:mm:ss')
+                                const formattedDate = moment(date.toISOString()).format('YYYY-MM-DD HH:mm:ss')
                                 const formDate = isCheckinTimePicker ? { checkin_time: formattedDate } : { checkout_time: formattedDate }
                                 setShowTimePicker(false)
                                 setNewForm({
@@ -412,7 +431,7 @@ const ModalApproval = props => {
                                 setShowDatePicker(false)
                             }
                             if (event.type === 'set') {
-                                const formattedDate = moment(date).format('YYYY-MM-D HH:mm:ss')
+                                const formattedDate = moment(date.toISOString()).format('YYYY-MM-DD HH:mm:ss')
                                 const formDate = isCheckinTimePicker ? { checkin_time: formattedDate } : { checkout_time: formattedDate }
                                 setShowDatePicker(false)
                                 setNewForm({
@@ -423,12 +442,13 @@ const ModalApproval = props => {
                         }}
                     />
                 }
+                {console.log(isCheckinTimePicker)}
 
                 {attendance === 'attendance' &&
                     <>
                         <TouchableOpacity onPress={() => {
                             if (!edit) return
-                            if (isCheckinTimePicker) setIsCheckinTimePicker(true)
+                            if (!isCheckinTimePicker) setIsCheckinTimePicker(true)
                             setPlaceholderTime(moment(newForm.checkin_time))
                             setShowDatePicker(true)
                         }}>
@@ -495,7 +515,7 @@ const ModalApproval = props => {
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <TextInput
                                                 style={{ backgroundColor: '#eee' }}
-                                                value={toCalc(Number(moment(newForm.checkout_time).format('HH')), Number(moment(newForm.checkin_time).format('HH')))}
+                                                value={calcDuration(newForm.checkout_time, newForm.checkin_time)}
                                                 disabled
                                                 mode='outlined'
                                             />
@@ -525,7 +545,7 @@ const ModalApproval = props => {
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <TextInput
                                                 style={{ backgroundColor: '#eee' }}
-                                                value={toCalc(Number(moment(newForm.checkout_time).format('HH')), Number(moment(newForm.checkin_time).format('HH')), true)}
+                                                value={calcDuration(newForm.checkout_time, newForm.checkin_time, true)}
                                                 disabled
                                                 mode='outlined'
                                             />
@@ -928,7 +948,7 @@ const ModalAttendance = props => {
                                             <Text style={{ fontWeight: 'bold' }}>Total</Text>
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <TextInput
-                                                    value={toCalc(Number(moment().format('HH')), Number(moment(attendanceData.checkin_time).format('HH')))}
+                                                    value={calcDuration(moment(), attendanceData.checkin_time)}
                                                     // value={moment.duration(moment(currentTIME).diff(moment(attendanceData.checkin_time))).hours().toString()}
                                                     disabled
                                                     mode='outlined'
@@ -958,7 +978,7 @@ const ModalAttendance = props => {
                                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Overtime</Text>
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <TextInput
-                                                    value={toCalc(Number(moment().format('HH')), Number(moment(attendanceData.checkin_time).format('HH')), true)}
+                                                    value={calcDuration(moment(), attendanceData.checkin_time, true)}
                                                     disabled
                                                     mode='outlined'
                                                 />
