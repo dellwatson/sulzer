@@ -94,11 +94,12 @@ const SignInScreen = (props) => {
         {props.signin_status.isStatus === false && <Text style={{ fontWeight: 'bold', alignSelf: 'center', color: 'red', margin: 10 }}>Login Error</Text>}
 
       </View>
-      <Text style={{ alignSelf: 'center', color: 'grey', paddingBottom: 5 }}>v.0.1.2</Text>
+      <Text style={{ alignSelf: 'center', color: 'grey', paddingBottom: 5 }}>v.0.1.3</Text>
       {/* 
         v0.1.0: add latest offline banner + version tage
         0.1.1 : Fix attendance submit
         0.1.2 : add gelocation
+        0.1.3 : add handler and fix geolocatio 
       */}
     </>
   );
