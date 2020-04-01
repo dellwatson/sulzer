@@ -311,10 +311,10 @@ const ModalApproval = props => {
         setNewForm(dataModal)
     }, [open])
 
-    const closeModal = () => {
+    const closeModal = async () => {
         // after edit // approve -> refresh, 
-        props.acceptEditReset() //ONLY EDIT --> tidak berguna ? karena saat close modal menggunakan dataModal
-        setEdit(false)
+        await props.acceptEditReset() //ONLY EDIT --> tidak berguna ? karena saat close modal menggunakan dataModal
+        await setEdit(false)
         //edit status clear, approve status clear
         onClose()
     }
@@ -791,9 +791,9 @@ const ModalAttendance = props => {
 
 
     const resetModal = () => {
-        props.clearTrigger()
         setState(null)
         setAttendace(null)
+        props.clearTrigger()
         // props.resetAttendance()
     }
 
