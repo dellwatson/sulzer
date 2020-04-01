@@ -25,7 +25,7 @@ Sentry.init({
   debug: true
 });
 
-Sentry.setRelease(Constants.manifest.revisionId);
+Sentry.setRelease(Constants.manifest.version);
 
 
 const theme = {

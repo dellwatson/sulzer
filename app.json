@@ -8,7 +8,6 @@
       "android"
     ],
     "version": "0.4.2",
-    "revisionId": "0.4.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
