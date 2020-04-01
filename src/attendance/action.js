@@ -165,7 +165,10 @@ export const triggerAttendance = (form, project_key) => (dispatch, getState) => 
         body.append(key, form[key]);
     }
 
-    console.log(body)
+    if(image) {
+        body.append('Content-Type', `${form.image.type}`);
+    }
+
 
     dispatch({ type: `TRIGGER_ATTENDANCE_PENDING` })
 

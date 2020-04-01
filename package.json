@@ -17,6 +17,7 @@
     "@react-navigation/stack": "^5.0.0-alpha.68",
     "axios": "^0.19.2",
     "expo": "~36.0.0",
+    "expo-constants": "~8.0.0",
     "expo-image-picker": "~8.0.1",
     "expo-linear-gradient": "~8.0.0",
     "expo-location": "~8.0.0",
@@ -37,7 +38,8 @@
     "react-native-web": "~0.11.7",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "sentry-expo": "^2.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",

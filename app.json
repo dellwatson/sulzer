@@ -7,7 +7,8 @@
     "platforms": [
       "android"
     ],
-    "version": "1.0.0",
+    "version": "0.4.2",
+    "revisionId": "0.4.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -24,6 +25,18 @@
     "android": {
       "versionCode": 1,
       "package": "com.sulzer.id"
+    },
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "sobat-teknologi-zj",
+            "project": "sulzer",
+            "authToken": "907d52370d274532b7b31351b7d63151da64a1f759f745ea80b797913e4bd57d"
+          }
+        }
+      ]
     }
   }
 }

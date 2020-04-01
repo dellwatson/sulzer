@@ -9,8 +9,24 @@ import store from './store'
 import { enableScreens } from 'react-native-screens';
 
 import { NetworkProvider } from './NetworkProvider';
+import * as Sentry from 'sentry-expo';
+import Constants from 'expo-constants';
 
 enableScreens();
+
+// dsn: 'https://867ea11902384157b3a54708cca5bd5c@sentry.io/5184801'
+// 907d52370d274532b7b31351b7d63151da64a1f759f745ea80b797913e4bd57d  token
+// sulzer
+// sobat-teknologi-zj
+
+Sentry.init({
+  dsn: 'https://867ea11902384157b3a54708cca5bd5c@sentry.io/5184801',
+  enableInExpoDevelopment: true,
+  debug: true
+});
+
+Sentry.setRelease(Constants.manifest.revisionId);
+
 
 const theme = {
   ...DefaultTheme,

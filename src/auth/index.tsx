@@ -16,7 +16,7 @@ import { FormInput } from '../../components/form-input.component';
 import { loginAction, setAccessToken, setKoor } from './action'
 import { connect } from 'react-redux'
 import OfflineBanner from '../../components/OfflineBanner';
-
+import Constants from 'expo-constants';
 
 
 const SignInScreen = (props) => {
@@ -94,7 +94,7 @@ const SignInScreen = (props) => {
         {props.signin_status.isStatus === false && <Text style={{ fontWeight: 'bold', alignSelf: 'center', color: 'red', margin: 10 }}>Login Error</Text>}
 
       </View>
-      <Text style={{ alignSelf: 'center', color: 'grey', paddingBottom: 5 }}>v.0.4.1</Text>
+      <Text style={{ alignSelf: 'center', color: 'grey', paddingBottom: 5 }}>{Constants.manifest.version}</Text>
       {/* 
         v0.1.0: add latest offline banner + version tage
         0.1.1 : Fix attendance submit
@@ -103,6 +103,7 @@ const SignInScreen = (props) => {
         0.3.2 : close modal with async ?
         0.4.0 : add image picker now
         0.4.1 : fix file path upload ?
+        0.4.2 : add content/image.png / filetype
       */}
     </>
   );
