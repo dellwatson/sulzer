@@ -76,17 +76,10 @@ export default (state = initState, action) => {
             return { ...state, TRAVEL: { list: action.data, isFetching: false, isStatus: true } }
 
         case 'TRIGGER_ATTENDANCE_PENDING':
-            console.log('add PENDING')
-
             return { ...state, UPDATE: { isFetching: true } }
         case 'TRIGGER_ATTENDANCE_REJECTED':
-            console.log('add rejec')
-            console.log(action.err)
-
             return { ...state, UPDATE: { isFetching: false, isStatus: false, ...action.err } }
         case 'TRIGGER_ATTENDANCE_RESOLVED':
-            console.log('add resolve')
-
             return { ...state, UPDATE: { ...action.data, isFetching: false, isStatus: true } }
 
         case 'ACCEPT_ATTENDANCE_PENDING':
@@ -94,7 +87,7 @@ export default (state = initState, action) => {
         case 'ACCEPT_ATTENDANCE_REJECTED':
             return { ...state, ACCEPT: { isFetching: false, isStatus: false, ...action.err } }
         case 'ACCEPT_ATTENDANCE_RESOLVED':
-            return { ...state, ACCEPT: { ...action.data, isFetching: false, isStatus: true } }
+            return { ...state, ACCEPT: { ...action.data.message, ...action.data.data, isFetching: false, isStatus: true } }
 
 
         case 'EDIT_ATTENDANCE_PENDING':

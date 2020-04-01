@@ -159,8 +159,7 @@ export const getAttendanceTravel = (project_key) => (dispatch, getState) => {
 }
 
 
-export const triggerAttendance = (form, project_key) => (dispatch, getState) => {
-    console.log(form)
+export const triggerAttendance = (form, project_key) => (dispatch, getState) => { //update
     const body = new FormData();
     for(const key of Object.keys(form)) {
         body.append(key, form[key]);
@@ -185,8 +184,7 @@ export const triggerAttendance = (form, project_key) => (dispatch, getState) => 
         .then(response => {
             dispatch({
                 type: `TRIGGER_ATTENDANCE_RESOLVED`,
-                data: response.data,
-                // code: response.status
+                data: response,
             })
             return response
         })

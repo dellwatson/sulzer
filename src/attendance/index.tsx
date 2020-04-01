@@ -377,9 +377,10 @@ const ModalApproval = props => {
         let geocode = await Location.reverseGeocodeAsync(location)
 
         if (isCheckin) {
-            setGpsLocationIN(`${geocode[0].street}, ${geocode[0].region}, ${geocode[0].city}`)
+            // console.log('set console here, to avoid bug ?')
+            await setGpsLocationIN(`${geocode[0].street}, ${geocode[0].region}, ${geocode[0].city}`)
         } else {
-            setGpsLocationOUT(`${geocode[0].street}, ${geocode[0].region}, ${geocode[0].city}`)
+            await setGpsLocationOUT(`${geocode[0].street}, ${geocode[0].region}, ${geocode[0].city}`)
         }
     }
 
@@ -392,9 +393,12 @@ const ModalApproval = props => {
         }
 
         if (status === 'granted' && dataModal) {
-            getGeocodeAsync({ latitude: Number(dataModal.checkin_latitude), longitude: Number(dataModal.checkin_longitude) }, true)
-            if (dataModal.checkout_latitude) {
-                getGeocodeAsync({ latitude: Number(dataModal.checkout_latitude), longitude: Number(dataModal.checkout_longitude) }, false)
+            if (dataModal.checkin_latitude && dataModal.checkin_latitude !== 'null') {
+                // console.log('set console here, to avoid bug ?')
+                await getGeocodeAsync({ latitude: Number(dataModal.checkin_latitude), longitude: Number(dataModal.checkin_longitude) }, true)
+            }
+            if (dataModal.checkout_latitude && dataModal.checkout_latitude !== 'null') {
+                await getGeocodeAsync({ latitude: Number(dataModal.checkout_latitude), longitude: Number(dataModal.checkout_longitude) }, false)
             }
         }
 
@@ -477,7 +481,7 @@ const ModalApproval = props => {
                         }}
                     />
                 }
-                {console.log(isCheckinTimePicker)}
+
 
                 {attendance === 'attendance' &&
                     <>
@@ -677,8 +681,6 @@ const ModalApproval = props => {
                                     value={newForm.checkout_location ? newForm.checkout_location : ''}
                                     disabled={!edit}
                                     onChangeText={text => setNewForm({ ...newForm, checkout_location: text })}
-
-
                                 />
 
                                 <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
@@ -778,10 +780,6 @@ const ModalApproval = props => {
 }
 
 
-
-
-
-
 const ModalAttendance = props => {
     const { open, onClose, project, absence, travel, update } = props
 
@@ -793,10 +791,10 @@ const ModalAttendance = props => {
 
 
     const resetModal = () => {
+        props.clearTrigger()
         setState(null)
         setAttendace(null)
         // props.resetAttendance()
-        props.clearTrigger()
     }
 
     const closeModal = () => {
@@ -832,8 +830,8 @@ const ModalAttendance = props => {
     React.useEffect(() => {
         console.log('UPDAATEEE')
         if (!update.isFetching && update.isStatus) {
-            console.log('UPDATE BARU NI')
-            // refreshAttendance()
+            if (!!update.message) { alert(update.message) }
+
             closeModal()
         }
     }, [update])
@@ -870,8 +868,10 @@ const ModalAttendance = props => {
                 //taro/load data IN
                 setAttendaceData(curr_data_In) //taro data yg last array tadi
 
+
+
                 // load data gelocation
-                if (curr_data_In.checkin_latitude) {
+                if (!!curr_data_In.checkin_latitude && curr_data_In.checkin_latitude !== 'null') {
                     const latitude = Number(curr_data_In.checkin_latitude);
                     const longitude = Number(curr_data_In.checkin_longitude);
                     getGeocodeAsync({ latitude, longitude }, true)
