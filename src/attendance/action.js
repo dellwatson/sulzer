@@ -165,6 +165,8 @@ export const triggerAttendance = (form, project_key) => (dispatch, getState) => 
         body.append(key, form[key]);
     }
 
+    console.log(body)
+
     dispatch({ type: `TRIGGER_ATTENDANCE_PENDING` })
 
     return fetch(baseURL + '/add-my-attendances-project/' + project_key, {

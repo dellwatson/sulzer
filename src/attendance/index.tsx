@@ -812,24 +812,6 @@ const ModalAttendance = props => {
     }
 
 
-    React.useEffect(() => {
-        checkMultiPermissions()
-
-        return () => resetModal()
-    }, [])
-
-    async function checkMultiPermissions() {
-        const { status, expires, permissions } = await Permissions.askAsync(
-            Permissions.LOCATION,
-            Permissions.CAMERA_ROLL
-        );
-        if (status !== 'granted') {
-            alert('Hey! You have not enabled selected permissions');
-        }
-        if (status === 'granted') {
-            console.log('UDAH DI GRANTED')
-        }
-    }
 
     let [selectedImage, setSelectedImage] = React.useState(null);
 
@@ -847,22 +829,28 @@ const ModalAttendance = props => {
             return;
         }
 
-        console.log(pickerResult)
         setSelectedImage({ localUri: pickerResult.uri });
+
+        const fileType = pickerResult.uri.split('.')
+        const fileName = fileType[fileType.length - 2].split('/')
+
+        const imageFile = {
+            uri: pickerResult.uri,
+            type: `${pickerResult.type}/${fileType[fileType.length - 1]}`,
+            name: `${fileName[fileName.length - 1]}.${fileType[fileType.length - 1]}`,
+        }
+
 
         setFormAttendance({
             ...formAttendance,
-            image: pickerResult.uri
+            image: imageFile
         })
     };
-
-    console.log('SELECTED IMAGE', selectedImage)
 
 
 
 
     React.useEffect(() => {
-        console.log('UPDAATEEE')
         if (!update.isFetching && update.isStatus) {
             if (!!update.message) { alert(update.message) }
 
