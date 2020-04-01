@@ -11,6 +11,7 @@ import { resetAuth } from '../auth/action'
 import { ModalAttendanceRedux } from '../attendance';
 import OfflineBanner from '../../components/OfflineBanner';
 
+
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
 
@@ -32,17 +33,11 @@ const Screen = (props) => {
     // console.log('screen load')
     props.getProjects()
     props.getSession()
+
   }, [])
 
-  // React.useEffect(() => {
-  //   const unsubscribe = navigation.addListener('focus', () => {
-  //     props.getProjects()
 
-  //   });
-  //   return unsubscribe;
-  // }, [navigation]);
 
-  // useEffect(())
 
   const doLogout = async () => {
     try {

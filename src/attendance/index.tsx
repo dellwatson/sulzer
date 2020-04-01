@@ -17,7 +17,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
 import moment from 'moment'
-
+import * as Location from 'expo-location';
+import * as Permissions from 'expo-permissions';
 
 const default_absence = {
     "attendance_type": "attendance",
@@ -271,8 +272,6 @@ const calcDuration = (curr, before, overtime = false) => {
 }
 
 
-
-
 const ModalApproval = props => {
 
     const { open, onClose, authority, dataModal, projectId, accept_status, onRefresh, edit_status, projectTitle } = props
@@ -368,6 +367,42 @@ const ModalApproval = props => {
             })
         }
     }, [accept_status])
+
+
+    ////////////
+    const [gpsLocationIN, setGpsLocationIN] = React.useState(null)
+    const [gpsLocationOUT, setGpsLocationOUT] = React.useState(null)
+
+    const getGeocodeAsync = async (location, isCheckin) => {
+        let geocode = await Location.reverseGeocodeAsync(location)
+
+        if (isCheckin) {
+            setGpsLocationIN(`${geocode[0].street}, ${geocode[0].region}, ${geocode[0].city}`)
+        } else {
+            setGpsLocationOUT(`${geocode[0].street}, ${geocode[0].region}, ${geocode[0].city}`)
+        }
+    }
+
+
+    const checkLocationPermission = async () => {
+        let { status } = await Permissions.askAsync(Permissions.LOCATION);
+        if (status !== 'granted') {
+            setGpsLocationIN('Location permission is not granted')
+            setGpsLocationOUT('Location permission is not granted')
+        }
+
+        if (status === 'granted' && dataModal) {
+            getGeocodeAsync({ latitude: Number(dataModal.checkin_latitude), longitude: Number(dataModal.checkin_longitude) }, true)
+            if (dataModal.checkout_latitude) {
+                getGeocodeAsync({ latitude: Number(dataModal.checkout_latitude), longitude: Number(dataModal.checkout_longitude) }, false)
+            }
+        }
+
+    }
+
+    React.useEffect(() => {
+        checkLocationPermission()
+    }, [])
 
 
     return (
@@ -591,7 +626,7 @@ const ModalApproval = props => {
                                 />
                             </TouchableOpacity>
                             <View style={{ flex: 1 }}>
-                                <Caption>Gps Location - coming soon</Caption>
+                                <Caption>{dataModal.checkin_latitude ? gpsLocationIN : 'User didnt setup'}</Caption>
                             </View>
                         </View>
 
@@ -655,7 +690,7 @@ const ModalApproval = props => {
                                         />
                                     </TouchableOpacity>
                                     <View style={{ flex: 1 }}>
-                                        <Caption>Gps location - coming soon</Caption>
+                                        <Caption>{dataModal.checkout_latitude ? gpsLocationOUT : 'User didnt setup'}</Caption>
                                     </View>
                                 </View>
                                 <TouchableOpacity onPress={() => {
@@ -750,14 +785,11 @@ const ModalApproval = props => {
 const ModalAttendance = props => {
     const { open, onClose, project, absence, travel, update } = props
 
-    // console.log(moment().format('YYYY-MM-D HH:mm:ss'))
     const [state, setState] = React.useState(null)
     const [stateIndex, setStateIndex] = React.useState(0)
 
     const [attendance, setAttendace] = React.useState(null)
     const [attendanceData, setAttendaceData] = React.useState(null)
-    // console.log(attendance)
-    // console.log(attendanceData)
 
 
     const resetModal = () => {
@@ -779,9 +811,22 @@ const ModalAttendance = props => {
 
 
     React.useEffect(() => {
-        console.log('RESET')
+        checkMultiPermissions()
+
         return () => resetModal()
     }, [])
+
+    async function checkMultiPermissions() {
+        const { status, expires, permissions } = await Permissions.getAsync(
+            Permissions.LOCATION,
+            Permissions.CAMERA_ROLL
+        );
+        // if (status !== 'granted') {
+        //   alert('Hey! You have not enabled selected permissions');
+        // }
+    }
+
+
 
 
     React.useEffect(() => {
@@ -819,8 +864,24 @@ const ModalAttendance = props => {
         if (attendance === 'travel' && travel.isStatus && travel.list.length !== 0) {
             console.log('CHECK travelll DATA')
             if (!travel.list[travel.list.length - 1].checkout_time) { //last array belom complete checkout
-                console.log('TARO travelll  DATA')
-                setAttendaceData(travel.list[travel.list.length - 1]) //taro data yg last array tadi
+
+                const curr_data_In = travel.list[travel.list.length - 1]
+
+                //taro/load data IN
+                setAttendaceData(curr_data_In) //taro data yg last array tadi
+
+                // load data gelocation
+                if (curr_data_In.checkin_latitude) {
+                    const latitude = Number(curr_data_In.checkin_latitude);
+                    const longitude = Number(curr_data_In.checkin_longitude);
+                    getGeocodeAsync({ latitude, longitude }, true)
+                }
+
+                // let { status } = await Permissions.askAsync(Permissions.LOCATION);
+                // if (status !== 'granted') {
+                //     alert('Permission to access location was denied')
+                // }
+
             } else {
                 setAttendaceData(default_travel)
             }
@@ -841,19 +902,55 @@ const ModalAttendance = props => {
     const [formAttendance, setFormAttendance] = React.useState({
         "attendance_type": attendance,
         "travel_type": attendance === 'travel' ? travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart' : '',
-        attendance_time: moment().format('YYYY-MM-D HH:mm:ss'),
-        "description": null,
+        attendance_time: moment().format('YYYY-MM-DD HH:mm:ss'),
+        estimation_time: '0',
+        "description": '',
         longitude: null,
         latitude: null,
-        location: null,
         image: null,
+        location: '',
     })
 
 
     const doSubmit = () => {
+
         props.triggerAttendance(formAttendance, project.list[stateIndex].key)
     }
 
+    // const [gpsLocation, setGpsLocation] = React.useState(null)
+    const [gpsLocationIN, setGpsLocationIN] = React.useState(null)
+    const [gpsLocationOUT, setGpsLocationOUT] = React.useState(null)
+
+    const getLocationAsync = async (isCheckin) => {
+        let { status } = await Permissions.askAsync(Permissions.LOCATION);
+        if (status !== 'granted') {
+            alert('Permission to access location was denied')
+        }
+
+        let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest });
+        const { latitude, longitude } = location.coords
+
+        setFormAttendance({
+            ...formAttendance,
+            latitude, longitude
+        })
+        getGeocodeAsync({ latitude, longitude }, isCheckin)
+    };
+
+    //useffect call this getGeocodeAsync
+    /**
+     * bisa panggil getGeo apa engga kalo Permission denied?
+     * 
+     */
+    const getGeocodeAsync = async (location, isCheckin) => {
+        let geocode = await Location.reverseGeocodeAsync(location)
+
+        if (isCheckin) {
+            setGpsLocationIN(`${geocode[0].street}, ${geocode[0].region}, ${geocode[0].city}`)
+        } else {
+            setGpsLocationOUT(`${geocode[0].street}, ${geocode[0].region}, ${geocode[0].city}`)
+        }
+    }
 
 
     return (
@@ -882,7 +979,10 @@ const ModalAttendance = props => {
                     <Picker.Item label='Select Project' value={null} />
                     {project.isStatus && project.list.map((item, i) => <Picker.Item key={i} label={item.project_code} value={item.key} />)}
                 </Picker>
-
+                {(absence.isFetching || travel.isFetching) && <ActivityIndicator />}
+                {/* {console.log(absence)}
+                {console.log(travel)} */}
+                {/* kasih retry */}
                 {state && absence.isStatus && travel.isStatus &&
                     <View style={{ marginTop: 20 }}>
                         <Text style={{ fontWeight: 'bold' }}>Choose Type:</Text>
@@ -895,12 +995,13 @@ const ModalAttendance = props => {
                                     ...formAttendance,
                                     "attendance_type": itemValue,
                                     "travel_type": itemValue === 'travel' ? travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart' : '',
-                                    attendance_time: moment().format('YYYY-MM-D HH:mm:ss'),
-                                    "description": null,
-                                    longitude: null,
+                                    attendance_time: moment().format('YYYY-MM-DD HH:mm:ss'),
+                                    estimation_time: '0',
+                                    "description": '',
+                                    longitude: null, //setup disni geolocationny ?
                                     latitude: null,
-                                    location: null,
                                     image: null,
+                                    location: '',
                                 })
                             }}>
                             <Picker.Item label='Select Type' value={null} />
@@ -949,7 +1050,6 @@ const ModalAttendance = props => {
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <TextInput
                                                     value={calcDuration(moment(), attendanceData.checkin_time)}
-                                                    // value={moment.duration(moment(currentTIME).diff(moment(attendanceData.checkin_time))).hours().toString()}
                                                     disabled
                                                     mode='outlined'
                                                 />
@@ -959,16 +1059,15 @@ const ModalAttendance = props => {
                                         </View>
                                     </View>
 
-                                    {/* {console.log(moment().format('HH') - moment(attendanceData.checkin_time).format('HH'))} */}
 
                                     <View style={{ flexDirection: 'row' }}>
                                         <View style={{ flex: 1 }}>
                                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Estimate Working</Text>
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <TextInput
-                                                    // value='9'
-                                                    // disabled
+                                                    value={formAttendance.estimation_time}
                                                     mode='outlined'
+                                                    onChangeText={text => setFormAttendance({ ...formAttendance, estimation_time: text })}
                                                 />
                                                 <Text style={{ paddingLeft: 10 }}>Hours</Text>
                                             </View>
@@ -1014,7 +1113,6 @@ const ModalAttendance = props => {
                     </>
                 }
 
-
                 {state && attendance === 'travel' && attendanceData &&
                     <>
                         <View style={{ marginTop: 20 }}>
@@ -1025,24 +1123,39 @@ const ModalAttendance = props => {
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Location Departure</Text>
                             <TextInput
                                 placeholder='location...'
-                                value={attendanceData.checkin_time ? attendanceData.location : formAttendance.location}
+                                value={attendanceData.checkin_time ? attendanceData.checkin_location : formAttendance.location}
                                 onChangeText={text => setFormAttendance({ ...formAttendance, location: text })}
                                 mode='outlined'
                                 disabled={!!attendanceData.checkin_time}
                             />
 
-                            <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
-                                <TouchableOpacity>
-                                    <Image
-                                        style={{ height: 30, width: 30, marginRight: 5 }}
-                                        source={require('../../assets/location.png')}
-                                        resizeMode='contain'
-                                    />
-                                </TouchableOpacity>
-                                <View style={{ flex: 1 }}>
-                                    <Caption>gps location - coming soon</Caption>
+                            <TouchableOpacity
+                                onPress={() => !!attendanceData.checkin_time ? null : getLocationAsync(true)}
+                                style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
+                                <Image
+                                    style={{ height: 30, width: 30, marginRight: 5 }}
+                                    source={require('../../assets/location.png')}
+                                    resizeMode='contain'
+                                />
+                                <View
+                                    style={{ flex: 1 }}>
+                                    <Caption>{
+                                        !!attendanceData.checkin_time ? //check masih IN atau sudah OUT
+                                            attendanceData.checkin_latitude ?
+                                                gpsLocationIN
+                                                :
+                                                `Location not setup` //check user masukin data gps IN ?
+                                            :
+                                            formAttendance.latitude ?
+                                                gpsLocationIN ?
+                                                    gpsLocationIN
+                                                    :
+                                                    'loading...'
+                                                :
+                                                'get location'
+                                    }</Caption>
                                 </View>
-                            </View>
+                            </TouchableOpacity>
 
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Departure</Text>
                             <TextInput
@@ -1052,13 +1165,17 @@ const ModalAttendance = props => {
                             />
 
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Photo</Text>
-                            {/* <TouchableOpacity> */}
-                            <Image
-                                style={{ height: 100, width: 100, marginRight: 5 }}
-                                source={require('../../assets/upload.png')}
-                                resizeMode='contain'
-                            />
-                            {/* </TouchableOpacity> */}
+                            <View style={{ flexDirection: 'row' }}>
+                                <TouchableOpacity style={{ flex: 1 }}>
+                                    <Image
+                                        style={{ height: 100, width: 100, marginRight: 5 }}
+                                        source={require('../../assets/upload.png')}
+                                        resizeMode='contain'
+                                    />
+                                </TouchableOpacity>
+                                <View style={{ flex: 1 }} />
+                            </View>
+
 
 
                             {attendanceData.checkin_time &&
@@ -1074,18 +1191,28 @@ const ModalAttendance = props => {
                                         mode='outlined'
                                     />
 
-                                    <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
-                                        <TouchableOpacity>
-                                            <Image
-                                                style={{ height: 30, width: 30, marginRight: 5 }}
-                                                source={require('../../assets/location.png')}
-                                                resizeMode='contain'
-                                            />
-                                        </TouchableOpacity>
-                                        <View style={{ flex: 1 }}>
-                                            <Caption>gps location - coming soon</Caption>
+                                    <TouchableOpacity
+                                        onPress={() => getLocationAsync(false)}
+                                        style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
+                                        <Image
+                                            style={{ height: 30, width: 30, marginRight: 5 }}
+                                            source={require('../../assets/location.png')}
+                                            resizeMode='contain'
+                                        />
+                                        <View
+                                            style={{ flex: 1 }}>
+                                            <Caption>{
+                                                formAttendance.latitude ?
+                                                    gpsLocationOUT ?
+                                                        gpsLocationOUT
+                                                        :
+                                                        'loading...'
+                                                    :
+                                                    'get location'
+                                            }</Caption>
                                         </View>
-                                    </View>
+                                    </TouchableOpacity>
+
 
                                     <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Arrival</Text>
                                     <TextInput
