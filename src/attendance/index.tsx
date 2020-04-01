@@ -19,6 +19,7 @@ const SPACE = 20
 import moment from 'moment'
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
+import * as ImagePicker from 'expo-image-picker';
 
 const default_absence = {
     "attendance_type": "attendance",
@@ -44,6 +45,8 @@ const default_travel = {
     "attendance_type": "travel",
     "travel_type": "depart",
     "checkin_time": null,
+    "checkin_image": null,
+    "checkout_image": null,
     "checkout_time": null,
     "estimation_time": null,
     "checkin_latitude": null,
@@ -658,13 +661,11 @@ const ModalApproval = props => {
                         </TouchableOpacity>
 
                         <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Photo</Text>
-                        {/* <TouchableOpacity> */}
                         <Image
                             style={{ height: 100, width: 100, marginRight: 5 }}
-                            source={require('../../assets/upload.png')}
+                            source={newForm.checkin_image ? { uri: newForm.checkin_image } : require('../../assets/upload.png')}
                             resizeMode='contain'
                         />
-                        {/* </TouchableOpacity> */}
 
 
                         <Divider style={{ marginVertical: 20 }} />
@@ -723,7 +724,7 @@ const ModalApproval = props => {
                                 {/* <TouchableOpacity> */}
                                 <Image
                                     style={{ height: 100, width: 100, marginRight: 5 }}
-                                    source={require('../../assets/upload.png')}
+                                    source={newForm.checkout_image ? { uri: newForm.checkout_image } : require('../../assets/upload.png')}
                                     resizeMode='contain'
                                 />
                                 {/* </TouchableOpacity> */}
@@ -793,6 +794,9 @@ const ModalAttendance = props => {
     const resetModal = () => {
         setState(null)
         setAttendace(null)
+        setSelectedImage(null)
+        setGpsLocationIN(null)
+        setGpsLocationOUT(null)
         props.clearTrigger()
         // props.resetAttendance()
     }
@@ -815,14 +819,44 @@ const ModalAttendance = props => {
     }, [])
 
     async function checkMultiPermissions() {
-        const { status, expires, permissions } = await Permissions.getAsync(
+        const { status, expires, permissions } = await Permissions.askAsync(
             Permissions.LOCATION,
             Permissions.CAMERA_ROLL
         );
-        // if (status !== 'granted') {
-        //   alert('Hey! You have not enabled selected permissions');
-        // }
+        if (status !== 'granted') {
+            alert('Hey! You have not enabled selected permissions');
+        }
+        if (status === 'granted') {
+            console.log('UDAH DI GRANTED')
+        }
     }
+
+    let [selectedImage, setSelectedImage] = React.useState(null);
+
+    let openImagePickerAsync = async () => {
+        let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            alert('Permission to access camera roll is required!');
+            return;
+        }
+
+        let pickerResult = await ImagePicker.launchImageLibraryAsync();
+
+        if (pickerResult.cancelled === true) {
+            return;
+        }
+
+        console.log(pickerResult)
+        setSelectedImage({ localUri: pickerResult.uri });
+
+        setFormAttendance({
+            ...formAttendance,
+            image: pickerResult.uri
+        })
+    };
+
+    console.log('SELECTED IMAGE', selectedImage)
 
 
 
@@ -1166,10 +1200,18 @@ const ModalAttendance = props => {
 
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Photo</Text>
                             <View style={{ flexDirection: 'row' }}>
-                                <TouchableOpacity style={{ flex: 1 }}>
+                                <TouchableOpacity
+                                    onPress={() => attendanceData.checkin_time ? null : openImagePickerAsync()}
+                                    style={{ flex: 1 }}>
                                     <Image
                                         style={{ height: 100, width: 100, marginRight: 5 }}
-                                        source={require('../../assets/upload.png')}
+                                        source={
+                                            attendanceData.checkout_image && attendanceData.checkout_image !== 'null' ?
+                                                { uri: attendanceData.checkout_image }//+ jpg ?
+                                                :
+                                                selectedImage ? { uri: selectedImage.localUri } :
+                                                    require('../../assets/upload.png')
+                                        }
                                         resizeMode='contain'
                                     />
                                 </TouchableOpacity>
@@ -1222,13 +1264,18 @@ const ModalAttendance = props => {
                                     />
 
                                     <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Photo</Text>
-                                    {/* <TouchableOpacity> */}
-                                    <Image
-                                        style={{ height: 100, width: 100, marginRight: 5 }}
-                                        source={require('../../assets/upload.png')}
-                                        resizeMode='contain'
-                                    />
-                                    {/* </TouchableOpacity> */}
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <TouchableOpacity
+                                            onPress={openImagePickerAsync}
+                                            style={{ flex: 1 }}>
+                                            <Image
+                                                style={{ height: 100, width: 100, marginRight: 5 }}
+                                                source={selectedImage ? { uri: selectedImage.localUri } : require('../../assets/upload.png')}
+                                                resizeMode='contain'
+                                            />
+                                        </TouchableOpacity>
+                                        <View style={{ flex: 1 }} />
+                                    </View>
 
                                     <Text style={{ fontWeight: 'bold' }}>Description</Text>
                                     <TextInput
