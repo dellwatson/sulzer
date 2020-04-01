@@ -57,42 +57,48 @@ const SignInScreen = (props) => {
 
 
   return (
-    <View style={{ flex: 1, padding: 20, }}>
-      <OfflineBanner />
-      <StatusBar barStyle="light-content" />
-      <View style={{ paddingVertical: 40 }}>
-        <Text style={{ fontWeight: 'bold', fontSize: 45, color: theme.colors.primary }}>Sulzer</Text>
-        <Text style={{ fontWeight: 'bold', fontSize: 45, color: theme.colors.primary }}>Indonesia</Text>
-        <Headline style={{ color: theme.colors.primary }}>Attendance</Headline>
+    <>
+      <View style={{ flex: 1, padding: 20, }}>
+        <OfflineBanner />
+        <StatusBar barStyle="light-content" />
+        <View style={{ paddingVertical: 40 }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 45, color: theme.colors.primary }}>Sulzer</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 45, color: theme.colors.primary }}>Indonesia</Text>
+          <Headline style={{ color: theme.colors.primary }}>Attendance</Headline>
+        </View>
+
+        <TextInput
+          label='NIK'
+          mode='outlined'
+          value={username}
+          onChangeText={text => setUsername(text)}
+        />
+
+        <TextInput
+          label='Password'
+          mode='outlined'
+          secureTextEntry={true}
+          value={password}
+          onChangeText={text => setPassword(text)}
+          style={{ marginVertical: 10 }}
+        />
+        <Button
+          disabled={props.signin_status.isFetching}
+          style={{ marginTop: 20, padding: 5 }}
+          loading={props.signin_status.isFetching}
+          //ganti jadi auth true ?
+          mode="contained" onPress={() => doLogin()}>
+          <Text style={{ color: 'white' }}>Login </Text>
+        </Button>
+
+        {props.signin_status.isStatus === false && <Text style={{ fontWeight: 'bold', alignSelf: 'center', color: 'red', margin: 10 }}>Login Error</Text>}
+
       </View>
-
-      <TextInput
-        label='NIK'
-        mode='outlined'
-        value={username}
-        onChangeText={text => setUsername(text)}
-      />
-
-      <TextInput
-        label='Password'
-        mode='outlined'
-        secureTextEntry={true}
-        value={password}
-        onChangeText={text => setPassword(text)}
-        style={{ marginVertical: 10 }}
-      />
-      <Button
-        disabled={props.signin_status.isFetching}
-        style={{ marginTop: 20, padding: 5 }}
-        loading={props.signin_status.isFetching}
-        //ganti jadi auth true ?
-        mode="contained" onPress={() => doLogin()}>
-        <Text style={{ color: 'white' }}>Login </Text>
-      </Button>
-
-      {props.signin_status.isStatus === false && <Text style={{ fontWeight: 'bold', alignSelf: 'center', color: 'red', margin: 10 }}>Login Error</Text>}
-
-    </View>
+      <Text style={{ alignSelf: 'center', color: 'grey', paddingBottom: 5 }}>v.0.1.0</Text>
+      {/* 
+        v0.1.0: add latest offline banner + version tage
+      */}
+    </>
   );
 };
 const mapStateToProps = state => {
