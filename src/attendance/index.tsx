@@ -318,6 +318,8 @@ const ModalApproval = props => {
         // after edit // approve -> refresh, 
         await props.acceptEditReset() //ONLY EDIT --> tidak berguna ? karena saat close modal menggunakan dataModal
         await setEdit(false)
+        setGpsLocationIN(null)
+        setGpsLocationOUT(null)
         //edit status clear, approve status clear
         onClose()
     }
@@ -409,7 +411,7 @@ const ModalApproval = props => {
 
     React.useEffect(() => {
         checkLocationPermission()
-    }, [])
+    }, [dataModal])
 
 
     return (
@@ -433,7 +435,6 @@ const ModalApproval = props => {
 
                 <Text style={{ marginTop: 10 }}><Text style={{ fontWeight: 'bold' }}>Type</Text> : {TRAVEL ? 'Travel' : 'Absence'}</Text>
                 <Text style={{ marginVertical: 5 }}><Text style={{ fontWeight: 'bold' }}>Attendance - </Text>{projectTitle}</Text>
-                <Text style={{ color: 'grey', }}>{moment(dataModal.checkin_time).format('dddd, MMMM Do YYYY')}</Text>
 
                 {showTimePicker &&
                     <DateTimePicker
@@ -488,13 +489,14 @@ const ModalApproval = props => {
 
                 {attendance === 'attendance' &&
                     <>
+                        <Text style={{ marginTop: 20, color: 'grey' }}><Text style={{ fontWeight: 'bold', marginTop: 20, color: 'black' }}>Clock In  </Text></Text>
                         <TouchableOpacity onPress={() => {
                             if (!edit) return
                             if (!isCheckinTimePicker) setIsCheckinTimePicker(true)
                             setPlaceholderTime(moment(newForm.checkin_time))
                             setShowDatePicker(true)
                         }}>
-                            <Text style={{ marginTop: 20, color: 'grey' }}><Text style={{ fontWeight: 'bold', marginTop: 20, color: 'black' }}>Clock In  </Text>{moment(newForm.checkin_time).format('YYYY-MM-D')}</Text>
+                            <Text style={{ color: 'grey', }}>{moment(newForm.checkin_time).format('dddd, MMMM Do YYYY')}</Text>
                         </TouchableOpacity>
 
                         <View style={{ flexDirection: 'row' }}>
@@ -516,16 +518,29 @@ const ModalApproval = props => {
                                 </TouchableOpacity>
 
                             </View>
-
                             <View style={{ flex: 1, paddingLeft: 20 }} />
                         </View>
 
+                        <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
+                            <TouchableOpacity>
+                                <Image
+                                    style={{ height: 30, width: 30, marginRight: 5 }}
+                                    source={require('../../assets/location.png')}
+                                    resizeMode='contain'
+                                />
+                            </TouchableOpacity>
+                            <View style={{ flex: 1 }}>
+                                <Caption>{gpsLocationIN ? gpsLocationIN : 'User didnt setup'}</Caption>
+                            </View>
+                        </View>
 
                         <Divider style={{ marginVertical: 20 }} />
 
                         {/* --------------------------------------------------------------------- */}
                         {dataModal.checkout_time &&
                             <>
+                                <Text style={{ fontWeight: 'bold', color: 'black' }}>Clock Out</Text>
+
                                 <View style={{ flexDirection: 'row' }}>
                                     <View style={{ flex: 1 }}>
                                         <TouchableOpacity onPress={() => {
@@ -534,8 +549,10 @@ const ModalApproval = props => {
                                             setPlaceholderTime(moment(newForm.checkout_time))
                                             setShowDatePicker(true)
                                         }}>
-                                            <Text style={{ color: 'grey' }}><Text style={{ fontWeight: 'bold', color: 'black' }}>Clock Out  </Text>{moment(newForm.checkout_time).format('YYYY-MM-D')}</Text>
+                                            <Text style={{ color: 'grey' }}>{moment(newForm.checkout_time).format('dddd, MMMM Do YYYY')}</Text>
                                         </TouchableOpacity>
+
+
                                         <TouchableOpacity onPress={() => {
                                             if (!edit) return
                                             if (isCheckinTimePicker) setIsCheckinTimePicker(false)
@@ -596,6 +613,19 @@ const ModalApproval = props => {
                                     </View>
                                 </View>
 
+                                <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
+                                    <TouchableOpacity>
+                                        <Image
+                                            style={{ height: 30, width: 30, marginRight: 5 }}
+                                            source={require('../../assets/location.png')}
+                                            resizeMode='contain'
+                                        />
+                                    </TouchableOpacity>
+                                    <View style={{ flex: 1 }}>
+                                        <Caption>{gpsLocationOUT ? gpsLocationOUT : 'User didnt setup'}</Caption>
+                                    </View>
+                                </View>
+
                                 <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Description</Text>
                                 <TextInput
                                     // placeholder='description'
@@ -614,7 +644,6 @@ const ModalApproval = props => {
                 {attendance === 'travel' &&
                     <>
                         <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Location Departure</Text>
-
                         <TextInput
                             style={{ backgroundColor: edit ? 'white' : '#eee' }}
                             value={newForm.checkin_location ? newForm.checkin_location : ''}
@@ -633,17 +662,18 @@ const ModalApproval = props => {
                                 />
                             </TouchableOpacity>
                             <View style={{ flex: 1 }}>
-                                <Caption>{dataModal.checkin_latitude ? gpsLocationIN : 'User didnt setup'}</Caption>
+                                <Caption>{gpsLocationIN ? gpsLocationIN : 'User didnt setup'}</Caption>
                             </View>
                         </View>
 
+                        <Text style={{ fontWeight: 'bold', color: 'black', marginTop: 20 }}>Time Departure  </Text>
                         <TouchableOpacity onPress={() => {
                             if (!edit) return
                             if (isCheckinTimePicker) setIsCheckinTimePicker(true)
                             setPlaceholderTime(moment(newForm.checkin_time))
                             setShowDatePicker(true)
                         }}>
-                            <Text style={{ color: 'grey', marginTop: 20 }}><Text style={{ fontWeight: 'bold', color: 'black' }}>Time Departure  </Text>{moment(newForm.checkin_time).format('YYYY-MM-D')}</Text>
+                            <Text style={{ color: 'grey', marginVertical: 5 }}>{moment(newForm.checkin_time).format('dddd, MMMM Do YYYY')}</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity onPress={() => {
@@ -693,16 +723,18 @@ const ModalApproval = props => {
                                         />
                                     </TouchableOpacity>
                                     <View style={{ flex: 1 }}>
-                                        <Caption>{dataModal.checkout_latitude ? gpsLocationOUT : 'User didnt setup'}</Caption>
+                                        <Caption>{gpsLocationOUT ? gpsLocationOUT : 'User didnt setup'}</Caption>
                                     </View>
                                 </View>
+
+                                <Text style={{ fontWeight: 'bold', color: 'black', marginTop: 20 }}>Time Arrival  </Text>
                                 <TouchableOpacity onPress={() => {
                                     if (!edit) return
                                     if (isCheckinTimePicker) setIsCheckinTimePicker(false)
                                     setPlaceholderTime(moment(newForm.checkout_time))
                                     setShowDatePicker(true)
                                 }}>
-                                    <Text style={{ color: 'grey', marginTop: 20 }}><Text style={{ fontWeight: 'bold', color: 'black' }}>Time Arrival  </Text>{moment(newForm.checkout_time).format('YYYY-MM-D')}</Text>
+                                    <Text style={{ color: 'grey', marginVertical: 5 }}>{moment(newForm.checkout_time).format('dddd, MMMM Do YYYY')}</Text>
                                 </TouchableOpacity>
 
                                 <TouchableOpacity onPress={() => {
@@ -869,11 +901,21 @@ const ModalAttendance = props => {
 
     React.useEffect(() => {
         if (attendance === 'attendance' && absence.isStatus && absence.list.length !== 0) {
-            console.log('CHECK DATA')
+            // console.log('CHECK DATA')
 
             if (!absence.list[absence.list.length - 1].checkout_time) { //last array belom complete checkout
-                console.log('TARO DATA')
-                setAttendaceData(absence.list[absence.list.length - 1]) //taro data yg last array tadi
+                // console.log('TARO DATA')
+
+                const curr_data_In = absence.list[absence.list.length - 1]
+
+                setAttendaceData(absence.list[absence.list.length - 1]) //taro data yg last array tad
+
+                if (!!curr_data_In.checkin_latitude && curr_data_In.checkin_latitude !== 'null') {
+                    const latitude = Number(curr_data_In.checkin_latitude);
+                    const longitude = Number(curr_data_In.checkin_longitude);
+                    getGeocodeAsync({ latitude, longitude }, true)
+                }
+
             } else {
                 setAttendaceData(default_absence)
             }
@@ -881,15 +923,16 @@ const ModalAttendance = props => {
             setAttendaceData(default_absence)
         }
 
+
+
         if (attendance === 'travel' && travel.isStatus && travel.list.length !== 0) {
-            console.log('CHECK travelll DATA')
+            // console.log('CHECK travelll DATA')
             if (!travel.list[travel.list.length - 1].checkout_time) { //last array belom complete checkout
 
                 const curr_data_In = travel.list[travel.list.length - 1]
 
                 //taro/load data IN
                 setAttendaceData(curr_data_In) //taro data yg last array tadi
-
 
 
                 // load data gelocation
@@ -904,6 +947,8 @@ const ModalAttendance = props => {
                 //     alert('Permission to access location was denied')
                 // }
 
+            } else if (travel.list.length === 2) {
+                alert(`It seems you already complete your travel in this project, new data wouldn't be recorded`)
             } else {
                 setAttendaceData(default_travel)
             }
@@ -1195,7 +1240,6 @@ const ModalAttendance = props => {
                     <>
                         <View style={{ marginTop: 20 }}>
                             <Text><Text style={{ fontWeight: 'bold' }}>Attendance - </Text>{project.list[stateIndex].project_code}</Text>
-                            <Text style={{ color: 'grey', fontSize: 11 }}>{attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
 
                             {/* FIRST */}
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Location Departure</Text>
@@ -1236,7 +1280,10 @@ const ModalAttendance = props => {
                             </TouchableOpacity>
 
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Departure</Text>
+                            <Text style={{ color: 'grey' }}>{attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
+
                             <TextInput
+                                // style={{ flex: 0.5 }}
                                 value={attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm') : moment().format('HH:mm')}
                                 disabled
                                 mode='outlined'
@@ -1250,8 +1297,8 @@ const ModalAttendance = props => {
                                     <Image
                                         style={{ height: 100, width: 100, marginRight: 5 }}
                                         source={
-                                            attendanceData.checkout_image && attendanceData.checkout_image !== 'null' ?
-                                                { uri: attendanceData.checkout_image }//+ jpg ?
+                                            attendanceData.checkin_image && attendanceData.checkin_image !== 'null' ?
+                                                { uri: attendanceData.checkin_image }//+ jpg ?
                                                 :
                                                 selectedImage ? { uri: selectedImage.localUri } :
                                                     require('../../assets/upload.png')
@@ -1301,6 +1348,7 @@ const ModalAttendance = props => {
 
 
                                     <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Arrival</Text>
+                                    <Text style={{ color: 'grey' }}>{moment().format('dddd, MMMM Do YYYY')}</Text>
                                     <TextInput
                                         value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm') : moment().format('HH:mm')}
                                         disabled
