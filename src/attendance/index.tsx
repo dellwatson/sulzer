@@ -761,7 +761,7 @@ const ModalApproval = props => {
                                 />
                                 {/* </TouchableOpacity> */}
 
-                                <Text style={{ fontWeight: 'bold' }}>Description</Text>
+                                <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Description</Text>
                                 <TextInput
                                     style={{ backgroundColor: edit ? 'white' : '#eee' }}
                                     disabled={!edit}
