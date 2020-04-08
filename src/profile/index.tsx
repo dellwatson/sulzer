@@ -10,6 +10,7 @@ import { getSession } from './action'
 import { resetAuth } from '../auth/action'
 import { ModalAttendanceRedux } from '../attendance';
 import OfflineBanner from '../../components/OfflineBanner';
+import WrapperHeader from './wrapper';
 
 
 const { width, height } = Dimensions.get('window');
@@ -37,61 +38,9 @@ const Screen = (props) => {
   }, [])
 
 
-
-
-  const doLogout = async () => {
-    try {
-      await AsyncStorage.removeItem('@login');
-      await props.resetAuth()
-    } catch (error) {
-      // Error retrieving data
-    }
-  }
-
-  const showAlertLogout = () => {
-    Alert.alert(
-      'Alert',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-        { text: 'OK', onPress: () => doLogout() },
-        // { text: 'Continue to edit', onPress: () => console.log('Ask me later pressed') },
-      ],
-      { cancelable: false }
-    )
-  }
-
   return (
-    <LinearGradient
-      colors={['#5FA1FC', '#EDEFF1']}
-      locations={[0.5, 0.5]}
-      style={{ flex: 1 }}>
-      <StatusBar barStyle="light-content" />
-
-      <View style={{ height: 80, justifyContent: 'flex-end', zIndex: 1, }}>
-        <Appbar style={{ elevation: 0, justifyContent: 'space-between', width: '100%', borderWidth: 0 }}>
-
-          {/* TODO: change */}
-          <View
-          />
-
-          <TouchableOpacity
-            onPress={() => showAlertLogout()} // and clear AsyncStorage, CALL ALERT FIRST
-            style={{ flexDirection: 'row', alignItems: 'center' }}
-          >
-            <Text style={{ color: 'white', marginRight: 10, fontWeight: 'bold' }}>Logout</Text>
-            <Image
-              style={{ height: 24, width: 24, marginRight: 10 }}
-              source={require('../../assets/logout.png')}
-              resizeMode='contain'
-            />
-          </TouchableOpacity>
-        </Appbar>
-      </View>
-
-
-      <View style={{ backgroundColor: 'white', borderRadius: 30, height: height / 2, alignItems: 'center', zIndex: 2, elevation: 4, top: 50, flex: 1 }}>
-
+    <WrapperHeader>
+      <View style={{ backgroundColor: 'white', borderRadius: 30, height: height / 2, alignItems: 'center', zIndex: 2, elevation: 4, top: 50, flex: 1, }}>
         {session.isStatus &&
           session.image &&
           <Avatar.Image
@@ -107,7 +56,7 @@ const Screen = (props) => {
           <Avatar.Text
             style={{
               bottom: 50,
-              backgroundColor: 'grey'
+              backgroundColor: '#333'
             }}
             size={100}
             color='white'
@@ -118,7 +67,7 @@ const Screen = (props) => {
           <Avatar.Text
             style={{
               bottom: 50,
-              backgroundColor: 'grey'
+              backgroundColor: '#333'
             }}
             size={100}
             color='white'
@@ -127,10 +76,8 @@ const Screen = (props) => {
 
         <View style={{
           bottom: 50, alignItems: 'center',
-          // backgroundColor: 'red',
           borderColor: '#eee',
           borderBottomWidth: 1, width: '100%', paddingBottom: 20,
-          // elevation: 2
         }}>
           <View style={{ alignItems: 'center' }}>
 
@@ -139,8 +86,6 @@ const Screen = (props) => {
               borderColor: 'red',
               borderTopWidth: 0, padding: 2, alignItems: 'center', justifyContent: 'center'
             }}>
-              {/* <Caption>{session.role}</Caption> */}
-              {/* <Caption>Koor</Caption> */}
             </View>
 
             <Subheading style={{ color: 'grey' }}>NIK: API-REQUIRED</Subheading>
@@ -155,7 +100,6 @@ const Screen = (props) => {
               flexDirection: 'row', justifyContent: 'space-between',
               paddingTop: 10,
               paddingBottom: 60,
-
             }}
             style={{
               width: '100%',
@@ -208,7 +152,8 @@ const Screen = (props) => {
           open={modal}
           onClose={() => showModal(false)}
         />}
-    </LinearGradient>
+
+    </WrapperHeader>
   );
 }
 
