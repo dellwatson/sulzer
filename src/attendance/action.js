@@ -160,6 +160,8 @@ export const getAttendanceTravel = (project_key) => (dispatch, getState) => {
 
 
 export const triggerAttendance = (form, project_key) => (dispatch, getState) => { //update
+
+    console.log(form)
     const body = new FormData();
     for(const key of Object.keys(form)) {
         body.append(key, form[key]);

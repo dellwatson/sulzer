@@ -21,7 +21,7 @@ enableScreens();
 
 Sentry.init({
   dsn: 'https://867ea11902384157b3a54708cca5bd5c@sentry.io/5184801',
-  enableInExpoDevelopment: true,
+  enableInExpoDevelopment: false,
   debug: true
 });
 
@@ -71,7 +71,6 @@ export default function App() {
         </PaperProvider>
       </ReduxProvider>
     </NetworkProvider>
-
   );
 }
 

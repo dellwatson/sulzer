@@ -1037,11 +1037,14 @@ const ModalAttendance = props => {
                 {state && attendance === 'attendance' && attendanceData &&
                     <>
                         <View style={{ marginTop: 20 }}>
-                            <Text><Text style={{ fontWeight: 'bold' }}>Attendance - </Text>{project.list[stateIndex].project_code}</Text>
-                            <Text style={{ color: 'grey', fontSize: 11 }}>{attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
+                            <Text style={{ marginBottom: 20 }}><Text style={{ fontWeight: 'bold', }}>Attendance - </Text>{project.list[stateIndex].project_code}</Text>
+                            {/* <Text style={{ color: 'grey', fontSize: 11 }}>{attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text> */}
                             {/* kasih today */}
 
-                            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Clock In</Text>
+
+                            <Text style={{ fontWeight: 'bold', }}>Clock In</Text>
+                            <Text style={{ color: 'grey' }}>{attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
+
                             <View style={{ flexDirection: 'row' }}>
                                 <View style={{ flex: 1 }}>
                                     <TextInput
@@ -1054,13 +1057,46 @@ const ModalAttendance = props => {
                                 <View style={{ flex: 1, paddingLeft: 20 }} />
                             </View>
 
+                            <TouchableOpacity
+                                onPress={() => !!attendanceData.checkin_time ? null : getLocationAsync(true)}
+                                style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
+                                <Image
+                                    style={{ height: 30, width: 30, marginRight: 5 }}
+                                    source={require('../../assets/location.png')}
+                                    resizeMode='contain'
+                                />
+                                <View
+                                    style={{ flex: 1 }}>
+                                    <Caption>{
+                                        !!attendanceData.checkin_time ? //check masih IN atau sudah OUT
+                                            attendanceData.checkin_latitude ?
+                                                gpsLocationIN
+                                                :
+                                                `Location not setup` //check user masukin data gps IN ?
+                                            :
+                                            formAttendance.latitude ?
+                                                gpsLocationIN ?
+                                                    gpsLocationIN
+                                                    :
+                                                    'loading...'
+                                                :
+                                                'get location'
+                                    }</Caption>
+                                </View>
+                            </TouchableOpacity>
+
                             {
                                 attendanceData.checkin_time &&
                                 <>
                                     <Divider style={{ marginVertical: 20 }} />
+
+                                    <Text style={{ fontWeight: 'bold' }}>Clock Out</Text>
+
                                     <View style={{ flexDirection: 'row' }}>
                                         <View style={{ flex: 1 }}>
-                                            <Text style={{ fontWeight: 'bold' }}>Clock Out</Text>
+                                            <Text style={{ color: 'grey' }}>{moment().format('dddd, MMMM Do YYYY')}</Text>
+
+
                                             <TextInput
                                                 value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm') : moment().format('HH:mm')}
                                                 disabled
@@ -1108,6 +1144,28 @@ const ModalAttendance = props => {
                                         </View>
                                     </View>
 
+                                    <TouchableOpacity
+                                        onPress={() => getLocationAsync(false)}
+                                        style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
+                                        <Image
+                                            style={{ height: 30, width: 30, marginRight: 5 }}
+                                            source={require('../../assets/location.png')}
+                                            resizeMode='contain'
+                                        />
+                                        <View
+                                            style={{ flex: 1 }}>
+                                            <Caption>{
+                                                formAttendance.latitude ?
+                                                    gpsLocationOUT ?
+                                                        gpsLocationOUT
+                                                        :
+                                                        'loading...'
+                                                    :
+                                                    'get location'
+                                            }</Caption>
+                                        </View>
+                                    </TouchableOpacity>
+
                                     <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Description</Text>
                                     <TextInput
                                         placeholder='description'
@@ -1119,8 +1177,6 @@ const ModalAttendance = props => {
                                 </>
                             }
                         </View>
-
-
 
                         {attendanceData && !attendance.checkout_time &&
                             <Button
