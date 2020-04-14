@@ -21,7 +21,7 @@ enableScreens();
 
 Sentry.init({
   dsn: 'https://867ea11902384157b3a54708cca5bd5c@sentry.io/5184801',
-  enableInExpoDevelopment: false,
+  enableInExpoDevelopment: true,
   debug: true
 });
 

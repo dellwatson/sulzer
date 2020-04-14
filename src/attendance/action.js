@@ -160,16 +160,11 @@ export const getAttendanceTravel = (project_key) => (dispatch, getState) => {
 
 
 export const triggerAttendance = (form, project_key) => (dispatch, getState) => { //update
-
     console.log(form)
     const body = new FormData();
     for(const key of Object.keys(form)) {
         body.append(key, form[key]);
     }
-
-    // if(image) {
-    //     body.append('Content-Type', `${form.image.type}`);
-    // }
 
 
     dispatch({ type: `TRIGGER_ATTENDANCE_PENDING` })
@@ -193,6 +188,7 @@ export const triggerAttendance = (form, project_key) => (dispatch, getState) => 
                 type: `TRIGGER_ATTENDANCE_RESOLVED`,
                 data: response,
             })
+
             return response
         })
         .catch(err => {

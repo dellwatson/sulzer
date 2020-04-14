@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, RefreshControl, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, RefreshControl, Alert, ActivityIndicator, AsyncStorage } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Surface, Snackbar, Caption, TextInput, Divider, Button, Title } from 'react-native-paper';
+import { Surface, Snackbar, Caption, TextInput, Divider, Button, Title, Switch } from 'react-native-paper';
 import { TitleSmall, HeaderGroup, Box, BarConnector } from '../../components/util.component'
 import { connect } from 'react-redux'
 import {
@@ -138,7 +138,7 @@ const Screen = (props) => {
                 contentContainerStyle={{ paddingBottom: 60 }}
                 refreshControl={<RefreshControl refreshing={FETCHING} onRefresh={doRefresh} />}
                 style={styles.container}>
-                {STATUS && LIST.filter(item => item.checkout_time && !item.accepted).map((item, i) => (
+                {STATUS && LIST.filter(item => item.checkout_time && !item.accepted).reverse().map((item, i) => (
                     <ListCard
                         item={item}
                         key={i}
@@ -148,7 +148,7 @@ const Screen = (props) => {
                         }} />
                 ))}
 
-                {STATUS && LIST.filter(item => !item.checkout_time || item.accepted).map((item, i) => (
+                {STATUS && LIST.filter(item => !item.checkout_time || item.accepted).reverse().map((item, i) => (
                     <ListCard
                         item={item}
                         key={i}
@@ -600,7 +600,7 @@ const ModalApproval = props => {
                                     </View>
 
                                     <View style={{ flex: 1, paddingLeft: 20 }}>
-                                        <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Overtime</Text>
+                                        {/* <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Overtime</Text>
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <TextInput
                                                 style={{ backgroundColor: '#eee' }}
@@ -609,7 +609,7 @@ const ModalApproval = props => {
                                                 mode='outlined'
                                             />
                                             <Text style={{ paddingLeft: 10 }}>Hours</Text>
-                                        </View>
+                                        </View> */}
                                     </View>
                                 </View>
 
@@ -643,6 +643,8 @@ const ModalApproval = props => {
 
                 {attendance === 'travel' &&
                     <>
+                        <Text style={{}}>Travel type:  {newForm.travel_type}</Text>
+
                         <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Location Departure</Text>
                         <TextInput
                             style={{ backgroundColor: edit ? 'white' : '#eee' }}
@@ -822,6 +824,7 @@ const ModalAttendance = props => {
     const [attendance, setAttendace] = React.useState(null)
     const [attendanceData, setAttendaceData] = React.useState(null)
 
+    const [migrate, setMigrate] = React.useState(false)
 
     const resetModal = () => {
         setState(null)
@@ -882,8 +885,20 @@ const ModalAttendance = props => {
 
 
 
+    // const saveComparisonData = async (form, message) => {
+    //     try {
+    //         await AsyncStorage.setItem('@comparator', form)
+    //     } catch (e) {
+    //         console.log(e)
+    //         // saving error
+    //     }
+    // }
+
     React.useEffect(() => {
         if (!update.isFetching && update.isStatus) {
+            //save to asyncstorage ?            
+            // saveComparisonData(update.data, update.message)
+
             if (!!update.message) { alert(update.message) }
 
             closeModal()
@@ -937,18 +952,34 @@ const ModalAttendance = props => {
 
                 // load data gelocation
                 if (!!curr_data_In.checkin_latitude && curr_data_In.checkin_latitude !== 'null') {
+
                     const latitude = Number(curr_data_In.checkin_latitude);
                     const longitude = Number(curr_data_In.checkin_longitude);
-                    getGeocodeAsync({ latitude, longitude }, true)
+
+                    checkGeoData(latitude, longitude)
                 }
 
-                // let { status } = await Permissions.askAsync(Permissions.LOCATION);
-                // if (status !== 'granted') {
-                //     alert('Permission to access location was denied')
-                // }
 
-            } else if (travel.list.length === 2) {
-                alert(`It seems you already complete your travel in this project, new data wouldn't be recorded`)
+            } else if (travel.list.length === 2 && project.list[stateIndex].role === 'staff') { //and bukan KooRdinator
+                // check lagi bisa isi apa engga
+                alert(`Hey It seems you already complete your travel in this project, new data won't be recorded`)
+                //unless it's for migration, 
+
+                // } else if (project.list.filter(item => item.project_status === 'ongoing').length === 1) {
+                //     alert(`It seems you already complete your travel in this project, and there's no new ongoing project, new data wouldn't be recorded`)
+
+
+            } else if (!!travel.list[travel.list.length - 1].checkout_time && travel.list[travel.list.length - 1].travel_type === 'return') {
+                //tambahin ongoing priject
+                alert(`Hey It seems you already complete your travel in this project, new data might not be recorded unless you are available to do migration travel`)
+                setAttendaceData(default_travel)
+
+
+            } else if (!!travel.list[travel.list.length - 1].checkout_time && travel.list.find(item => item.travel_type === 'return')) {
+                alert(`Hey It seems you already complete your travel in this project, new data might not be recorded unless it's migration`)
+                setAttendaceData(default_travel)
+
+
             } else {
                 setAttendaceData(default_travel)
             }
@@ -956,10 +987,21 @@ const ModalAttendance = props => {
             //     setTravelType('return')
             // }
         } else if (attendance === 'travel' && travel.isStatus) {
+            console.log('set default')
             setAttendaceData(default_travel)
         }
 
     }, [attendance])
+
+
+    const checkGeoData = async (latitude, longitude) => {
+        let { status } = await Permissions.askAsync(Permissions.LOCATION);
+        if (status !== 'granted') {
+            return alert('Permission to access location was denied')
+        }
+
+        getGeocodeAsync({ latitude, longitude }, true)
+    }
 
 
 
@@ -968,7 +1010,7 @@ const ModalAttendance = props => {
      */
     const [formAttendance, setFormAttendance] = React.useState({
         "attendance_type": attendance,
-        "travel_type": attendance === 'travel' ? travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart' : '',
+        "travel_type": '',
         attendance_time: moment().format('YYYY-MM-DD HH:mm:ss'),
         estimation_time: '0',
         "description": '',
@@ -980,8 +1022,24 @@ const ModalAttendance = props => {
 
 
     const doSubmit = () => {
+        const withMigrate = migrate || (attendanceData.checkin_time && travel.list[travel.list.length - 1].travel_type === 'migrate') ?
+            project.list[stateIndex].role === 'coordinator' ? { "travel_type": 'migrate' } : {} : {}
 
-        props.triggerAttendance(formAttendance, project.list[stateIndex].key)
+
+        const submitForm = {
+            ...formAttendance,
+            ...withMigrate
+        }
+
+        if (!!travel.list[travel.list.length - 1].checkout_time &&
+            travel.list.find(item => item.travel_type === 'return') &&
+            submitForm.travel_type === 'return'
+            // project.list.filter(item => item.project_status === 'ongoing').length === 1
+        ) {
+            return alert(`Hey I told you only migration travel is allowed`)
+        }
+
+        props.triggerAttendance(submitForm, project.list[stateIndex].key)
     }
 
     // const [gpsLocation, setGpsLocation] = React.useState(null)
@@ -1046,10 +1104,11 @@ const ModalAttendance = props => {
                     <Picker.Item label='Select Project' value={null} />
                     {project.isStatus && project.list.map((item, i) => <Picker.Item key={i} label={item.project_code} value={item.key} />)}
                 </Picker>
+
+
                 {(absence.isFetching || travel.isFetching) && <ActivityIndicator />}
-                {/* {console.log(absence)}
-                {console.log(travel)} */}
-                {/* kasih retry */}
+
+
                 {state && absence.isStatus && travel.isStatus &&
                     <View style={{ marginTop: 20 }}>
                         <Text style={{ fontWeight: 'bold' }}>Choose Type:</Text>
@@ -1058,10 +1117,29 @@ const ModalAttendance = props => {
                             style={{ height: 50, width: '100%' }}
                             onValueChange={(itemValue, itemIndex) => {
                                 setAttendace(itemValue)
+                                setMigrate(false)
+                                //set migrate to false
                                 setFormAttendance({
                                     ...formAttendance,
-                                    "attendance_type": itemValue,
-                                    "travel_type": itemValue === 'travel' ? travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart' : '',
+                                    "attendance_type": itemValue, //
+                                    "travel_type":
+                                        itemValue === 'travel' // perbedaan attendance sama travel
+                                            ?
+                                            (travel.list.length > 0    // kalo 0, depart(baru), 
+                                                ?
+                                                !!travel.list[0].checkout_time // check depart udah IN ?
+                                                    ?
+
+                                                    //check if latest migrate ? 
+                                                    'return'
+                                                    // (!!travel.list[travel.list.length - 1].checkin_time ? travel.list[travel.list.length - 1].travel_type : 'return')
+
+
+                                                    : 'depart'
+                                                :
+                                                'depart')
+                                            :
+                                            '',
                                     attendance_time: moment().format('YYYY-MM-DD HH:mm:ss'),
                                     estimation_time: '0',
                                     "description": '',
@@ -1078,14 +1156,10 @@ const ModalAttendance = props => {
                     </View> //kasih loading
                 }
 
-
                 {state && attendance === 'attendance' && attendanceData &&
                     <>
                         <View style={{ marginTop: 20 }}>
                             <Text style={{ marginBottom: 20 }}><Text style={{ fontWeight: 'bold', }}>Attendance - </Text>{project.list[stateIndex].project_code}</Text>
-                            {/* <Text style={{ color: 'grey', fontSize: 11 }}>{attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text> */}
-                            {/* kasih today */}
-
 
                             <Text style={{ fontWeight: 'bold', }}>Clock In</Text>
                             <Text style={{ color: 'grey' }}>{attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
@@ -1177,7 +1251,7 @@ const ModalAttendance = props => {
                                         </View>
 
                                         <View style={{ flex: 1, paddingLeft: 20 }}>
-                                            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Overtime</Text>
+                                            {/* <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Overtime</Text>
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <TextInput
                                                     value={calcDuration(moment(), attendanceData.checkin_time, true)}
@@ -1185,7 +1259,7 @@ const ModalAttendance = props => {
                                                     mode='outlined'
                                                 />
                                                 <Text style={{ paddingLeft: 10 }}>Hours</Text>
-                                            </View>
+                                            </View> */}
                                         </View>
                                     </View>
 
@@ -1238,8 +1312,46 @@ const ModalAttendance = props => {
 
                 {state && attendance === 'travel' && attendanceData &&
                     <>
+
+                        {
+                            travel.list.length > 0 && project.list.filter(item => item.project_status === 'ongoing').length > 1 &&
+                            project.list[stateIndex].role === 'coordinator' &&
+                            // formAttendance.travel_type !== 'depart' &&
+                            /**
+                             * kasih tunjuk kalo, bukan awal travel(depart), 
+                             */
+
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={{ fontWeight: 'bold' }}>Migration :</Text>
+                                    <Text style={{ color: 'grey', fontSize: 11 }}>Use this if you have duty to travel to another places,
+                                 this won't record current travel as a return or a completion travel.</Text>
+                                    <Text style={{ color: 'red', fontSize: 11 }}>*only available when clock-in, when clock-out it's for display-purpose.</Text>
+
+                                </View>
+                                <View style={{}}>
+                                    <Switch
+                                        onValueChange={() => {
+                                            if (attendanceData.checkin_time) {
+                                                alert('You cannot change travel type in midway of travelling')
+                                            } else {
+                                                setMigrate(!migrate)
+                                            }
+                                        }}
+                                        trackColor={{
+                                            false: 'grey',
+                                            true: 'green'
+                                        }}
+                                        disabled={attendanceData.checkin_time && travel.list[travel.list.length - 1].travel_type === 'migrate'}
+                                        value={attendanceData.checkin_time && travel.list[travel.list.length - 1].travel_type === 'migrate' ? true : migrate}//latest migrate ?
+                                    />
+                                </View>
+                            </View>
+                        }
+
                         <View style={{ marginTop: 20 }}>
                             <Text><Text style={{ fontWeight: 'bold' }}>Attendance - </Text>{project.list[stateIndex].project_code}</Text>
+
 
                             {/* FIRST */}
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Location Departure</Text>
