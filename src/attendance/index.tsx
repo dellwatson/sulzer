@@ -1044,7 +1044,7 @@ const ModalAttendance = props => {
         //     ...withMigrate
         // }
 
-        if (travel.isStatus && !!travel.list[travel.list.length - 1].checkout_time &&
+        if (travel.list.length !== 0 && !!travel.list[travel.list.length - 1].checkout_time &&
             travel.list.find(item => item.travel_type === 'return') &&
             // submitForm.travel_type === 'return'
             project.list.filter(item => item.project_status === 'ongoing').length === 1
