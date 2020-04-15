@@ -969,13 +969,26 @@ const ModalAttendance = props => {
                 //     alert(`It seems you already complete your travel in this project, and there's no new ongoing project, new data wouldn't be recorded`)
 
 
-            } else if (!!travel.list[travel.list.length - 1].checkout_time && travel.list[travel.list.length - 1].travel_type === 'return') {
-                //tambahin ongoing priject
-                alert(`Hey It seems you already complete your travel in this project, new data might not be recorded unless you are available to do migration travel`)
-                setAttendaceData(default_travel)
+                /**
+                 * kalo ada return dan ongoing project cm 1, kasih warn
+                 */
 
 
-            } else if (!!travel.list[travel.list.length - 1].checkout_time && travel.list.find(item => item.travel_type === 'return')) {
+                // } else if (!!travel.list[travel.list.length - 1].checkout_time && travel.list[travel.list.length - 1].travel_type === 'return') {
+                //     //tambahin ongoing priject
+                //     alert(`Hey It seems you already complete your travel in this project, new data might not be recorded unless you are available to do migration travel`)
+                //     setAttendaceData(default_travel)
+
+
+                // } else if (!!travel.list[travel.list.length - 1].checkout_time && travel.list.find(item => item.travel_type === 'return')) {
+                //     alert(`Hey It seems you already complete your travel in this project, new data might not be recorded unless it's migration`)
+                //     setAttendaceData(default_travel)
+
+            } else if (
+                !!travel.list[travel.list.length - 1].checkout_time
+                && travel.list.find(item => item.travel_type === 'return'
+                    && project.list.filter(item => item.project_status === 'ongoing').length === 1
+                )) {
                 alert(`Hey It seems you already complete your travel in this project, new data might not be recorded unless it's migration`)
                 setAttendaceData(default_travel)
 
@@ -1022,24 +1035,24 @@ const ModalAttendance = props => {
 
 
     const doSubmit = () => {
-        const withMigrate = migrate || (attendanceData.checkin_time && travel.list[travel.list.length - 1].travel_type === 'migrate') ?
-            project.list[stateIndex].role === 'coordinator' ? { "travel_type": 'migrate' } : {} : {}
+        // const withMigrate = migrate || (attendanceData.checkin_time && travel.list[travel.list.length - 1].travel_type === 'migrate') ?
+        //     project.list[stateIndex].role === 'coordinator' ? { "travel_type": 'migrate' } : {} : {}
 
 
-        const submitForm = {
-            ...formAttendance,
-            ...withMigrate
-        }
+        // const submitForm = {
+        //     ...formAttendance,
+        //     ...withMigrate
+        // }
 
-        if (!!travel.list[travel.list.length - 1].checkout_time &&
+        if (travel.isStatus && !!travel.list[travel.list.length - 1].checkout_time &&
             travel.list.find(item => item.travel_type === 'return') &&
-            submitForm.travel_type === 'return'
-            // project.list.filter(item => item.project_status === 'ongoing').length === 1
+            // submitForm.travel_type === 'return'
+            project.list.filter(item => item.project_status === 'ongoing').length === 1
         ) {
             return alert(`Hey I told you only migration travel is allowed`)
         }
 
-        props.triggerAttendance(submitForm, project.list[stateIndex].key)
+        props.triggerAttendance(formAttendance, project.list[stateIndex].key)
     }
 
     // const [gpsLocation, setGpsLocation] = React.useState(null)
@@ -1129,11 +1142,10 @@ const ModalAttendance = props => {
                                                 ?
                                                 !!travel.list[0].checkout_time // check depart udah IN ?
                                                     ?
-
-                                                    //check if latest migrate ? 
-                                                    'return'
-                                                    // (!!travel.list[travel.list.length - 1].checkin_time ? travel.list[travel.list.length - 1].travel_type : 'return')
-
+                                                    //check if ada ongoing project yg lain ? -> klo ada migration, klo gk ada return
+                                                    project.list.filter(item => item.project_status === 'ongoing').length > 1 ?
+                                                        'migrate' :
+                                                        'return'
 
                                                     : 'depart'
                                                 :
@@ -1314,39 +1326,35 @@ const ModalAttendance = props => {
                     <>
 
                         {
-                            travel.list.length > 0 && project.list.filter(item => item.project_status === 'ongoing').length > 1 &&
-                            project.list[stateIndex].role === 'coordinator' &&
-                            // formAttendance.travel_type !== 'depart' &&
-                            /**
-                             * kasih tunjuk kalo, bukan awal travel(depart), 
-                             */
+                            // travel.list.length > 0 && project.list.filter(item => item.project_status === 'ongoing').length > 1 &&
+                            // project.list[stateIndex].role === 'coordinator' &&
 
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ fontWeight: 'bold' }}>Migration :</Text>
-                                    <Text style={{ color: 'grey', fontSize: 11 }}>Use this if you have duty to travel to another places,
-                                 this won't record current travel as a return or a completion travel.</Text>
-                                    <Text style={{ color: 'red', fontSize: 11 }}>*only available when clock-in, when clock-out it's for display-purpose.</Text>
+                            // <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+                            //     <View style={{ flex: 1 }}>
+                            //         <Text style={{ fontWeight: 'bold' }}>Migration :</Text>
+                            //         <Text style={{ color: 'grey', fontSize: 11 }}>Use this if you have duty to travel to another places,
+                            //      this won't record current travel as a return or a completion travel.</Text>
+                            //         <Text style={{ color: 'red', fontSize: 11 }}>*only available when clock-in, when clock-out it's for display-purpose.</Text>
 
-                                </View>
-                                <View style={{}}>
-                                    <Switch
-                                        onValueChange={() => {
-                                            if (attendanceData.checkin_time) {
-                                                alert('You cannot change travel type in midway of travelling')
-                                            } else {
-                                                setMigrate(!migrate)
-                                            }
-                                        }}
-                                        trackColor={{
-                                            false: 'grey',
-                                            true: 'green'
-                                        }}
-                                        disabled={attendanceData.checkin_time && travel.list[travel.list.length - 1].travel_type === 'migrate'}
-                                        value={attendanceData.checkin_time && travel.list[travel.list.length - 1].travel_type === 'migrate' ? true : migrate}//latest migrate ?
-                                    />
-                                </View>
-                            </View>
+                            //     </View>
+                            //     <View style={{}}>
+                            //         <Switch
+                            //             onValueChange={() => {
+                            //                 if (attendanceData.checkin_time) {
+                            //                     alert('You cannot change travel type in midway of travelling')
+                            //                 } else {
+                            //                     setMigrate(!migrate)
+                            //                 }
+                            //             }}
+                            //             trackColor={{
+                            //                 false: 'grey',
+                            //                 true: 'green'
+                            //             }}
+                            //             disabled={attendanceData.checkin_time && travel.list[travel.list.length - 1].travel_type === 'migrate'}
+                            //             value={attendanceData.checkin_time && travel.list[travel.list.length - 1].travel_type === 'migrate' ? true : migrate}//latest migrate ?
+                            //         />
+                            //     </View>
+                            // </View>
                         }
 
                         <View style={{ marginTop: 20 }}>

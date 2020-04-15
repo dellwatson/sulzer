@@ -62,7 +62,7 @@ export const InvertBoxNumber = ({ color = PRIMARY_COLOR, number, title }) => (
 )
 
 export const AvatarTextRow = ({ name, job, imgSource }) => (
-  <View style={{ paddingRight: 10, flexDirection: 'row' }}>
+  <View style={{ paddingRight: 10, flexDirection: 'row', }}>
 
     {imgSource &&
       <Avatar.Image
@@ -85,8 +85,8 @@ export const AvatarTextRow = ({ name, job, imgSource }) => (
       />
     }
 
-    <View style={{ paddingLeft: 10 }}>
-      <View style={{ borderBottomWidth: 2, marginRight: 10, marginTop: 5 }}>
+    <View style={{ paddingLeft: 10, overflow: 'hidden' }}>
+      <View style={{ borderBottomWidth: 2, marginRight: 10, marginTop: 5, }}>
         <Text style={{ fontWeight: 'bold' }}>{name}</Text>
       </View>
       <Text>{job}</Text>

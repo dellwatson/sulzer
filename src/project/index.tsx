@@ -101,7 +101,7 @@ const ProjectCard = ({ koor, navigation, item, }) => {
         {/* left */}
         <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
           <Image source={require('../../assets/project_ic.png')} />
-          <View style={{ borderWidth: 0, paddingLeft: 10, }}>
+          <View style={{ borderWidth: 0, paddingLeft: 10, flex: 1 }}>
             <Text style={{ fontWeight: 'bold' }}>{item.project_code}</Text>
             <Text style={{ fontSize: 11, color: 'grey' }}>{moment(item.timescreate).format('dddd, D-MM-YYYY')}</Text>
             <Text style={{
