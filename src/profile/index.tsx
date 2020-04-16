@@ -48,13 +48,13 @@ const Screen = (props) => {
     for await (const item of ARRAY_PROJECT) {
       const ARRAY_ATTENDANCES = await props.getAttendanceInfo(item.key)
 
-      const absence_array = ARRAY_ATTENDANCES.data.length > 0 ? ARRAY_ATTENDANCES.data.filter(item => item.attendance_type === 'attendance') : []
-      const travel_array = ARRAY_ATTENDANCES.data.length > 0 ? ARRAY_ATTENDANCES.data.filter(item => item.attendance_type === 'travel') : []
+      const absence_array = await ARRAY_ATTENDANCES.data.length > 0 ? ARRAY_ATTENDANCES.data.filter(item => item.attendance_type === 'attendance') : []
+      const travel_array = await ARRAY_ATTENDANCES.data.length > 0 ? ARRAY_ATTENDANCES.data.filter(item => item.attendance_type === 'travel') : []
 
       const newObj = await {
         ...item,
-        latest_absence: absence_array[absence_array.length - 1],
-        latest_travel: travel_array[travel_array.length - 1],
+        latest_absence: ARRAY_ATTENDANCES.data.length > 0 ? absence_array[absence_array.length - 1] : null,
+        latest_travel: ARRAY_ATTENDANCES.data.length > 0 ? travel_array[travel_array.length - 1] : null,
       }
 
       CHECK = [...CHECK, newObj]

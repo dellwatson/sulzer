@@ -129,11 +129,11 @@ const Screen = (props) => {
         return {
             "attendance_type": formAttendance.attendance_type,
 
-            "checkin_location": !!old_data.checkin_location ? null : formAttendance.location,
-            "checkout_location": old_data.checkin_time ? formAttendance.location : null,
+            "checkin_location": old_data && !!old_data.checkin_location ? null : formAttendance.location,
+            "checkout_location": old_data && old_data.checkin_time ? formAttendance.location : null,
 
-            "checkin_time": old_data.checkin_time ? null : formAttendance.attendance_time,
-            "checkout_time": old_data.checkin_time ? formAttendance.attendance_time : null,
+            "checkin_time": old_data && old_data.checkin_time ? null : formAttendance.attendance_time,
+            "checkout_time": old_data && old_data.checkin_time ? formAttendance.attendance_time : null,
 
             "estimation_time": formAttendance.estimation_time,
             "description": formAttendance.description,
@@ -300,12 +300,12 @@ const Screen = (props) => {
                         <Text style={{ marginBottom: 20 }}><Text style={{ fontWeight: 'bold', }}>Attendance - </Text>{state.project_code}</Text>
 
                         <Text style={{ fontWeight: 'bold', }}>Clock In</Text>
-                        <Text style={{ color: 'grey' }}>{state.latest_absence.checkin_time ? moment(state.latest_absence.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
+                        <Text style={{ color: 'grey' }}>{!!state.latest_absence && state.latest_absence.checkin_time ? moment(state.latest_absence.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
 
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
                                 <TextInput
-                                    value={state.latest_absence.checkin_time ? moment(state.latest_absence.checkin_time).format('HH:mm') : moment().format('HH:mm')}
+                                    value={!!state.latest_absence && state.latest_absence.checkin_time ? moment(state.latest_absence.checkin_time).format('HH:mm') : moment().format('HH:mm')}
                                     disabled
                                     mode='outlined'
                                 />
@@ -377,17 +377,15 @@ const Screen = (props) => {
                     </View>
 
 
-                    {!!state.latest_absence &&
-                        <Button
-                            style={{ marginTop: 40 }}
-                            labelStyle={{ color: 'white' }}
-                            mode="contained"
-                            onPress={() => doSubmit()}
-                        // disabled={update.isFetching}
-                        >
-                            {state.latest_absence.checkin_time ? 'Submit' : 'Confirm'}
-                        </Button>
-                    }
+                    <Button
+                        style={{ marginTop: 40 }}
+                        labelStyle={{ color: 'white' }}
+                        mode="contained"
+                        onPress={() => doSubmit()}
+                    // disabled={update.isFetching}
+                    >
+                        {!!state.latest_absence && state.latest_absence.checkin_time ? 'Submit' : 'Confirm'}
+                    </Button>
                 </View>
             }
 
@@ -403,7 +401,7 @@ const Screen = (props) => {
                         value={!!state.latest_travel && state.latest_travel.checkin_time ? state.latest_travel.checkin_location : formAttendance.location}
                         onChangeText={text => setFormAttendance({ ...formAttendance, location: text })}
                         mode='outlined'
-                        disabled={!!state.latest_travel.checkin_time}
+                        disabled={!!state.latest_travel && !!state.latest_travel.checkin_time}
                     />
 
 
@@ -451,16 +449,14 @@ const Screen = (props) => {
                         </>
                     }
 
-                    {!!state.latest_travel &&
-                        <Button
-                            style={{ marginTop: 20 }}
-                            labelStyle={{ color: 'white' }}
-                            mode="contained"
-                            onPress={() => doSubmit()}
-                        >
-                            {state.latest_travel.checkin_time ? 'Confirm' : 'Confirm'}
+                    <Button
+                        style={{ marginTop: 20 }}
+                        labelStyle={{ color: 'white' }}
+                        mode="contained"
+                        onPress={() => doSubmit()}
+                    >
+                        Confirm
                         </Button>
-                    }
                 </View>
             }
 
