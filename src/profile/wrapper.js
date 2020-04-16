@@ -33,7 +33,7 @@ class WrapperHeader extends PureComponent {
 
 
 
-    componentDidUpdate(prevState) {
+    componentDidUpdate(prevState, prevProps) {
 
         // works a connection - listener
         if(this.context.isConnected && !this.state.isOnline) {
@@ -63,6 +63,18 @@ class WrapperHeader extends PureComponent {
              * what to do here
              */
         }
+
+
+        // if(this.props.hasFinishedLoadOffline !== prevProps.hasFinishedLoadOffline ||
+        //     this.props.isLoading !== prevProps.isLoading) {
+
+        //     console.log('INSCOPE')
+        //     if(this.props.hasFinishedLoadOffline && this.props.isLoading) {
+        //         console.log('REWASH  BABY')
+        //         this.props.getCompareData()
+        //     }
+        // }
+
 
     }
 
@@ -105,7 +117,7 @@ class WrapperHeader extends PureComponent {
 
                     const send_attendances = async () => {
                         console.log('TRIGGER SEND', count)
-                        const doFetch = await this.props.triggerAttendance(item.data, item.project_key)
+                        await this.props.triggerAttendance(item.data, item.project_key)
 
                         console.log('tehn ')
                         count = count + 1
@@ -126,8 +138,7 @@ class WrapperHeader extends PureComponent {
 
                 this._deleteComparator().then(() => {
                     this.props.setLoadOffline(true)
-                    this.props.setLoading(false)
-
+                    // this.props.getCompareData()
                     console.log('SET LOAD OFFLINE TO TRUE')
                 })
 

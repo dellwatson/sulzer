@@ -181,7 +181,6 @@ const Screen = (props) => {
             await AsyncStorage.setItem('@offline', JSON.stringify(DATA))
             console.log('SAVED @DATA')
 
-            console.log(fakeServerReturn())
             constructNewDataComparator(fakeServerReturn())
 
 

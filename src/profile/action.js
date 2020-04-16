@@ -3,8 +3,8 @@ export const baseURL = "http://api-sulzerabsensi.sobatteknologi.com/api";
 
 
 export const setLoading = bool => dispatch => dispatch({ type: `SET_LOADING`, bool })
-export const setLoadOffline = bool => dispatch => dispatch({ type: `SET_LOADING`, bool })
-export const setCount = count => dispatch => dispatch({ type: `SET_LOADING`, count })
+export const setLoadOffline = bool => dispatch => dispatch({ type: `SET_LOAD_OFFLINE`, bool })
+export const setCount = count => dispatch => dispatch({ type: `SET_COUNT`, count })
 
 
 export const getSession = () => (dispatch, getState) => {

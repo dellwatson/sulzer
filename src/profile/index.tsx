@@ -4,7 +4,7 @@ import { Surface, Snackbar, Appbar, Avatar, Title, Caption, Button, useTheme, Su
 import { TitleSmall, HeaderGroup, Box, BarConnector, StatusBall, AvatarText } from '../../components/util.component'
 import { connect } from 'react-redux'
 import { getProjects } from '../project/action'
-import { getSession, getAttendanceInfo } from './action'
+import { getSession, getAttendanceInfo, setLoading } from './action'
 import { resetAuth } from '../auth/action'
 import { ModalAttendanceRedux } from '../attendance';
 import OfflineBanner from '../../components/OfflineBanner';
@@ -61,7 +61,9 @@ const Screen = (props) => {
       CHECK = [...CHECK, newObj]
     }
 
-    _storeData(CHECK)
+    _storeData(CHECK).then(() => {
+      props.setLoading(false)
+    })
     // .then((x) => console.log(x)) //stop loading ?
     // console.log(CHECK)
 
@@ -91,12 +93,21 @@ const Screen = (props) => {
 
   useEffect(() => {
     console.log('*******   props.redux trigger')
+
+    getCompareDataAgain()
+
+  }, [isLoading, hasFinishedLoadOffline])
+
+
+  const getCompareDataAgain = () => {
+    console.log('COMPARE DATA AGAIN')
+    console.log(hasFinishedLoadOffline, isLoading)
+    // butuh true true
     if (props.hasFinishedLoadOffline && props.isLoading) {
       console.log('REWASH  BABY')
       prepareStorageSaving()
     }
-
-  }, [isLoading, hasFinishedLoadOffline])
+  }
 
 
   /**
@@ -175,7 +186,9 @@ const Screen = (props) => {
         </View>
       }
 
-      <WrapperHeader>
+      <WrapperHeader
+        getCompareData={() => getCompareDataAgain()}
+      >
         <TouchableOpacity
           onPress={showIsiData}
           style={{
@@ -352,6 +365,7 @@ export const ProfileScreen = connect(mapStateToProps, {
   getSession,
   resetAuth,
   getAttendanceInfo,
+  setLoading
   //logout
 })(Screen)
 
