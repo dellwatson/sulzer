@@ -10,6 +10,8 @@ import { CustomHeader } from '../components/util.component';
 import { ProjectScreen } from '../src/project';
 import { TeamScreen } from '../src/team';
 import { AttendanceScreen } from '../src/attendance';
+import { OfflineAttendance } from '../src/offline';
+
 import { NetworkContext } from '../NetworkProvider'
 const { width, height } = Dimensions.get('window');
 
@@ -60,6 +62,10 @@ export class DashboardNavigator extends React.PureComponent {
                     <Stack.Screen
                         name={AppRoute.ATTENDANCE}
                         component={AttendanceScreen} />
+
+                    <Stack.Screen
+                        name='Offline'
+                        component={OfflineAttendance} />
                 </Stack.Navigator>
             </>
         );

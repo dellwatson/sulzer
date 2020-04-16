@@ -1,184 +1,55 @@
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, RefreshControl, Alert, ActivityIndicator } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Surface, Snackbar, Caption, TextInput, Divider, Button, Title } from 'react-native-paper';
-import { TitleSmall, HeaderGroup, Box, BarConnector } from '../../components/util.component'
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, AsyncStorage, Alert } from 'react-native';
+import { Surface, Snackbar, Button, Title, Caption, Subheading, Divider, TextInput } from 'react-native-paper';
+import { TitleSmall, HeaderGroup, Box, BoxNumber, InvertBoxNumber } from '../../components/util.component'
 import { connect } from 'react-redux'
-// import {
-//     getPersonAttendance, clearPersonAttendance, getAttendance, editAttendance,
-//     acceptAttendance, getAttendanceStaff, clearAttendanceStaff, getAttendanceAbsence, getAttendanceTravel,
-//     triggerAttendance, clearTrigger, resetAttendance,
-//     acceptEditReset
-// } from './action'
-import { getStaffInfo } from '../team/action'
-import { Picker } from '@react-native-community/picker';
-import Modal from "react-native-modal";
 import { ScrollView } from 'react-native-gesture-handler';
+import { Picker } from '@react-native-community/picker';
+import { calcDuration } from '../attendance'
+
+// import { getProjects } from './action'
+import moment from 'moment'
+
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
 
-import moment from 'moment'
-import * as Location from 'expo-location';
-import * as Permissions from 'expo-permissions';
-import * as ImagePicker from 'expo-image-picker';
+/**
+ * what to do if it's zero
+ */
+
+const Screen = (props) => {
+
+    const [compareData, setCompareData] = useState(null)
+    const [warnEmptyData, setWarnEmptyData] = useState(null)
 
 
-const OfflineAttendance = props => {
-    const { open, onClose, project, absence, travel, update } = props
-
-    const [state, setState] = React.useState(null)
-    const [stateIndex, setStateIndex] = React.useState(0)
+    const [state, setState] = useState(null)
 
     const [attendance, setAttendace] = React.useState(null)
-    const [attendanceData, setAttendaceData] = React.useState(null)
 
+    useEffect(() => {
+        loadCompareStorage()
+    }, [])
 
-    const resetModal = () => {
-        setState(null)
-        setAttendace(null)
-        setSelectedImage(null)
-        setGpsLocationIN(null)
-        setGpsLocationOUT(null)
-        props.clearTrigger()
-        // props.resetAttendance()
-    }
+    const loadCompareStorage = async () => {
+        try {
+            const result = await AsyncStorage.getItem('@comparator');
 
-    const closeModal = () => {
-        resetModal()
-        onClose()
-    }
-
-    const refreshAttendance = () => { //when state is filled up
-        props.getAttendanceAbsence(project.list[stateIndex].key)
-        props.getAttendanceTravel(project.list[stateIndex].key)
-    }
-
-
-
-    let [selectedImage, setSelectedImage] = React.useState(null);
-
-    let openImagePickerAsync = async () => {
-        let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();
-
-        if (permissionResult.granted === false) {
-            alert('Permission to access camera roll is required!');
-            return;
-        }
-
-        let pickerResult = await ImagePicker.launchImageLibraryAsync();
-
-        if (pickerResult.cancelled === true) {
-            return;
-        }
-
-        setSelectedImage({ localUri: pickerResult.uri });
-
-        const fileType = pickerResult.uri.split('.')
-        const fileName = fileType[fileType.length - 2].split('/')
-
-        const imageFile = {
-            uri: pickerResult.uri,
-            type: `${pickerResult.type}/${fileType[fileType.length - 1]}`,
-            name: `${fileName[fileName.length - 1]}.${fileType[fileType.length - 1]}`,
-        }
-
-
-        setFormAttendance({
-            ...formAttendance,
-            image: imageFile
-        })
-    };
-
-
-
-
-    React.useEffect(() => {
-        if (!update.isFetching && update.isStatus) {
-            if (!!update.message) { alert(update.message) }
-
-            closeModal()
-        }
-    }, [update])
-
-
-    React.useEffect(() => {
-        if (state) { refreshAttendance() }
-
-        // return () => props.resetAttendance()
-    }, [state])
-
-
-
-    React.useEffect(() => {
-        if (attendance === 'attendance' && absence.isStatus && absence.list.length !== 0) {
-            // console.log('CHECK DATA')
-
-            if (!absence.list[absence.list.length - 1].checkout_time) { //last array belom complete checkout
-                // console.log('TARO DATA')
-
-                const curr_data_In = absence.list[absence.list.length - 1]
-
-                setAttendaceData(absence.list[absence.list.length - 1]) //taro data yg last array tad
-
-                if (!!curr_data_In.checkin_latitude && curr_data_In.checkin_latitude !== 'null') {
-                    const latitude = Number(curr_data_In.checkin_latitude);
-                    const longitude = Number(curr_data_In.checkin_longitude);
-                    getGeocodeAsync({ latitude, longitude }, true)
-                }
-
+            if (result !== null) {
+                setCompareData(JSON.parse(result))
             } else {
-                setAttendaceData(default_absence)
+                setWarnEmptyData(true)
+                alert('No ongoing project recorded or saved')
             }
-        } else if (attendance === 'attendance' && absence.isStatus) {
-            setAttendaceData(default_absence)
+
+        } catch (error) {
+            // Error retrieving data
         }
+    }
 
-
-
-        if (attendance === 'travel' && travel.isStatus && travel.list.length !== 0) {
-            // console.log('CHECK travelll DATA')
-            if (!travel.list[travel.list.length - 1].checkout_time) { //last array belom complete checkout
-
-                const curr_data_In = travel.list[travel.list.length - 1]
-
-                //taro/load data IN
-                setAttendaceData(curr_data_In) //taro data yg last array tadi
-
-
-                // load data gelocation
-                if (!!curr_data_In.checkin_latitude && curr_data_In.checkin_latitude !== 'null') {
-                    const latitude = Number(curr_data_In.checkin_latitude);
-                    const longitude = Number(curr_data_In.checkin_longitude);
-                    getGeocodeAsync({ latitude, longitude }, true)
-                }
-
-                // let { status } = await Permissions.askAsync(Permissions.LOCATION);
-                // if (status !== 'granted') {
-                //     alert('Permission to access location was denied')
-                // }
-
-            } else if (travel.list.length === 2) {
-                alert(`It seems you already complete your travel in this project, new data wouldn't be recorded`)
-            } else {
-                setAttendaceData(default_travel)
-            }
-            // if (travel.list[0].checkout_time) {
-            //     setTravelType('return')
-            // }
-        } else if (attendance === 'travel' && travel.isStatus) {
-            setAttendaceData(default_travel)
-        }
-
-    }, [attendance])
-
-
-
-    /**
-     * data for state for input
-     */
     const [formAttendance, setFormAttendance] = React.useState({
         "attendance_type": attendance,
-        "travel_type": attendance === 'travel' ? travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart' : '',
+        "travel_type": '',
         attendance_time: moment().format('YYYY-MM-DD HH:mm:ss'),
         estimation_time: '0',
         "description": '',
@@ -188,439 +59,440 @@ const OfflineAttendance = props => {
         location: '',
     })
 
+    const checkBeforeStorage = async () => {
+
+        const NEW_DATA = {
+            "project_key": state.key,
+            "data": formAttendance
+        }
+
+        if (attendance === 'travel' && !!state.latest_travel && !!state.latest_travel.checkout_time && state.latest_travel.travel_type === 'return' &&
+            state.role === 'staff'
+        ) {
+            alert(`Hey your travel is out of quota, it seems you already travel to return.`)
+            return
+        }
+
+        if (attendance === 'travel' && !!state.latest_travel && !!state.latest_travel.checkout_time &&
+            (state.latest_travel.travel_type === 'return' || state.latest_travel.travel_type === 'migrate') &&
+            state.role === 'koordinator' && compareData.length === 1
+        ) {
+            alert(`Hey your travel is out of quota, it seems you have only 1 ongoing project`)
+            return
+        }
+
+
+        //ambil data storage saved,
+        //gabungin data nya
+        //baru saved
+
+        try {
+            const result = await AsyncStorage.getItem('@offline');
+
+            if (result === null) {
+                _storeData([NEW_DATA])
+            }
+
+            if (result !== null) {
+                const OFFLINE_DATA = await JSON.parse(result)
+                _storeData([...OFFLINE_DATA, NEW_DATA])
+            }
+
+
+        } catch (error) {
+            alert('Error saving offline data in storage, perhaps your storage is full')
+            // Error retrieving data
+        }
+
+    }
+
+
+    const _storeData = async (DATA) => {
+        console.log(DATA)
+        try {
+            await AsyncStorage.setItem('@offline', JSON.stringify(DATA))
+            console.log('SAVED @DATA')
+
+            constructNewDataComparator(fakeServerReturn())
+
+
+        } catch (e) {
+            console.log(e)
+            alert('Error proses saving')
+        }
+    }
+
+    const fakeServerReturn = () => {
+
+        const old_data = formAttendance.attendance_type === 'travel' ? state.latest_travel : state.latest_absence
+
+        return {
+            "attendance_type": formAttendance.attendance_type,
+
+            "checkin_location": !!old_data.checkin_location ? null : formAttendance.location,
+            "checkout_location": old_data.checkin_time ? formAttendance.location : null,
+
+            "checkin_time": old_data.checkin_time ? null : formAttendance.attendance_time,
+            "checkout_time": old_data.checkin_time ? formAttendance.attendance_time : null,
+
+            "estimation_time": formAttendance.estimation_time,
+            "description": formAttendance.description,
+            "travel_type": formAttendance.travel_type,
+
+
+            "checkin_image": null,
+            "checkout_image": null,
+
+            "checkin_latitude": null,
+            "checkin_longitude": null,
+
+            "checkout_latitude": null,
+            "checkout_longitude": null,
+        }
+    }
+
+
+    const constructNewDataComparator = async (form) => {
+
+        try {
+            const result = await AsyncStorage.getItem('@comparator');
+
+            const PROJECTS = await JSON.parse(result).map(item => {
+
+                if (item.project_code === state.project_code) {
+                    return {
+                        ...item,
+                        ...form.attendance_type === 'attendance' ? { latest_absence: form } : { latest_travel: form }
+                    }
+
+                } else { return item }
+            })
+
+            saveNewDataComparator(PROJECTS).then(() => {
+                alert('Success saving data in storage ')
+                props.navigation.goBack()
+            })
+
+        } catch (error) {
+            alert('Error proses saving')
+        }
+
+    }
+
+    const saveNewDataComparator = async (newArray) => {
+        try {
+            await AsyncStorage.setItem('@comparator', JSON.stringify(newArray))
+            return
+        } catch (e) {
+            console.log(e)
+            // saving error
+        }
+    }
+
+
+
 
     const doSubmit = () => {
-
-        props.triggerAttendance(formAttendance, project.list[stateIndex].key)
+        Alert.alert(
+            'Confirmation',
+            'Are you sure you want to save this information ? ',
+            [
+                { text: `Cancel`, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                { text: 'OK', onPress: () => checkBeforeStorage() },
+            ],
+            { cancelable: false }
+        )
     }
-
-    // const [gpsLocation, setGpsLocation] = React.useState(null)
-    const [gpsLocationIN, setGpsLocationIN] = React.useState(null)
-    const [gpsLocationOUT, setGpsLocationOUT] = React.useState(null)
-
-    const getLocationAsync = async (isCheckin) => {
-        let { status } = await Permissions.askAsync(Permissions.LOCATION);
-        if (status !== 'granted') {
-            alert('Permission to access location was denied')
-        }
-
-        let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest });
-        const { latitude, longitude } = location.coords
-
-        setFormAttendance({
-            ...formAttendance,
-            latitude, longitude
-        })
-        getGeocodeAsync({ latitude, longitude }, isCheckin)
-    };
-
-    //useffect call this getGeocodeAsync
-    /**
-     * bisa panggil getGeo apa engga kalo Permission denied?
-     * 
-     */
-    const getGeocodeAsync = async (location, isCheckin) => {
-        let geocode = await Location.reverseGeocodeAsync(location)
-
-        if (isCheckin) {
-            setGpsLocationIN(`${geocode[0].street}, ${geocode[0].region}, ${geocode[0].city}`)
-        } else {
-            setGpsLocationOUT(`${geocode[0].street}, ${geocode[0].region}, ${geocode[0].city}`)
-        }
-    }
-
 
     return (
-        <Modal
-            useNativeDriver
-            onBackdropPress={closeModal}
-            onBackButtonPress={closeModal}
-            isVisible={open}
-            style={{ width: '100%', margin: 0, marginTop: 60, }}>
-            <ScrollView
-                contentContainerStyle={{ paddingBottom: 60 }}
-                style={{ flex: 1, backgroundColor: 'white', width: '100%', margin: 0, padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ fontWeight: 'bold' }}>Choose Project :</Text>
-                    <Text style={{ fontWeight: 'bold' }} onPress={closeModal}>X</Text>
-                </View>
+        <ScrollView
+            contentContainerStyle={{ paddingBottom: 60 }}
+            //   refreshControl={<RefreshControl refreshing={project.isFetching} onRefresh={doRefresh} />}
+            style={styles.container}>
 
+            {warnEmptyData && <Text style={{ color: 'red' }}>No ongoing project recorded or saved when you were online</Text>}
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={{ fontWeight: 'bold' }}>Choose Project :</Text>
+                <View />
+            </View>
+
+
+            {compareData &&
                 <Picker
                     selectedValue={state}
                     style={{ height: 50, width: '100%' }}
                     onValueChange={(itemValue, itemIndex) => {
                         setState(itemValue)
-                        setStateIndex(itemIndex - 1)
                         setAttendace(null)
                     }}>
                     <Picker.Item label='Select Project' value={null} />
-                    {project.isStatus && project.list.map((item, i) => <Picker.Item key={i} label={item.project_code} value={item.key} />)}
+                    {compareData.map((item, i) => <Picker.Item key={i} label={item.project_code} value={item} />)}
                 </Picker>
-                {(absence.isFetching || travel.isFetching) && <ActivityIndicator />}
-                {/* {console.log(absence)}
-                {console.log(travel)} */}
-                {/* kasih retry */}
-                {state && absence.isStatus && travel.isStatus &&
-                    <View style={{ marginTop: 20 }}>
-                        <Text style={{ fontWeight: 'bold' }}>Choose Type:</Text>
-                        <Picker
-                            selectedValue={attendance}
-                            style={{ height: 50, width: '100%' }}
-                            onValueChange={(itemValue, itemIndex) => {
-                                setAttendace(itemValue)
-                                setFormAttendance({
-                                    ...formAttendance,
-                                    "attendance_type": itemValue,
-                                    "travel_type": itemValue === 'travel' ? travel.list.length > 0 ? travel.list[0].checkout_time ? 'return' : 'depart' : 'depart' : '',
-                                    attendance_time: moment().format('YYYY-MM-DD HH:mm:ss'),
-                                    estimation_time: '0',
-                                    "description": '',
-                                    longitude: null, //setup disni geolocationny ?
-                                    latitude: null,
-                                    image: null,
-                                    location: '',
-                                })
-                            }}>
-                            <Picker.Item label='Select Type' value={null} />
-                            <Picker.Item label='Travel' value='travel' />
-                            <Picker.Item label='Absence' value='attendance' />
-                        </Picker>
-                    </View> //kasih loading
-                }
+            }
 
+            {state &&
+                <View style={{ marginTop: 20 }}>
+                    <Text style={{ fontWeight: 'bold' }}>Choose Type:</Text>
+                    <Picker
+                        selectedValue={attendance}
+                        style={{ height: 50, width: '100%' }}
+                        onValueChange={(itemValue, itemIndex) => {
+                            setAttendace(itemValue)
+                            //set migrate to false
 
-                {state && attendance === 'attendance' && attendanceData &&
-                    <>
-                        <View style={{ marginTop: 20 }}>
-                            <Text style={{ marginBottom: 20 }}><Text style={{ fontWeight: 'bold', }}>Attendance - </Text>{project.list[stateIndex].project_code}</Text>
-                            {/* <Text style={{ color: 'grey', fontSize: 11 }}>{attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text> */}
-                            {/* kasih today */}
+                            console.log(itemValue === 'travel' // perbedaan attendance sama travel
+                                ?
+                                (!!state.latest_travel   // kalo 0, depart(baru),    ada travel ?
+                                    ?
+                                    !state.latest_travel.checkout_time && state.latest_travel.travel_type === 'depart'// check depart udah IN ?   
+                                        ?
+                                        'depart2'
+                                        :
+                                        compareData.length > 1 ?
+                                            'migrate' :
+                                            'return'
 
-
-                            <Text style={{ fontWeight: 'bold', }}>Clock In</Text>
-                            <Text style={{ color: 'grey' }}>{attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
-
-                            <View style={{ flexDirection: 'row' }}>
-                                <View style={{ flex: 1 }}>
-                                    <TextInput
-                                        value={attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm') : moment().format('HH:mm')}
-                                        disabled
-                                        mode='outlined'
-                                    />
-                                </View>
-                                {/* {console.log(moment(attendanceData.checkin_time).format('X') - moment().format('X'))} */}
-                                <View style={{ flex: 1, paddingLeft: 20 }} />
-                            </View>
-
-                            <TouchableOpacity
-                                onPress={() => !!attendanceData.checkin_time ? null : getLocationAsync(true)}
-                                style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
-                                <Image
-                                    style={{ height: 30, width: 30, marginRight: 5 }}
-                                    source={require('../../assets/location.png')}
-                                    resizeMode='contain'
-                                />
-                                <View
-                                    style={{ flex: 1 }}>
-                                    <Caption>{
-                                        !!attendanceData.checkin_time ? //check masih IN atau sudah OUT
-                                            attendanceData.checkin_latitude ?
-                                                gpsLocationIN
+                                    :
+                                    'depart1')  //bkin travel baru depart
+                                :
+                                'attendance')
+                            setFormAttendance({
+                                ...formAttendance,
+                                "attendance_type": itemValue, //
+                                "travel_type":
+                                    itemValue === 'travel' // perbedaan attendance sama travel
+                                        ?
+                                        (!!state.latest_travel   // kalo 0, depart(baru),    ada travel ?
+                                            ?
+                                            !state.latest_travel.checkout_time && state.latest_travel.travel_type === 'depart'// check depart udah IN ?   
+                                                ?
+                                                //check if ada ongoing project yg lain ? -> klo ada migration, klo gk ada return
+                                                'depart'
                                                 :
-                                                `Location not setup` //check user masukin data gps IN ?
+                                                compareData.length > 1 ?
+                                                    'migrate' :
+                                                    'return'
+
                                             :
-                                            formAttendance.latitude ?
-                                                gpsLocationIN ?
-                                                    gpsLocationIN
-                                                    :
-                                                    'loading...'
-                                                :
-                                                'get location'
-                                    }</Caption>
-                                </View>
-                            </TouchableOpacity>
+                                            'depart')  //bkin travel baru depart
+                                        :
+                                        '',
+                                attendance_time: moment().format('YYYY-MM-DD HH:mm:ss'),
+                                estimation_time: '0',
+                                "description": '',
+                                longitude: null, //setup disni geolocationny ?
+                                latitude: null,
+                                image: null,
+                                location: '',
+                            })
+                        }}>
+                        <Picker.Item label='Select Type' value={null} />
+                        <Picker.Item label='Travel' value='travel' />
+                        <Picker.Item label='Absence' value='attendance' />
+                    </Picker>
+                </View> //kasih loading
+            }
 
-                            {
-                                attendanceData.checkin_time &&
-                                <>
-                                    <Divider style={{ marginVertical: 20 }} />
+            {state && attendance === 'attendance' &&
+                <View>
+                    <View style={{ marginTop: 20 }}>
+                        <Text style={{ marginBottom: 20 }}><Text style={{ fontWeight: 'bold', }}>Attendance - </Text>{state.project_code}</Text>
 
-                                    <Text style={{ fontWeight: 'bold' }}>Clock Out</Text>
+                        <Text style={{ fontWeight: 'bold', }}>Clock In</Text>
+                        <Text style={{ color: 'grey' }}>{state.latest_absence.checkin_time ? moment(state.latest_absence.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
 
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={{ color: 'grey' }}>{moment().format('dddd, MMMM Do YYYY')}</Text>
+                        <View style={{ flexDirection: 'row' }}>
+                            <View style={{ flex: 1 }}>
+                                <TextInput
+                                    value={state.latest_absence.checkin_time ? moment(state.latest_absence.checkin_time).format('HH:mm') : moment().format('HH:mm')}
+                                    disabled
+                                    mode='outlined'
+                                />
+                            </View>
+                            <View style={{ flex: 1, paddingLeft: 20 }} />
+                        </View>
 
 
+                        {
+                            !!state.latest_absence && state.latest_absence.checkin_time &&
+                            <>
+                                <Divider style={{ marginVertical: 20 }} />
+
+                                <Text style={{ fontWeight: 'bold' }}>Clock Out</Text>
+
+                                <View style={{ flexDirection: 'row' }}>
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={{ color: 'grey' }}>{moment().format('dddd, MMMM Do YYYY')}</Text>
+
+
+                                        <TextInput
+                                            value={state.latest_absence.checkout_time ? moment(state.latest_absence.checkout_time).format('HH:mm') : moment().format('HH:mm')}
+                                            disabled
+                                            mode='outlined'
+                                        />
+                                    </View>
+                                    <View style={{ flex: 1, paddingLeft: 20 }}>
+                                        <Text style={{ fontWeight: 'bold' }}>Total</Text>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <TextInput
-                                                value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm') : moment().format('HH:mm')}
+                                                value={calcDuration(moment(), state.latest_absence.checkin_time)}
                                                 disabled
                                                 mode='outlined'
                                             />
+                                            <Text style={{ paddingLeft: 10 }}>Hours</Text>
                                         </View>
-                                        <View style={{ flex: 1, paddingLeft: 20 }}>
-                                            <Text style={{ fontWeight: 'bold' }}>Total</Text>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <TextInput
-                                                    value={calcDuration(moment(), attendanceData.checkin_time)}
-                                                    disabled
-                                                    mode='outlined'
-                                                />
-                                                <Text style={{ paddingLeft: 10 }}>Hours</Text>
-                                            </View>
 
+                                    </View>
+                                </View>
+
+
+                                <View style={{ flexDirection: 'row' }}>
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Estimate Working</Text>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            <TextInput
+                                                value={formAttendance.estimation_time}
+                                                mode='outlined'
+                                                onChangeText={text => setFormAttendance({ ...formAttendance, estimation_time: text })}
+                                            />
+                                            <Text style={{ paddingLeft: 10 }}>Hours</Text>
                                         </View>
                                     </View>
 
-
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Estimate Working</Text>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <TextInput
-                                                    value={formAttendance.estimation_time}
-                                                    mode='outlined'
-                                                    onChangeText={text => setFormAttendance({ ...formAttendance, estimation_time: text })}
-                                                />
-                                                <Text style={{ paddingLeft: 10 }}>Hours</Text>
-                                            </View>
-                                        </View>
-
-                                        <View style={{ flex: 1, paddingLeft: 20 }}>
-                                            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Overtime</Text>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <TextInput
-                                                    value={calcDuration(moment(), attendanceData.checkin_time, true)}
-                                                    disabled
-                                                    mode='outlined'
-                                                />
-                                                <Text style={{ paddingLeft: 10 }}>Hours</Text>
-                                            </View>
-                                        </View>
+                                    <View style={{ flex: 1, paddingLeft: 20 }}>
                                     </View>
+                                </View>
 
-                                    <TouchableOpacity
-                                        onPress={() => getLocationAsync(false)}
-                                        style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
-                                        <Image
-                                            style={{ height: 30, width: 30, marginRight: 5 }}
-                                            source={require('../../assets/location.png')}
-                                            resizeMode='contain'
-                                        />
-                                        <View
-                                            style={{ flex: 1 }}>
-                                            <Caption>{
-                                                formAttendance.latitude ?
-                                                    gpsLocationOUT ?
-                                                        gpsLocationOUT
-                                                        :
-                                                        'loading...'
-                                                    :
-                                                    'get location'
-                                            }</Caption>
-                                        </View>
-                                    </TouchableOpacity>
 
-                                    <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Description</Text>
-                                    <TextInput
-                                        placeholder='description'
-                                        value={formAttendance.description}
-                                        onChangeText={text => setFormAttendance({ ...formAttendance, description: text })}
-                                        mode='outlined'
-                                    />
-                                    {/* {console.log(formAttendance)} */}
-                                </>
-                            }
-                        </View>
-
-                        {attendanceData && !attendance.checkout_time &&
-                            <Button
-                                style={{ marginTop: 40 }}
-                                labelStyle={{ color: 'white' }}
-                                mode="contained"
-                                onPress={() => doSubmit()}
-                                disabled={update.isFetching}>
-                                {attendanceData.checkin_time ? 'Submit' : 'Confirm'}
-                            </Button>
+                                <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Description</Text>
+                                <TextInput
+                                    placeholder='description'
+                                    value={formAttendance.description}
+                                    onChangeText={text => setFormAttendance({ ...formAttendance, description: text })}
+                                    mode='outlined'
+                                />
+                            </>
                         }
-                    </>
-                }
+                    </View>
 
-                {state && attendance === 'travel' && attendanceData &&
-                    <>
-                        <View style={{ marginTop: 20 }}>
-                            <Text><Text style={{ fontWeight: 'bold' }}>Attendance - </Text>{project.list[stateIndex].project_code}</Text>
 
-                            {/* FIRST */}
-                            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Location Departure</Text>
+                    {!!state.latest_absence &&
+                        <Button
+                            style={{ marginTop: 40 }}
+                            labelStyle={{ color: 'white' }}
+                            mode="contained"
+                            onPress={() => doSubmit()}
+                        // disabled={update.isFetching}
+                        >
+                            {state.latest_absence.checkin_time ? 'Submit' : 'Confirm'}
+                        </Button>
+                    }
+                </View>
+            }
+
+            {state && attendance === 'travel' &&
+                <View style={{ marginTop: 20 }}>
+                    <Text><Text style={{ fontWeight: 'bold' }}>Attendance - </Text>{state.project_code}</Text>
+
+
+                    {/* FIRST */}
+                    <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Location Departure</Text>
+                    <TextInput
+                        placeholder='location...'
+                        value={!!state.latest_travel && state.latest_travel.checkin_time ? state.latest_travel.checkin_location : formAttendance.location}
+                        onChangeText={text => setFormAttendance({ ...formAttendance, location: text })}
+                        mode='outlined'
+                        disabled={!!state.latest_travel.checkin_time}
+                    />
+
+
+
+                    <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Departure</Text>
+                    <Text style={{ color: 'grey' }}>{!!state.latest_travel && state.latest_travel.checkin_time ? moment(state.latest_travel.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
+
+                    <TextInput
+                        // style={{ flex: 0.5 }}
+                        value={!!state.latest_travel && state.latest_travel.checkin_time ? moment(state.latest_travel.checkin_time).format('HH:mm') : moment().format('HH:mm')}
+                        disabled
+                        mode='outlined'
+                    />
+
+
+                    {!!state.latest_travel && state.latest_travel.checkin_time &&
+                        <>
+                            <Divider style={{ marginVertical: 20 }} />
+
+                            {/* SECOND */}
+                            <Text style={{ fontWeight: 'bold' }}>Location Arrival</Text>
                             <TextInput
                                 placeholder='location...'
-                                value={attendanceData.checkin_time ? attendanceData.checkin_location : formAttendance.location}
+                                value={formAttendance.location}
                                 onChangeText={text => setFormAttendance({ ...formAttendance, location: text })}
                                 mode='outlined'
-                                disabled={!!attendanceData.checkin_time}
                             />
 
-                            <TouchableOpacity
-                                onPress={() => !!attendanceData.checkin_time ? null : getLocationAsync(true)}
-                                style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
-                                <Image
-                                    style={{ height: 30, width: 30, marginRight: 5 }}
-                                    source={require('../../assets/location.png')}
-                                    resizeMode='contain'
-                                />
-                                <View
-                                    style={{ flex: 1 }}>
-                                    <Caption>{
-                                        !!attendanceData.checkin_time ? //check masih IN atau sudah OUT
-                                            attendanceData.checkin_latitude ?
-                                                gpsLocationIN
-                                                :
-                                                `Location not setup` //check user masukin data gps IN ?
-                                            :
-                                            formAttendance.latitude ?
-                                                gpsLocationIN ?
-                                                    gpsLocationIN
-                                                    :
-                                                    'loading...'
-                                                :
-                                                'get location'
-                                    }</Caption>
-                                </View>
-                            </TouchableOpacity>
-
-                            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Departure</Text>
-                            <Text style={{ color: 'grey' }}>{attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
-
+                            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Arrival</Text>
+                            <Text style={{ color: 'grey' }}>{moment().format('dddd, MMMM Do YYYY')}</Text>
                             <TextInput
-                                // style={{ flex: 0.5 }}
-                                value={attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm') : moment().format('HH:mm')}
+                                value={state.latest_travel.checkout_time ? moment(state.latest_travel.checkout_time).format('HH:mm') : moment().format('HH:mm')}
                                 disabled
                                 mode='outlined'
                             />
 
-                            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Photo</Text>
-                            <View style={{ flexDirection: 'row' }}>
-                                <TouchableOpacity
-                                    onPress={() => attendanceData.checkin_time ? null : openImagePickerAsync()}
-                                    style={{ flex: 1 }}>
-                                    <Image
-                                        style={{ height: 100, width: 100, marginRight: 5 }}
-                                        source={
-                                            attendanceData.checkin_image && attendanceData.checkin_image !== 'null' ?
-                                                { uri: attendanceData.checkin_image }//+ jpg ?
-                                                :
-                                                selectedImage ? { uri: selectedImage.localUri } :
-                                                    require('../../assets/upload.png')
-                                        }
-                                        resizeMode='contain'
-                                    />
-                                </TouchableOpacity>
-                                <View style={{ flex: 1 }} />
-                            </View>
 
+                            <Text style={{ fontWeight: 'bold' }}>Description</Text>
+                            <TextInput
+                                placeholder='description ...'
+                                value={formAttendance.description}
+                                onChangeText={text => setFormAttendance({ ...formAttendance, description: text })}
+                                mode='outlined'
+                            />
+                        </>
+                    }
 
+                    {!!state.latest_travel &&
+                        <Button
+                            style={{ marginTop: 20 }}
+                            labelStyle={{ color: 'white' }}
+                            mode="contained"
+                            onPress={() => doSubmit()}
+                        >
+                            {state.latest_travel.checkin_time ? 'Confirm' : 'Confirm'}
+                        </Button>
+                    }
+                </View>
+            }
 
-                            {attendanceData.checkin_time &&
-                                <>
-                                    <Divider style={{ marginVertical: 20 }} />
-
-                                    {/* SECOND */}
-                                    <Text style={{ fontWeight: 'bold' }}>Location Arrival</Text>
-                                    <TextInput
-                                        placeholder='location...'
-                                        value={formAttendance.location}
-                                        onChangeText={text => setFormAttendance({ ...formAttendance, location: text })}
-                                        mode='outlined'
-                                    />
-
-                                    <TouchableOpacity
-                                        onPress={() => getLocationAsync(false)}
-                                        style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center' }}>
-                                        <Image
-                                            style={{ height: 30, width: 30, marginRight: 5 }}
-                                            source={require('../../assets/location.png')}
-                                            resizeMode='contain'
-                                        />
-                                        <View
-                                            style={{ flex: 1 }}>
-                                            <Caption>{
-                                                formAttendance.latitude ?
-                                                    gpsLocationOUT ?
-                                                        gpsLocationOUT
-                                                        :
-                                                        'loading...'
-                                                    :
-                                                    'get location'
-                                            }</Caption>
-                                        </View>
-                                    </TouchableOpacity>
-
-
-                                    <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Arrival</Text>
-                                    <Text style={{ color: 'grey' }}>{moment().format('dddd, MMMM Do YYYY')}</Text>
-                                    <TextInput
-                                        value={attendanceData.checkout_time ? moment(attendanceData.checkout_time).format('HH:mm') : moment().format('HH:mm')}
-                                        disabled
-                                        mode='outlined'
-                                    />
-
-                                    <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Photo</Text>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <TouchableOpacity
-                                            onPress={openImagePickerAsync}
-                                            style={{ flex: 1 }}>
-                                            <Image
-                                                style={{ height: 100, width: 100, marginRight: 5 }}
-                                                source={selectedImage ? { uri: selectedImage.localUri } : require('../../assets/upload.png')}
-                                                resizeMode='contain'
-                                            />
-                                        </TouchableOpacity>
-                                        <View style={{ flex: 1 }} />
-                                    </View>
-
-                                    <Text style={{ fontWeight: 'bold' }}>Description</Text>
-                                    <TextInput
-                                        placeholder='description ...'
-                                        value={formAttendance.description}
-                                        onChangeText={text => setFormAttendance({ ...formAttendance, description: text })}
-                                        mode='outlined'
-                                    />
-
-                                </>
-                            }
-
-                            {attendanceData && !attendance.checkout_time &&
-                                <Button
-                                    style={{ marginTop: 20 }}
-                                    labelStyle={{ color: 'white' }}
-                                    mode="contained"
-                                    onPress={() => doSubmit()}
-                                    // onPress={() => console.log(formAttendance)}
-                                    disabled={update.isFetching}>
-                                    {attendanceData.checkin_time ? 'Confirm' : 'Confirm'}
-                                </Button>
-                            }
-                        </View>
-                    </>
-                }
-
-            </ScrollView>
-        </Modal>
-    )
+        </ScrollView>
+    );
 }
+
 
 const mapStateToProps = state => {
     return {
-        project: state.project.DATA,
-        travel: state.attendance.TRAVEL,
-        absence: state.attendance.ABSENCE,
-        update: state.attendance.UPDATE,
-        self_attendance: state.attendance.DATA,
-        staff_attendance: state.attendance.STAFF,
-        accept_status: state.attendance.ACCEPT,
-        edit_status: state.attendance.EDIT,
+        // session: state.home.DATA
+        project: state.project.DATA
 
-        person: state.attendance.PERSON
     }
 }
+
+export const OfflineAttendance = connect(mapStateToProps, {
+    // getProjects
+})(Screen)
+
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 20,
+        paddingTop: SPACE,
+        // paddingBottom: 60,
+        // backgroundColor: 'red'
+    },
+    text: {
+        textAlign: 'center',
+    },
+
+});
+

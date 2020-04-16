@@ -14,6 +14,9 @@ class WrapperHeader extends PureComponent {
     }
 
     doLogout = async () => {
+        /**
+         * TODO: apus comparison data + savedstorage data too
+         */
         try {
             await AsyncStorage.removeItem('@login');
             await this.props.resetAuth()
@@ -33,7 +36,7 @@ class WrapperHeader extends PureComponent {
         // works a connection - listener
         if(this.context.isConnected && !this.state.isOnline) {
             console.log('SET ONLINE')
-            // this.setState({ isOnline: true })
+            this.setState({ isOnline: true })
 
             /**
              * gonna do check reconnect here.
@@ -43,13 +46,15 @@ class WrapperHeader extends PureComponent {
              */
 
 
+            // * setState pause ?
+            // getOfflineStorage()
 
 
 
 
         } else if(!this.context.isConnected && this.state.isOnline) {
             console.log('SET OFFLINE')
-            // this.setState({ isOnline: false })
+            this.setState({ isOnline: false })
 
 
             /**
@@ -64,22 +69,48 @@ class WrapperHeader extends PureComponent {
      * 
      * bakal pause, kasih loading
      */
-    showIsiData = async () => {
+    getOfflineStorage = async () => {
         try {
             const result = await AsyncStorage.getItem('@offlineAttendance');
+
             console.log(result)
-            if(result === null) { return }
+
+            if(result === null) {
+                //stop loading ?
+                return
+            }
+
             if(result !== null) {
                 //do something
                 console.log('gonna do something')
-            }
 
+                /**
+                 * 
+                 * parse data... copy original data
+                 * 
+                 * 
+                 * 
+                 * split array ?->  map array ... buat kasih tau number
+                 * 
+                 * item array -> fetch -> success 
+                 * 
+                 * if success, remove item from orginal array -> setStorage baru
+                 * 
+                 * resolve from Storage baru, then continue [UPDATE]
+                 * 
+                 * SUCCESS THEN CAN CONTINUE, if fail -> repeat ? 
+                 * 
+                 * if all complete,[delete project / remove async], delete comparator too ? unpause --> setOnline -> rewash( set new data)--> ke redux ?
+                 * 
+                 */
+            }
 
         } catch(error) {
             // Error retrieving data
         }
     }
 
+    //setStorage = async () => {}  //stringify
 
     showAlertLogout = () => {
         Alert.alert(

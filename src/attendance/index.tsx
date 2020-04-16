@@ -259,7 +259,7 @@ const toCalc = (curr, before, overtime = false) => {
     return result.toString()
 }
 
-const calcDuration = (curr, before, overtime = false) => {
+export const calcDuration = (curr, before, overtime = false) => {
 
     const DURATIONX = moment.duration(moment(curr).diff(moment(before))).asHours();
     const DURATION = Math.floor(DURATIONX)
@@ -1337,7 +1337,7 @@ const ModalAttendance = props => {
                             }
                         </View>
 
-                        {attendanceData && !attendance.checkout_time &&
+                        {attendanceData &&
                             <Button
                                 style={{ marginTop: 40 }}
                                 labelStyle={{ color: 'white' }}
@@ -1528,7 +1528,7 @@ const ModalAttendance = props => {
                                 </>
                             }
 
-                            {attendanceData && !attendance.checkout_time &&
+                            {attendanceData &&
                                 <Button
                                     style={{ marginTop: 20 }}
                                     labelStyle={{ color: 'white' }}

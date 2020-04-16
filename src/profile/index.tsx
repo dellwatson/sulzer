@@ -9,6 +9,7 @@ import { resetAuth } from '../auth/action'
 import { ModalAttendanceRedux } from '../attendance';
 import OfflineBanner from '../../components/OfflineBanner';
 import WrapperHeader from './wrapper';
+import ButtonWrapper from './button-wrapper';
 
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
@@ -82,6 +83,11 @@ const Screen = (props) => {
 
 
   useEffect(() => {
+
+    /**
+     * check data offline has stored first
+     */
+
     if (project.isStatus) {
 
       //kasih loading fullscreen?
@@ -96,6 +102,23 @@ const Screen = (props) => {
     try {
       const result = await AsyncStorage.getItem('@comparator');
       console.log('PARSE HOME: ---> ', JSON.parse(result))
+
+    } catch (error) {
+      // Error retrieving data
+    }
+  }
+  const showIsiDataOFFLINE = async () => {
+    try {
+      const result = await AsyncStorage.getItem('@offline');
+      console.log('###OFFLINE: ---> ', JSON.parse(result))
+
+    } catch (error) {
+      // Error retrieving data
+    }
+  }
+  const deleteDataoffline = async () => {
+    try {
+      await AsyncStorage.removeItem('@offline');
 
     } catch (error) {
       // Error retrieving data
@@ -128,14 +151,39 @@ const Screen = (props) => {
           style={{
             elevation: 2,
             borderRadius: 10,
-            width: width / 2.5,
-            padding: 20,
+            width: width / 3,
+            padding: 2,
             backgroundColor: 'white',
             justifyContent: 'center',
             alignItems: 'center'
           }}>
-
           <Title style={{ color: theme.colors.primary, marginTop: 5 }}>TEST</Title>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={showIsiDataOFFLINE}
+          style={{
+            elevation: 2,
+            borderRadius: 10,
+            width: width / 3,
+            padding: 2,
+            backgroundColor: 'white',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+          <Title style={{ color: theme.colors.primary, marginTop: 5 }}>data offline</Title>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={deleteDataoffline}
+          style={{
+            elevation: 2,
+            borderRadius: 10,
+            width: width / 3,
+            padding: 2,
+            backgroundColor: 'white',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+          <Title style={{ color: theme.colors.primary, marginTop: 5 }}>delete data offline</Title>
         </TouchableOpacity>
 
         <View style={{ backgroundColor: 'white', borderRadius: 30, height: height / 2, alignItems: 'center', zIndex: 2, elevation: 4, top: 50, flex: 1, }}>
@@ -205,41 +253,43 @@ const Screen = (props) => {
                 paddingHorizontal: '5%'
               }}>
 
-              <TouchableOpacity
-                onPress={() => props.navigation.navigate('Project')}
-                style={{
-                  elevation: 2,
-                  borderRadius: 10,
-                  width: width / 2.5,
-                  padding: 20,
-                  backgroundColor: 'white',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                <Image
-                  resizeMode='contain'
-                  source={require('../../assets/project_ic.png')} />
-                <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Project</Title>
-              </TouchableOpacity>
+              <ButtonWrapper navigation={props.navigation}>
+                <TouchableOpacity
+                  onPress={() => props.navigation.navigate('Project')}
+                  style={{
+                    elevation: 2,
+                    borderRadius: 10,
+                    width: width / 2.5,
+                    padding: 20,
+                    backgroundColor: 'white',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
+                  <Image
+                    resizeMode='contain'
+                    source={require('../../assets/project_ic.png')} />
+                  <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Project</Title>
+                </TouchableOpacity>
 
 
+                <TouchableOpacity
+                  onPress={() => showModal(true)}
+                  style={{
+                    elevation: 2,
+                    borderRadius: 10,
+                    width: width / 2.5,
+                    padding: 20,
+                    backgroundColor: 'white',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
+                  <Image
+                    resizeMode='contain'
+                    source={require('../../assets/attendance_ic.png')} />
+                  <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Attendance</Title>
+                </TouchableOpacity>
+              </ButtonWrapper>
 
-              <TouchableOpacity
-                onPress={() => showModal(true)}
-                style={{
-                  elevation: 2,
-                  borderRadius: 10,
-                  width: width / 2.5,
-                  padding: 20,
-                  backgroundColor: 'white',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                <Image
-                  resizeMode='contain'
-                  source={require('../../assets/attendance_ic.png')} />
-                <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Attendance</Title>
-              </TouchableOpacity>
             </ScrollView>
           }
 
