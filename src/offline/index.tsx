@@ -26,6 +26,25 @@ const Screen = (props) => {
     const [state, setState] = useState(null)
 
     const [attendance, setAttendace] = React.useState(null)
+    const [attendanceData, setAttendanceData] = React.useState(null)
+    //     "attendance_type": "attendance",
+    // "checkin_time": null,
+    // "checkout_time": null,
+    // "estimation_time": null,
+    // "checkin_latitude": null,
+    // "checkout_latitude": null,
+    // "checkin_longitude": null,
+    // "checkout_longitude": null,
+    // "checkin_location": null,
+    // "checkout_location": null,
+    // "description": null,
+    // "status": "new",
+    // "revision_version": null,
+    // "revision_time": null,
+    // "accepted": false,
+    // "accepted_time": null,
+    // })
+
 
     useEffect(() => {
         loadCompareStorage()
@@ -46,6 +65,51 @@ const Screen = (props) => {
             // Error retrieving data
         }
     }
+    const default_absence = {
+        "attendance_type": "attendance",
+        "checkin_time": null,
+        "checkout_time": null,
+        "estimation_time": null,
+        "checkin_latitude": null,
+        "checkout_latitude": null,
+        "checkin_longitude": null,
+        "checkout_longitude": null,
+        "checkin_location": null,
+        "checkout_location": null,
+        "description": null,
+        "status": "new",
+    }
+    const default_travel = {
+        "attendance_type": "travel",
+        "travel_type": "depart",
+        "checkin_time": null,
+        "checkin_image": null,
+        "checkout_image": null,
+        "checkout_time": null,
+        "estimation_time": null,
+        "checkin_latitude": null,
+        "checkout_latitude": null,
+        "checkin_longitude": null,
+        "checkout_longitude": null,
+        "checkin_location": null,
+        "checkout_location": null,
+        "description": null,
+        "status": "new",
+    }
+    useEffect(() => {
+        if (!attendanceData) {
+            setAttendanceData(attendance === 'travel' ? default_travel : default_absence)
+        }
+
+        if (attendanceData && attendanceData.status === 'new' && attendanceData.checkout_time) {
+            setAttendanceData({
+                ...attendanceData,
+                "checkin_time": null,
+                "checkin_location": null,
+            })
+        }
+
+    }, [attendance])
 
     const [formAttendance, setFormAttendance] = React.useState({
         "attendance_type": attendance,
@@ -148,6 +212,8 @@ const Screen = (props) => {
 
             "checkout_latitude": null,
             "checkout_longitude": null,
+
+            "status": 'offline'
         }
     }
 
@@ -239,6 +305,7 @@ const Screen = (props) => {
                         style={{ height: 50, width: '100%' }}
                         onValueChange={(itemValue, itemIndex) => {
                             setAttendace(itemValue)
+                            setAttendanceData(itemValue === 'travel' ? state.latest_travel : state.latest_absence)
                             //set migrate to false
 
                             console.log(itemValue === 'travel' // perbedaan attendance sama travel
@@ -294,18 +361,18 @@ const Screen = (props) => {
                 </View> //kasih loading
             }
 
-            {state && attendance === 'attendance' &&
+            {state && attendance === 'attendance' && attendanceData &&
                 <View>
                     <View style={{ marginTop: 20 }}>
                         <Text style={{ marginBottom: 20 }}><Text style={{ fontWeight: 'bold', }}>Attendance - </Text>{state.project_code}</Text>
 
                         <Text style={{ fontWeight: 'bold', }}>Clock In</Text>
-                        <Text style={{ color: 'grey' }}>{!!state.latest_absence && state.latest_absence.checkin_time ? moment(state.latest_absence.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
+                        <Text style={{ color: 'grey' }}>{!!attendanceData && attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
 
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ flex: 1 }}>
                                 <TextInput
-                                    value={!!state.latest_absence && state.latest_absence.checkin_time ? moment(state.latest_absence.checkin_time).format('HH:mm') : moment().format('HH:mm')}
+                                    value={!!attendanceData && attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm') : moment().format('HH:mm')}
                                     disabled
                                     mode='outlined'
                                 />
@@ -315,7 +382,7 @@ const Screen = (props) => {
 
 
                         {
-                            !!state.latest_absence && state.latest_absence.checkin_time &&
+                            !!state.latest_absence && attendanceData.checkin_time &&
                             <>
                                 <Divider style={{ marginVertical: 20 }} />
 
@@ -389,7 +456,7 @@ const Screen = (props) => {
                 </View>
             }
 
-            {state && attendance === 'travel' &&
+            {state && attendance === 'travel' && attendanceData &&
                 <View style={{ marginTop: 20 }}>
                     <Text><Text style={{ fontWeight: 'bold' }}>Attendance - </Text>{state.project_code}</Text>
 
@@ -398,26 +465,26 @@ const Screen = (props) => {
                     <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Location Departure</Text>
                     <TextInput
                         placeholder='location...'
-                        value={!!state.latest_travel && state.latest_travel.checkin_time ? state.latest_travel.checkin_location : formAttendance.location}
+                        value={!!attendanceData && attendanceData.checkin_time ? attendanceData.checkin_location : formAttendance.location}
                         onChangeText={text => setFormAttendance({ ...formAttendance, location: text })}
                         mode='outlined'
-                        disabled={!!state.latest_travel && !!state.latest_travel.checkin_time}
+                        disabled={!!attendanceData && !!attendanceData.checkin_time}
                     />
 
 
 
                     <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Departure</Text>
-                    <Text style={{ color: 'grey' }}>{!!state.latest_travel && state.latest_travel.checkin_time ? moment(state.latest_travel.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
+                    <Text style={{ color: 'grey' }}>{!!attendanceData && attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('dddd, MMMM Do YYYY') : moment().format('dddd, MMMM Do YYYY')}</Text>
 
                     <TextInput
                         // style={{ flex: 0.5 }}
-                        value={!!state.latest_travel && state.latest_travel.checkin_time ? moment(state.latest_travel.checkin_time).format('HH:mm') : moment().format('HH:mm')}
+                        value={!!attendanceData && attendanceData.checkin_time ? moment(attendanceData.checkin_time).format('HH:mm') : moment().format('HH:mm')}
                         disabled
                         mode='outlined'
                     />
 
 
-                    {!!state.latest_travel && state.latest_travel.checkin_time &&
+                    {!!state.latest_travel && attendanceData.checkin_time &&
                         <>
                             <Divider style={{ marginVertical: 20 }} />
 
