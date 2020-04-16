@@ -159,6 +159,7 @@ export const getAttendanceTravel = (project_key) => (dispatch, getState) => {
 
 
 export const triggerAttendance = (form, project_key) => (dispatch, getState) => { //update
+    console.log('~~~~~~~~~~~~~~~~~FETCHING TRIGGGEERR')
     const body = new FormData();
     for(const key of Object.keys(form)) {
         body.append(key, form[key]);
@@ -187,6 +188,7 @@ export const triggerAttendance = (form, project_key) => (dispatch, getState) => 
                 data: response,
             })
 
+            console.log('RESOLLVEE BABY')
             return response
         })
         .catch(err => {

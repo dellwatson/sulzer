@@ -14,6 +14,7 @@ import ButtonWrapper from './button-wrapper';
 const { width, height } = Dimensions.get('window');
 const SPACE = 20
 
+
 const Screen = (props) => {
 
   const theme = useTheme();
@@ -65,8 +66,6 @@ const Screen = (props) => {
     // console.log(CHECK)
 
     //kirim ke redux global -> set up new
-
-
   }
 
   const _storeData = async (DATA) => {
@@ -80,12 +79,41 @@ const Screen = (props) => {
     }
   }
 
+  /**
+   * useEffect detect 
+   * 
+   * hasFinishedLoadOffline ? && isLoading true
+   * do load new comparator
+   * 
+   * setLoading false
+   */
+  const { isLoading, hasFinishedLoadOffline } = props
+
+  useEffect(() => {
+    console.log('*******   props.redux trigger')
+    if (props.hasFinishedLoadOffline && props.isLoading) {
+      console.log('REWASH  BABY')
+      prepareStorageSaving()
+    }
+
+  }, [isLoading, hasFinishedLoadOffline])
 
 
+  /**
+   * saat masuk apps check data offline exist ?
+   * 
+   * saat logout clean all
+   */
   useEffect(() => {
 
     /**
-     * check data offline has stored first
+     * @wrapper
+     * saat masuk apps: isLoading true 
+     * 
+     * check offline storage -> kalo ada
+     * do getOfflineStorage ( isLoading  true, hasFinishedLoadOffline false)
+     * 
+     * klo gk ada isLoading false
      */
 
     if (project.isStatus) {
@@ -130,20 +158,22 @@ const Screen = (props) => {
 
   return (
     <>
-      {/* <View
-        style={{
-          position: 'absolute',
-          backgroundColor: 'rgba( 0, 0, 0, 0.6 )',
-          zIndex: 2000, justifyContent: 'center', alignItems: 'center',
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0
-        }}>
-        <View style={{ borderRadius: 10, backgroundColor: 'white', padding: 40 }}>
-          <ActivityIndicator size='large' />
+      {props.isLoading &&
+        <View
+          style={{
+            position: 'absolute',
+            backgroundColor: 'rgba( 0, 0, 0, 0.6 )',
+            zIndex: 2000, justifyContent: 'center', alignItems: 'center',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0
+          }}>
+          <View style={{ borderRadius: 10, backgroundColor: 'white', padding: 40 }}>
+            <ActivityIndicator size='large' />
+          </View>
         </View>
-      </View> */}
+      }
 
       <WrapperHeader>
         <TouchableOpacity
@@ -259,8 +289,8 @@ const Screen = (props) => {
                   style={{
                     elevation: 2,
                     borderRadius: 10,
-                    width: width / 2.5,
-                    padding: 20,
+                    width: width / 4,
+                    padding: 5,
                     backgroundColor: 'white',
                     justifyContent: 'center',
                     alignItems: 'center'
@@ -277,8 +307,8 @@ const Screen = (props) => {
                   style={{
                     elevation: 2,
                     borderRadius: 10,
-                    width: width / 2.5,
-                    padding: 20,
+                    width: width / 4,
+                    padding: 5,
                     backgroundColor: 'white',
                     justifyContent: 'center',
                     alignItems: 'center'
@@ -311,8 +341,9 @@ const mapStateToProps = state => {
   return {
     // koor: state.auth.koor,
     session: state.profile.DATA,
-    project: state.project.DATA //arr,
-
+    project: state.project.DATA, //arr,
+    isLoading: state.profile.offline_behaviour.isLoading,
+    hasFinishedLoadOffline: state.profile.offline_behaviour.hasFinishedLoadOffline,
   }
 }
 

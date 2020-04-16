@@ -96,17 +96,21 @@ const Screen = (props) => {
         "description": null,
         "status": "new",
     }
+
     useEffect(() => {
         if (!attendanceData) {
             setAttendanceData(attendance === 'travel' ? default_travel : default_absence)
         }
 
-        if (attendanceData && attendanceData.status === 'new' && attendanceData.checkout_time) {
-            setAttendanceData({
-                ...attendanceData,
-                "checkin_time": null,
-                "checkin_location": null,
-            })
+        if (attendanceData && attendanceData.checkout_time) {
+            //klo ada OUT last, berarti reset
+            setAttendanceData(default_absence)
+
+
+        } else if (attendanceData && !attendanceData.checkout_time) {
+            // kalo tidak ada berarti masih lanjut IN, 
+            setAttendanceData(attendanceData)
+
         }
 
     }, [attendance])
@@ -114,7 +118,7 @@ const Screen = (props) => {
     const [formAttendance, setFormAttendance] = React.useState({
         "attendance_type": attendance,
         "travel_type": '',
-        attendance_time: moment().format('YYYY-MM-DD HH:mm:ss'),
+        attendance_time: null,
         estimation_time: '0',
         "description": '',
         longitude: null,
@@ -177,6 +181,7 @@ const Screen = (props) => {
             await AsyncStorage.setItem('@offline', JSON.stringify(DATA))
             console.log('SAVED @DATA')
 
+            console.log(fakeServerReturn())
             constructNewDataComparator(fakeServerReturn())
 
 
@@ -188,16 +193,16 @@ const Screen = (props) => {
 
     const fakeServerReturn = () => {
 
-        const old_data = formAttendance.attendance_type === 'travel' ? state.latest_travel : state.latest_absence
+        const old_data = attendanceData
 
         return {
             "attendance_type": formAttendance.attendance_type,
 
-            "checkin_location": old_data && !!old_data.checkin_location ? null : formAttendance.location,
-            "checkout_location": old_data && old_data.checkin_time ? formAttendance.location : null,
+            "checkin_location": old_data && !!old_data.checkin_location ? old_data.checkin_location : formAttendance.location,
+            "checkout_location": old_data && old_data.checkout_time ? formAttendance.location : null,
 
-            "checkin_time": old_data && old_data.checkin_time ? null : formAttendance.attendance_time,
-            "checkout_time": old_data && old_data.checkin_time ? formAttendance.attendance_time : null,
+            "checkin_time": old_data && !!old_data.checkin_time ? old_data.checkin_time : formAttendance.attendance_time,
+            "checkout_time": old_data && old_data.checkin_time ? formAttendance.attendance_time : null,      //pengennya jadi
 
             "estimation_time": formAttendance.estimation_time,
             "description": formAttendance.description,
@@ -382,7 +387,7 @@ const Screen = (props) => {
 
 
                         {
-                            !!state.latest_absence && attendanceData.checkin_time &&
+                            attendanceData.checkin_time &&
                             <>
                                 <Divider style={{ marginVertical: 20 }} />
 
@@ -394,7 +399,7 @@ const Screen = (props) => {
 
 
                                         <TextInput
-                                            value={state.latest_absence.checkout_time ? moment(state.latest_absence.checkout_time).format('HH:mm') : moment().format('HH:mm')}
+                                            value={moment().format('HH:mm')}
                                             disabled
                                             mode='outlined'
                                         />
@@ -403,7 +408,7 @@ const Screen = (props) => {
                                         <Text style={{ fontWeight: 'bold' }}>Total</Text>
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <TextInput
-                                                value={calcDuration(moment(), state.latest_absence.checkin_time)}
+                                                value={calcDuration(moment(), attendanceData.checkin_time)}
                                                 disabled
                                                 mode='outlined'
                                             />
@@ -484,7 +489,7 @@ const Screen = (props) => {
                     />
 
 
-                    {!!state.latest_travel && attendanceData.checkin_time &&
+                    {attendanceData.checkin_time &&
                         <>
                             <Divider style={{ marginVertical: 20 }} />
 
@@ -500,7 +505,7 @@ const Screen = (props) => {
                             <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Time Arrival</Text>
                             <Text style={{ color: 'grey' }}>{moment().format('dddd, MMMM Do YYYY')}</Text>
                             <TextInput
-                                value={state.latest_travel.checkout_time ? moment(state.latest_travel.checkout_time).format('HH:mm') : moment().format('HH:mm')}
+                                value={moment().format('HH:mm')}
                                 disabled
                                 mode='outlined'
                             />

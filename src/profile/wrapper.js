@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react'
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions, StatusBar, Image, ScrollView, Alert, AsyncStorage } from 'react-native';
 import { resetAuth } from '../auth/action'
+import { triggerAttendance } from '../attendance/action'
+import { setLoading, setCount, setLoadOffline } from './action'
 import { connect } from 'react-redux'
 import { NetworkContext } from '../../NetworkProvider'
 import { LinearGradient } from 'expo-linear-gradient';
@@ -70,12 +72,21 @@ class WrapperHeader extends PureComponent {
      * bakal pause, kasih loading
      */
     getOfflineStorage = async () => {
-        try {
-            const result = await AsyncStorage.getItem('@offlineAttendance');
+        // tell redux hasFinishedLoadOffline -> false
+        //loading true
+        //number ?
 
-            console.log(result)
+        this.props.setLoadOffline(false)
+        this.props.setLoading(true)
+
+        console.log('offline trigger')
+
+        try {
+            const result = await AsyncStorage.getItem('@offline');
 
             if(result === null) {
+                this.props.setLoadOffline(true)
+                this.props.setLoading(false)
                 //stop loading ?
                 return
             }
@@ -83,6 +94,47 @@ class WrapperHeader extends PureComponent {
             if(result !== null) {
                 //do something
                 console.log('gonna do something')
+
+                // const OFFLINE_DATA = JSON.parse(result).map(item => {
+                //     this.props.triggerAttendance(item.data, item.project_key)
+                // })
+                let count = 0
+
+                for await(const item of JSON.parse(result)) {
+                    console.log('LOOPING', item)
+
+                    const send_attendances = async () => {
+                        console.log('TRIGGER SEND', count)
+                        const doFetch = await this.props.triggerAttendance(item.data, item.project_key)
+
+                        console.log('tehn ')
+                        count = count + 1
+
+
+
+                        //     .catch(e => {
+                        //         console.log(e)
+                        //         send_attendances()
+                        //     })
+                    }
+
+
+                    send_attendances()
+                }
+
+                console.log('finished looping')
+
+                this._deleteComparator().then(() => {
+                    this.props.setLoadOffline(true)
+                    this.props.setLoading(false)
+
+                    console.log('SET LOAD OFFLINE TO TRUE')
+                })
+
+                // delete compartor, try to set new comparator ?
+
+                // tell redux hasFinishedLoadOffline -> true
+
 
                 /**
                  * 
@@ -103,6 +155,7 @@ class WrapperHeader extends PureComponent {
                  * if all complete,[delete project / remove async], delete comparator too ? unpause --> setOnline -> rewash( set new data)--> ke redux ?
                  * 
                  */
+
             }
 
         } catch(error) {
@@ -110,7 +163,21 @@ class WrapperHeader extends PureComponent {
         }
     }
 
-    //setStorage = async () => {}  //stringify
+    _deleteComparator = async () => {
+        try {
+            await AsyncStorage.removeItem('@offline');
+            await AsyncStorage.removeItem('@comparator');
+
+            console.log('ALL DELETED')
+
+        } catch(error) {
+            console.log('error delete comparator')
+            alert('something error ')
+            // Error retrieving data
+        }
+    }
+
+    //setStorageAgain = async () => {}  //stringify
 
     showAlertLogout = () => {
         Alert.alert(
@@ -134,6 +201,19 @@ class WrapperHeader extends PureComponent {
                 <View style={ { height: 80, justifyContent: 'flex-end', zIndex: 1, } }>
                     <Appbar style={ { elevation: 0, justifyContent: 'space-between', width: '100%', borderWidth: 0, backgroundColor: this.state.isOnline ? '#5FA1FC' : 'grey' } }>
                         <View />
+
+
+                        <TouchableOpacity
+                            onPress={ () => this.getOfflineStorage() } // and clear AsyncStorage, CALL ALERT FIRST
+                            style={ { flexDirection: 'row', alignItems: 'center' } }
+                        >
+                            <Text style={ { color: 'white', marginRight: 10, fontWeight: 'bold' } }>DO OFFLINE</Text>
+                            <Image
+                                style={ { height: 24, width: 24, marginRight: 10 } }
+                                source={ require('../../assets/logout.png') }
+                                resizeMode='contain'
+                            />
+                        </TouchableOpacity>
 
                         { this.context.isConnected ?
                             <TouchableOpacity
@@ -159,7 +239,7 @@ class WrapperHeader extends PureComponent {
 }
 
 
-export default connect(null, { resetAuth })(WrapperHeader)
+export default connect(null, { resetAuth, triggerAttendance, setLoading, setCount, setLoadOffline })(WrapperHeader)
 
 
 

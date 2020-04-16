@@ -3,6 +3,12 @@ const initState = {
     DATA: {
         isFetching: null, isStatus: null,
     },
+
+    offline_behaviour: {
+        isLoading: null,
+        hasFinishedLoadOffline: null,
+        count: 0
+    }
 }
 
 
@@ -12,6 +18,14 @@ export default (state = initState, action) => {
 
         case 'RESET_SESSION':
             return initState
+
+        case 'SET_LOADING':
+            return { ...state, offline_behaviour: { ...state.offline_behaviour, isLoading: action.bool } }
+        case 'SET_LOAD_OFFLINE':
+            return { ...state, offline_behaviour: { ...state.offline_behaviour, hasFinishedLoadOffline: action.bool } }
+        case 'SET_COUNT':
+            return { ...state, offline_behaviour: { ...state.offline_behaviour, count: action.count } }
+
 
 
         case 'GET_SESSION_PENDING':

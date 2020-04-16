@@ -2,6 +2,9 @@ import axios from 'axios'
 export const baseURL = "http://api-sulzerabsensi.sobatteknologi.com/api";
 
 
+export const setLoading = bool => dispatch => dispatch({ type: `SET_LOADING`, bool })
+export const setLoadOffline = bool => dispatch => dispatch({ type: `SET_LOADING`, bool })
+export const setCount = count => dispatch => dispatch({ type: `SET_LOADING`, count })
 
 
 export const getSession = () => (dispatch, getState) => {
@@ -65,10 +68,10 @@ export const getAttendanceInfo = (project_key) => (dispatch, getState) => {
             return response
         })
         .catch(error => {
-            // dispatch({
-            //     type: `GET_ATTENDANCE_REJECTED`,
-            //     error
-            // });
+            dispatch({
+                type: `GET_ATTENDANCE_REJECTED`,
+                error
+            });
 
             return { error }
         })
