@@ -4,7 +4,7 @@ import { Surface, Snackbar, Appbar, Avatar, Title, Caption, Button, useTheme, Su
 import { TitleSmall, HeaderGroup, Box, BarConnector, StatusBall, AvatarText } from '../../components/util.component'
 import { connect } from 'react-redux'
 import { getProjects } from '../project/action'
-import { getSession } from './action'
+import { getSession, getAttendanceInfo } from './action'
 import { resetAuth } from '../auth/action'
 import { ModalAttendanceRedux } from '../attendance';
 import OfflineBanner from '../../components/OfflineBanner';
@@ -22,7 +22,6 @@ const Screen = (props) => {
     session,
     // koor,
     navigation } = props;
-  const EMPTY = project.length === 0
 
   const [modal, showModal] = React.useState(false)
 
@@ -35,18 +34,73 @@ const Screen = (props) => {
   }, [])
 
 
-  useEffect(() => {
-    if (project.isStatus) {
-      //kasih loading fullscreen?
-      // console.log(project.list.filter(data => data.project_status === 'ongoing'))
 
-      // map trus gw load attendance ?
-      //dapet attendance data --> langsung compare sama async storage 
 
-      //filter ongoing --> fetch attendancenya 
+
+  const prepareStorageSaving = async () => {
+    console.log('################ PREPARE RUNNING ')
+
+    const ARRAY_PROJECT = project.list.filter(data => data.project_status === 'ongoing')
+
+    let CHECK = []
+
+    for await (const item of ARRAY_PROJECT) {
+      const ARRAY_ATTENDANCES = await props.getAttendanceInfo(item.key)
+
+      const absence_array = ARRAY_ATTENDANCES.data.length > 0 ? ARRAY_ATTENDANCES.data.filter(item => item.attendance_type === 'attendance') : []
+      const travel_array = ARRAY_ATTENDANCES.data.length > 0 ? ARRAY_ATTENDANCES.data.filter(item => item.attendance_type === 'travel') : []
+
+      const newObj = await {
+        ...item,
+        latest_absence: absence_array[absence_array.length - 1],
+        latest_travel: travel_array[travel_array.length - 1],
+      }
+
+      CHECK = [...CHECK, newObj]
     }
 
+    _storeData(CHECK)
+    // .then((x) => console.log(x)) //stop loading ?
+    // console.log(CHECK)
+
+    //kirim ke redux global -> set up new
+
+
+  }
+
+  const _storeData = async (DATA) => {
+    try {
+      await AsyncStorage.setItem('@comparator', JSON.stringify(DATA))
+      console.log('SAVED @home')
+    } catch (e) {
+      console.log(e)
+      alert('Error proses backup')
+      // saving error
+    }
+  }
+
+
+
+  useEffect(() => {
+    if (project.isStatus) {
+
+      //kasih loading fullscreen?
+      if (project.list.length === 0) return
+      prepareStorageSaving()
+
+    }
   }, [project])
+
+
+  const showIsiData = async () => {
+    try {
+      const result = await AsyncStorage.getItem('@comparator');
+      console.log('PARSE HOME: ---> ', JSON.parse(result))
+
+    } catch (error) {
+      // Error retrieving data
+    }
+  }
 
 
 
@@ -69,6 +123,21 @@ const Screen = (props) => {
       </View> */}
 
       <WrapperHeader>
+        <TouchableOpacity
+          onPress={showIsiData}
+          style={{
+            elevation: 2,
+            borderRadius: 10,
+            width: width / 2.5,
+            padding: 20,
+            backgroundColor: 'white',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+
+          <Title style={{ color: theme.colors.primary, marginTop: 5 }}>TEST</Title>
+        </TouchableOpacity>
+
         <View style={{ backgroundColor: 'white', borderRadius: 30, height: height / 2, alignItems: 'center', zIndex: 2, elevation: 4, top: 50, flex: 1, }}>
           {session.isStatus &&
             session.image &&
@@ -200,7 +269,8 @@ const mapStateToProps = state => {
 export const ProfileScreen = connect(mapStateToProps, {
   getProjects,
   getSession,
-  resetAuth
+  resetAuth,
+  getAttendanceInfo,
   //logout
 })(Screen)
 

@@ -43,3 +43,33 @@ export const getSession = () => (dispatch, getState) => {
      * 
      */
 }
+
+
+export const getAttendanceInfo = (project_key) => (dispatch, getState) => {
+    const { token } = getState().auth
+
+    let config = {
+        headers: { "Authorization": token }
+    }
+
+    // dispatch({ type: `GET_ATTENDANCE_PENDING` })
+
+    return axios.get(baseURL + '/my-attendances-project/' + project_key, config)
+
+        .then(response => {
+            // dispatch({
+            //     type: `GET_ATTENDANCE_RESOLVED`,
+            //     data: response.data,
+            //     code: response.status
+            // });
+            return response
+        })
+        .catch(error => {
+            // dispatch({
+            //     type: `GET_ATTENDANCE_REJECTED`,
+            //     error
+            // });
+
+            return { error }
+        })
+}

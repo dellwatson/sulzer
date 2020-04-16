@@ -13,7 +13,6 @@ export const getAttendance = (project_key) => (dispatch, getState) => {
         headers: { "Authorization": token }
     }
 
-
     dispatch({ type: `GET_ATTENDANCE_PENDING` })
 
     return axios.get(baseURL + '/my-attendances-project/' + project_key, config)
@@ -160,7 +159,6 @@ export const getAttendanceTravel = (project_key) => (dispatch, getState) => {
 
 
 export const triggerAttendance = (form, project_key) => (dispatch, getState) => { //update
-    console.log(form)
     const body = new FormData();
     for(const key of Object.keys(form)) {
         body.append(key, form[key]);

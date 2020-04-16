@@ -9,6 +9,9 @@ import { Surface, Snackbar, Appbar, Avatar, Title, Caption, Button, useTheme, Su
 class WrapperHeader extends PureComponent {
     static contextType = NetworkContext;
 
+    state = {
+        isOnline: this.context.isConnected
+    }
 
     doLogout = async () => {
         try {
@@ -19,6 +22,63 @@ class WrapperHeader extends PureComponent {
         }
     }
 
+    // componentDidMount() {
+    //     console.log('HEY DIDMOUNT HERE')
+    // }
+
+
+
+    componentDidUpdate(prevState) {
+
+        // works a connection - listener
+        if(this.context.isConnected && !this.state.isOnline) {
+            console.log('SET ONLINE')
+            // this.setState({ isOnline: true })
+
+            /**
+             * gonna do check reconnect here.
+             * 
+             * mungkin bakal kirim status online ke redux ?
+             * sehingga saat online di home bisa di rewash?
+             */
+
+
+
+
+
+
+        } else if(!this.context.isConnected && this.state.isOnline) {
+            console.log('SET OFFLINE')
+            // this.setState({ isOnline: false })
+
+
+            /**
+             * what to do here
+             */
+        }
+
+    }
+
+    /**
+     * posisi reconnect,
+     * 
+     * bakal pause, kasih loading
+     */
+    showIsiData = async () => {
+        try {
+            const result = await AsyncStorage.getItem('@offlineAttendance');
+            console.log(result)
+            if(result === null) { return }
+            if(result !== null) {
+                //do something
+                console.log('gonna do something')
+            }
+
+
+        } catch(error) {
+            // Error retrieving data
+        }
+    }
 
 
     showAlertLogout = () => {
@@ -41,7 +101,7 @@ class WrapperHeader extends PureComponent {
                 locations={ [0.5, 0.5] }
                 style={ { flex: 1, zIndex: 20 } }>
                 <View style={ { height: 80, justifyContent: 'flex-end', zIndex: 1, } }>
-                    <Appbar style={ { elevation: 0, justifyContent: 'space-between', width: '100%', borderWidth: 0, backgroundColor: this.context.isConnected ? '#5FA1FC' : 'grey' } }>
+                    <Appbar style={ { elevation: 0, justifyContent: 'space-between', width: '100%', borderWidth: 0, backgroundColor: this.state.isOnline ? '#5FA1FC' : 'grey' } }>
                         <View />
 
                         { this.context.isConnected ?

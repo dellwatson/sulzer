@@ -885,23 +885,51 @@ const ModalAttendance = props => {
 
 
 
-    // const saveComparisonData = async (form, message) => {
-    //     try {
-    //         await AsyncStorage.setItem('@comparator', form)
-    //     } catch (e) {
-    //         console.log(e)
-    //         // saving error
-    //     }
-    // }
+    const constructNewDataComparator = async (form, message) => {
+        try {
+            const result = await AsyncStorage.getItem('@comparator');
+
+            const PROJECTS = await JSON.parse(result).map(item => {
+
+                if (item.project_code === project.list[stateIndex].project_code) {
+                    return {
+                        ...item,
+                        ...form.attendance_type === 'attendance' ? { latest_absence: form } : { latest_travel: form }
+                    }
+
+                } else { return item }
+            })
+
+            // console.log(PROJECTS)
+
+            // saveConstructed Array
+            saveNewDataComparator(PROJECTS).then(() => {
+                if (!!message) {
+                    alert(message)
+                    closeModal()
+                }
+            })
+
+        } catch (error) {
+            // Error retrieving data
+        }
+
+    }
+
+    const saveNewDataComparator = async (newArray) => {
+        try {
+            await AsyncStorage.setItem('@comparator', JSON.stringify(newArray))
+        } catch (e) {
+            console.log(e)
+            // saving error
+        }
+    }
 
     React.useEffect(() => {
         if (!update.isFetching && update.isStatus) {
+
             //save to asyncstorage ?            
-            // saveComparisonData(update.data, update.message)
-
-            if (!!update.message) { alert(update.message) }
-
-            closeModal()
+            constructNewDataComparator(update.data, update.message)
         }
     }, [update])
 
@@ -1115,7 +1143,7 @@ const ModalAttendance = props => {
                         setAttendace(null)
                     }}>
                     <Picker.Item label='Select Project' value={null} />
-                    {project.isStatus && project.list.map((item, i) => <Picker.Item key={i} label={item.project_code} value={item.key} />)}
+                    {project.isStatus && project.list.filter(item => item.project_status === 'ongoing').map((item, i) => <Picker.Item key={i} label={item.project_code} value={item.key} />)}
                 </Picker>
 
 
