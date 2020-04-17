@@ -165,6 +165,12 @@ const Screen = (props) => {
   }
 
 
+  useEffect(() => {
+    if (props.count === props.count_length) {
+      console.log('~~~~~~~~USE EFFECT DETECT UDAH SAMA ~~~~~~~~~~~~~~~~~')
+    }
+
+  }, [props.count])
 
 
   return (
@@ -182,6 +188,7 @@ const Screen = (props) => {
           }}>
           <View style={{ borderRadius: 10, backgroundColor: 'white', padding: 40 }}>
             <ActivityIndicator size='large' />
+            <Text>{`${props.count}/${props.count_length}`}</Text>
           </View>
         </View>
       }
@@ -356,7 +363,9 @@ const mapStateToProps = state => {
     session: state.profile.DATA,
     project: state.project.DATA, //arr,
     isLoading: state.profile.offline_behaviour.isLoading,
+    count: state.profile.offline_behaviour.count,
     hasFinishedLoadOffline: state.profile.offline_behaviour.hasFinishedLoadOffline,
+    count_length: state.profile.length
   }
 }
 

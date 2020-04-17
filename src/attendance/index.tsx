@@ -816,7 +816,7 @@ const ModalApproval = props => {
 
 
 const ModalAttendance = props => {
-    const { open, onClose, project, absence, travel, update } = props
+    const { open, onClose, project, absence, travel, update, isLoading } = props
 
     const [state, setState] = React.useState(null)
     const [stateIndex, setStateIndex] = React.useState(0)
@@ -905,6 +905,7 @@ const ModalAttendance = props => {
             // saveConstructed Array
             saveNewDataComparator(PROJECTS).then(() => {
                 if (!!message) {
+
                     alert(message)
                     closeModal()
                 }
@@ -928,8 +929,10 @@ const ModalAttendance = props => {
     React.useEffect(() => {
         if (!update.isFetching && update.isStatus) {
 
-            //save to asyncstorage ?            
-            constructNewDataComparator(update.data, update.message)
+            //save to asyncstorage ?    
+            if (!isLoading) { //for offline method
+                constructNewDataComparator(update.data, update.message)
+            }
         }
     }, [update])
 
@@ -1558,7 +1561,7 @@ const mapStateToProps = state => {
         staff_attendance: state.attendance.STAFF,
         accept_status: state.attendance.ACCEPT,
         edit_status: state.attendance.EDIT,
-
+        isLoading: state.profile.offline_behaviour.isLoading,
         person: state.attendance.PERSON
     }
 }

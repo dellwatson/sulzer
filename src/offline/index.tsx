@@ -27,23 +27,6 @@ const Screen = (props) => {
 
     const [attendance, setAttendace] = React.useState(null)
     const [attendanceData, setAttendanceData] = React.useState(null)
-    //     "attendance_type": "attendance",
-    // "checkin_time": null,
-    // "checkout_time": null,
-    // "estimation_time": null,
-    // "checkin_latitude": null,
-    // "checkout_latitude": null,
-    // "checkin_longitude": null,
-    // "checkout_longitude": null,
-    // "checkin_location": null,
-    // "checkout_location": null,
-    // "description": null,
-    // "status": "new",
-    // "revision_version": null,
-    // "revision_time": null,
-    // "accepted": false,
-    // "accepted_time": null,
-    // })
 
 
     useEffect(() => {

@@ -2,7 +2,11 @@ import React, { PureComponent } from 'react'
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions, StatusBar, Image, ScrollView, Alert, AsyncStorage } from 'react-native';
 import { resetAuth } from '../auth/action'
 import { triggerAttendance } from '../attendance/action'
-import { setLoading, setCount, setLoadOffline } from './action'
+import {
+    setLoading, setCount, setLoadOffline,
+    setCountLength,
+    // triggerAttendance
+} from './action'
 import { connect } from 'react-redux'
 import { NetworkContext } from '../../NetworkProvider'
 import { LinearGradient } from 'expo-linear-gradient';
@@ -49,7 +53,7 @@ class WrapperHeader extends PureComponent {
 
 
             // * setState pause ?
-            // getOfflineStorage()
+            this.getOfflineStorage()
 
 
 
@@ -107,34 +111,31 @@ class WrapperHeader extends PureComponent {
                 //do something
                 console.log('gonna do something')
 
-                // const OFFLINE_DATA = JSON.parse(result).map(item => {
-                //     this.props.triggerAttendance(item.data, item.project_key)
-                // })
-                let count = 0
+                const ARR = JSON.parse(result)
 
-                for await(const item of JSON.parse(result)) {
+                this.props.setCount(0)
+                this.props.setCountLength(ARR.length)
+
+                for await(const item of ARR) {
                     console.log('LOOPING', item)
 
-                    const send_attendances = async () => {
-                        console.log('TRIGGER SEND', count)
-                        await this.props.triggerAttendance(item.data, item.project_key)
+                    await this.props.triggerAttendance(item.data, item.project_key).then(() => {
+                        //actually delete per here
 
-                        console.log('tehn ')
-                        count = count + 1
+                        this.props.setCount(this.props.count + 1)
 
+                        console.log('then then ==========================')
+                    })
 
+                    console.log('END OF FOR', this.props.count)
 
-                        //     .catch(e => {
-                        //         console.log(e)
-                        //         send_attendances()
-                        //     })
-                    }
-
-
-                    send_attendances()
                 }
 
-                console.log('finished looping')
+                console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@finished looping')
+
+                if(this.props.count === ARR.length) {
+                    console.log('UDAH SAMA NIH')
+                }
 
                 this._deleteComparator().then(() => {
                     this.props.setLoadOffline(true)
@@ -249,8 +250,12 @@ class WrapperHeader extends PureComponent {
     }
 }
 
-
-export default connect(null, { resetAuth, triggerAttendance, setLoading, setCount, setLoadOffline })(WrapperHeader)
+const mapStateToProps = state => {
+    return {
+        count: state.profile.offline_behaviour.count,
+    }
+}
+export default connect(mapStateToProps, { resetAuth, triggerAttendance, setLoading, setCount, setLoadOffline, setCountLength })(WrapperHeader)
 
 
 

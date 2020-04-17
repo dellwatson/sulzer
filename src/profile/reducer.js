@@ -8,7 +8,9 @@ const initState = {
         isLoading: null,
         hasFinishedLoadOffline: null,
         count: 0
-    }
+    },
+
+    length: 0
 }
 
 
@@ -25,6 +27,9 @@ export default (state = initState, action) => {
             return { ...state, offline_behaviour: { ...state.offline_behaviour, hasFinishedLoadOffline: action.bool } }
         case 'SET_COUNT':
             return { ...state, offline_behaviour: { ...state.offline_behaviour, count: action.count } }
+
+        case 'SET_COUNT_LENGTH':
+            return { ...state, length: action.count }
 
 
 
