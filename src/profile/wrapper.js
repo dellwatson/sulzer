@@ -26,7 +26,7 @@ class WrapperHeader extends PureComponent {
         try {
             await AsyncStorage.removeItem('@login');
             await this.props.resetAuth()
-        } catch(error) {
+        } catch (error) {
             // Error retrieving data
         }
     }
@@ -40,7 +40,7 @@ class WrapperHeader extends PureComponent {
     componentDidUpdate(prevState, prevProps) {
 
         // works a connection - listener
-        if(this.context.isConnected && !this.state.isOnline) {
+        if (this.context.isConnected && !this.state.isOnline) {
             console.log('SET ONLINE')
             this.setState({ isOnline: true })
 
@@ -58,7 +58,7 @@ class WrapperHeader extends PureComponent {
 
 
 
-        } else if(!this.context.isConnected && this.state.isOnline) {
+        } else if (!this.context.isConnected && this.state.isOnline) {
             console.log('SET OFFLINE')
             this.setState({ isOnline: false })
 
@@ -100,14 +100,14 @@ class WrapperHeader extends PureComponent {
         try {
             const result = await AsyncStorage.getItem('@offline');
 
-            if(result === null) {
+            if (result === null) {
                 this.props.setLoadOffline(true)
                 this.props.setLoading(false)
                 //stop loading ?
                 return
             }
 
-            if(result !== null) {
+            if (result !== null) {
                 //do something
                 console.log('gonna do something')
 
@@ -116,7 +116,7 @@ class WrapperHeader extends PureComponent {
                 this.props.setCount(0)
                 this.props.setCountLength(ARR.length)
 
-                for await(const item of ARR) {
+                for await (const item of ARR) {
                     console.log('LOOPING', item)
 
                     await this.props.triggerAttendance(item.data, item.project_key).then(() => {
@@ -133,7 +133,7 @@ class WrapperHeader extends PureComponent {
 
                 console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@finished looping')
 
-                if(this.props.count === ARR.length) {
+                if (this.props.count === ARR.length) {
                     console.log('UDAH SAMA NIH')
                 }
 
@@ -170,7 +170,7 @@ class WrapperHeader extends PureComponent {
 
             }
 
-        } catch(error) {
+        } catch (error) {
             // Error retrieving data
         }
     }
@@ -182,7 +182,7 @@ class WrapperHeader extends PureComponent {
 
             console.log('ALL DELETED')
 
-        } catch(error) {
+        } catch (error) {
             console.log('error delete comparator')
             alert('something error ')
             // Error retrieving data
@@ -207,13 +207,13 @@ class WrapperHeader extends PureComponent {
     render() {
         return (
             <LinearGradient
-                colors={ [this.context.isConnected ? '#5FA1FC' : 'grey', '#EDEFF1'] }
-                locations={ [0.5, 0.5] }
-                style={ { flex: 1, zIndex: 20 } }>
-                <View style={ { height: 80, justifyContent: 'flex-end', zIndex: 1, } }>
-                    <Appbar style={ { elevation: 0, justifyContent: 'space-between', width: '100%', borderWidth: 0, backgroundColor: this.state.isOnline ? '#5FA1FC' : 'grey' } }>
+                colors={[this.context.isConnected ? '#5FA1FC' : 'grey', '#EDEFF1']}
+                locations={[0.5, 0.5]}
+                style={{ flex: 1, zIndex: 20 }}>
+                <View style={{ height: 80, justifyContent: 'flex-end', zIndex: 1, }}>
+                    <Appbar style={{ elevation: 0, justifyContent: 'space-between', width: '100%', borderWidth: 0, backgroundColor: this.state.isOnline ? '#5FA1FC' : 'grey' }}>
                         <View />
-
+                        {/* 
 
                         <TouchableOpacity
                             onPress={ () => this.getOfflineStorage() } // and clear AsyncStorage, CALL ALERT FIRST
@@ -225,26 +225,26 @@ class WrapperHeader extends PureComponent {
                                 source={ require('../../assets/logout.png') }
                                 resizeMode='contain'
                             />
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
-                        { this.context.isConnected ?
+                        {this.context.isConnected ?
                             <TouchableOpacity
-                                onPress={ () => this.showAlertLogout() } // and clear AsyncStorage, CALL ALERT FIRST
-                                style={ { flexDirection: 'row', alignItems: 'center' } }
+                                onPress={() => this.showAlertLogout()} // and clear AsyncStorage, CALL ALERT FIRST
+                                style={{ flexDirection: 'row', alignItems: 'center' }}
                             >
-                                <Text style={ { color: 'white', marginRight: 10, fontWeight: 'bold' } }>Logout</Text>
+                                <Text style={{ color: 'white', marginRight: 10, fontWeight: 'bold' }}>Logout</Text>
                                 <Image
-                                    style={ { height: 24, width: 24, marginRight: 10 } }
-                                    source={ require('../../assets/logout.png') }
+                                    style={{ height: 24, width: 24, marginRight: 10 }}
+                                    source={require('../../assets/logout.png')}
                                     resizeMode='contain'
                                 />
                             </TouchableOpacity>
                             :
-                            <Text style={ { color: 'white', marginRight: 10, fontWeight: 'bold', letterSpacing: 2 } }>Offline</Text>
+                            <Text style={{ color: 'white', marginRight: 10, fontWeight: 'bold', letterSpacing: 2 }}>Offline</Text>
                         }
                     </Appbar>
                 </View>
-                { this.props.children }
+                {this.props.children}
             </LinearGradient>
         )
     }

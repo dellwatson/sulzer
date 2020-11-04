@@ -9,14 +9,14 @@ export class NetworkProvider extends React.PureComponent {
     };
 
     componentDidMount() {
-        NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
+        NetInfo.addEventListener(this.handleConnectivityChange);
     }
 
     componentWillUnmount() {
-        NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
+        NetInfo.removeEventListener(this.handleConnectivityChange);
     }
 
-    handleConnectivityChange = isConnected => this.setState({ isConnected });
+    handleConnectivityChange = state => this.setState({ isConnected: state.isConnected });
 
     render() {
         return (
@@ -26,3 +26,23 @@ export class NetworkProvider extends React.PureComponent {
         );
     }
 }
+
+// componentDidMount() {
+//     NetInfo.addEventListener(this.handleConnectivityChange);
+
+//     // The fetch is not needed as the listen will send the current state when you subscribe to it
+//   }
+
+//   componentWillUnmount() {
+//     NetInfo.removeEventListener(this.handleConnectivityChange);
+//   }
+
+//   handleConnectivityChange = state => {
+//     if (state.isConnected) {
+//       Alert.alert('online');
+//       this.setState({connection_Status: 'Online'});
+//     } else {
+//       Alert.alert('offline');
+//       this.setState({connection_Status: 'Offline'});
+//     }
+//   };

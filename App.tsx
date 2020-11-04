@@ -20,12 +20,11 @@ enableScreens();
 // sobat-teknologi-zj
 
 Sentry.init({
-  dsn: 'https://867ea11902384157b3a54708cca5bd5c@sentry.io/5184801',
-  enableInExpoDevelopment: true,
+  dsn: 'https://6c9da29c87354bfa82826cabf5bea95b@o232488.ingest.sentry.io/5503765',
+  enableInExpoDevelopment: false,
   debug: true
 });
 
-Sentry.setRelease(Constants.manifest.version);
 
 
 const theme = {

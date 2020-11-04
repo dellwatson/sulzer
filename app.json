@@ -3,11 +3,10 @@
     "name": "Sulzer",
     "slug": "absensi-app",
     "privacy": "public",
-    "sdkVersion": "36.0.0",
     "platforms": [
       "android"
     ],
-    "version": "0.4.8",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -30,9 +29,9 @@
         {
           "file": "sentry-expo/upload-sourcemaps",
           "config": {
-            "organization": "sobat-teknologi-zj",
+            "organization": "dale-watson",
             "project": "sulzer",
-            "authToken": "907d52370d274532b7b31351b7d63151da64a1f759f745ea80b797913e4bd57d"
+            "authToken": "6fd06255579d4b7cbae219fa4af877b4da46c69b9d48426b8a3ae1ba3ddee4a5"
           }
         }
       ]

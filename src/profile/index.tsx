@@ -196,7 +196,7 @@ const Screen = (props) => {
       <WrapperHeader
         getCompareData={() => getCompareDataAgain()}
       >
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={showIsiData}
           style={{
             elevation: 2,
@@ -234,7 +234,7 @@ const Screen = (props) => {
             alignItems: 'center'
           }}>
           <Title style={{ color: theme.colors.primary, marginTop: 5 }}>delete data offline</Title>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <View style={{ backgroundColor: 'white', borderRadius: 30, height: height / 2, alignItems: 'center', zIndex: 2, elevation: 4, top: 50, flex: 1, }}>
           {session.isStatus &&
@@ -304,40 +304,52 @@ const Screen = (props) => {
               }}>
 
               {/* <ButtonWrapper navigation={props.navigation}> */}
-              <TouchableOpacity
-                onPress={() => props.navigation.navigate('Project')}
-                style={{
-                  elevation: 2,
-                  borderRadius: 10,
-                  width: width / 4,
-                  padding: 5,
-                  backgroundColor: 'white',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                <Image
-                  resizeMode='contain'
-                  source={require('../../assets/project_ic.png')} />
-                <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Project</Title>
-              </TouchableOpacity>
+              <View style={{
+                flexDirection: 'row',
+                width: '100%'
+              }}>
+
+                <TouchableOpacity
+                  onPress={() => props.navigation.navigate('Project')}
+                  style={{
+                    elevation: 2,
+                    borderRadius: 10,
+                    flex: 1,
+                    padding: 5,
+                    backgroundColor: 'white',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginHorizontal: 5
+                  }}>
+                  <Image
+                    resizeMode='contain'
+                    source={require('../../assets/project_ic.png')} />
+                  <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Project</Title>
+                </TouchableOpacity>
 
 
-              <TouchableOpacity
-                onPress={() => showModal(true)}
-                style={{
-                  elevation: 2,
-                  borderRadius: 10,
-                  width: width / 4,
-                  padding: 5,
-                  backgroundColor: 'white',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                <Image
-                  resizeMode='contain'
-                  source={require('../../assets/attendance_ic.png')} />
-                <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Attendance</Title>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => showModal(true)}
+                  style={{
+                    elevation: 2,
+                    borderRadius: 10,
+                    padding: 5,
+                    backgroundColor: 'white',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flex: 1,
+                    marginHorizontal: 5
+
+
+                  }}>
+                  <Image
+                    resizeMode='contain'
+                    source={require('../../assets/attendance_ic.png')} />
+                  <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Attendance</Title>
+                </TouchableOpacity>
+
+              </View>
+
               {/* </ButtonWrapper> */}
 
             </ScrollView>
