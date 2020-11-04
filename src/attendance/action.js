@@ -161,7 +161,7 @@ export const getAttendanceTravel = (project_key) => (dispatch, getState) => {
 export const triggerAttendance = (form, project_key) => (dispatch, getState) => { //update
     console.log('~~~~~~~~~~~~~~~~~FETCHING TRIGGGEERR')
     const body = new FormData();
-    for(const key of Object.keys(form)) {
+    for (const key of Object.keys(form)) {
         body.append(key, form[key]);
     }
 
@@ -178,8 +178,9 @@ export const triggerAttendance = (form, project_key) => (dispatch, getState) => 
         body
     })
         .then(res => {
-            if(!res.ok) { throw new Error('Error ') }
-            if(res.status >= 400) { throw Error('Error') }
+            console.log(res, 'res')
+            if (!res.ok) { throw new Error('Error ') }
+            if (res.status >= 400) { throw Error('Error') }
             return res.json()
         })
         .then(response => {
@@ -188,10 +189,10 @@ export const triggerAttendance = (form, project_key) => (dispatch, getState) => 
                 data: response,
             })
 
-            console.log('RESOLLVEE BABY')
             return response
         })
         .catch(err => {
+
             dispatch({
                 type: `TRIGGER_ATTENDANCE_REJECTED`,
                 err
@@ -211,8 +212,9 @@ export const acceptAttendance = (staff_key) => (dispatch, getState) => { //STAFF
         },
     })
         .then(res => {
-            if(!res.ok) { throw new Error('Error ') }
-            if(res.status >= 400) { throw Error('Error') }
+
+            if (!res.ok) { throw new Error('Error ') }
+            if (res.status >= 400) { throw Error('Error') }
             return res.json()
         })
         .then(response => {
@@ -224,6 +226,7 @@ export const acceptAttendance = (staff_key) => (dispatch, getState) => { //STAFF
             return response
         })
         .catch(err => {
+            console.log(err, 'ERROR')
             dispatch({
                 type: `ACCEPT_ATTENDANCE_REJECTED`,
                 err
@@ -235,7 +238,7 @@ export const editAttendance = (form, attendance_key) => (dispatch, getState) => 
 
     const body = new FormData();
 
-    for(const key of Object.keys(form)) {
+    for (const key of Object.keys(form)) {
         body.append(key, form[key]);
     }
 
@@ -252,8 +255,8 @@ export const editAttendance = (form, attendance_key) => (dispatch, getState) => 
         body
     })
         .then(res => {
-            if(!res.ok) { throw new Error('Error ') }
-            if(res.status >= 400) { throw Error('Error') }
+            if (!res.ok) { throw new Error('Error ') }
+            if (res.status >= 400) { throw Error('Error') }
             return res.json()
         })
         .then(response => {

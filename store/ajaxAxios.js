@@ -30,6 +30,8 @@ export const getRequest = (url, action, withAuthorization = false, payload) => (
             return response
         })
         .catch(error => {
+            console.log(error, 'ERROR MAIN')
+
             dispatch({
                 type: `${action}_REJECTED`,
                 error
@@ -56,7 +58,7 @@ export const postRequest = (url, action, withAuthorization = false, params) => (
 
     const body = new FormData();
 
-    for(const key of Object.keys(payload)) {
+    for (const key of Object.keys(payload)) {
         body.append(key, payload[key]);
     }
 
@@ -72,6 +74,7 @@ export const postRequest = (url, action, withAuthorization = false, params) => (
             return response
         })
         .catch(error => {
+            console.log(error, 'ERROR MAIN')
             dispatch({
                 type: `${action}_REJECTED`,
                 error

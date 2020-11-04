@@ -303,42 +303,42 @@ const Screen = (props) => {
                 paddingHorizontal: '5%'
               }}>
 
-              <ButtonWrapper navigation={props.navigation}>
-                <TouchableOpacity
-                  onPress={() => props.navigation.navigate('Project')}
-                  style={{
-                    elevation: 2,
-                    borderRadius: 10,
-                    width: width / 4,
-                    padding: 5,
-                    backgroundColor: 'white',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                  }}>
-                  <Image
-                    resizeMode='contain'
-                    source={require('../../assets/project_ic.png')} />
-                  <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Project</Title>
-                </TouchableOpacity>
+              {/* <ButtonWrapper navigation={props.navigation}> */}
+              <TouchableOpacity
+                onPress={() => props.navigation.navigate('Project')}
+                style={{
+                  elevation: 2,
+                  borderRadius: 10,
+                  width: width / 4,
+                  padding: 5,
+                  backgroundColor: 'white',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                <Image
+                  resizeMode='contain'
+                  source={require('../../assets/project_ic.png')} />
+                <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Project</Title>
+              </TouchableOpacity>
 
 
-                <TouchableOpacity
-                  onPress={() => showModal(true)}
-                  style={{
-                    elevation: 2,
-                    borderRadius: 10,
-                    width: width / 4,
-                    padding: 5,
-                    backgroundColor: 'white',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                  }}>
-                  <Image
-                    resizeMode='contain'
-                    source={require('../../assets/attendance_ic.png')} />
-                  <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Attendance</Title>
-                </TouchableOpacity>
-              </ButtonWrapper>
+              <TouchableOpacity
+                onPress={() => showModal(true)}
+                style={{
+                  elevation: 2,
+                  borderRadius: 10,
+                  width: width / 4,
+                  padding: 5,
+                  backgroundColor: 'white',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                <Image
+                  resizeMode='contain'
+                  source={require('../../assets/attendance_ic.png')} />
+                <Title style={{ color: theme.colors.primary, marginTop: 5 }}>Attendance</Title>
+              </TouchableOpacity>
+              {/* </ButtonWrapper> */}
 
             </ScrollView>
           }
